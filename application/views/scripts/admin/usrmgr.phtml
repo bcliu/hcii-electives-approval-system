@@ -25,7 +25,7 @@
         <div style='overflow: auto; max-height:80%'>
 
             <?php if ($this->type != "admin") { ?>
-            <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter students' type="text" class="form-control">
+            <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
             <?php } ?>
 
             <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
@@ -388,8 +388,7 @@
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Not satisfied</button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="javascript: ;">Satisfied</a></li>
-                                    <li><a href="javascript: ;">Not satisfied</a></li>
+                                    <?= $this->produceList(['Satisfied', 'Not satisfied']) ?>
                                 </ul>
                             </div>
                         </td>
@@ -519,9 +518,7 @@
                             <span id='dialog-semester-semester' class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="javascript: ;">Spring</a></li>
-                                    <li><a href="javascript: ;">Fall</a></li>
-                                    <li><a href="javascript: ;">Summer</a></li>
+                                    <?= $this->produceList(['Spring', 'Fall', 'Summer']) ?>
                                 </ul>
                             </span>
                             <span id='dialog-semester-year' class="btn-group">
@@ -591,17 +588,11 @@
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Core</button>
                                 <ul class="dropdown-menu" role="menu">
                                     <?php if ($this->type == "ugminor") { ?>
-                                        <li><a href="javascript: ;">Elective</a></li>
-                                        <li><a href="javascript: ;">Prerequisite</a></li>
-                                        <li><a href="javascript: ;">Core</a></li>
+                                        <?= $this->produceList(['Elective', 'Prerequisite', 'Core']) ?>
                                     <?php } else if ($this->type == "bhci") { ?>
-                                        <li><a href="javascript: ;">Restricted application elective</a></li>
-                                        <li><a href="javascript: ;">Free elective</a></li>
-                                        <li><a href="javascript: ;">Core</a></li>
-                                        <li><a href="javascript: ;">Prerequisite</a></li>
+                                        <?= $this->produceList(['Restricted application elective', 'Free elective', 'Core', 'Prerequisite']) ?>
                                     <?php } else if ($this->type == "mhci") { ?>
-                                        <li><a href="javascript: ;">Elective</a></li>
-                                        <li><a href="javascript: ;">Core</a></li>
+                                        <?= $this->produceList(['Elective', 'Core']) ?>
                                     <?php } ?>
                                 </ul>
                             </span>
@@ -622,9 +613,7 @@
                             <span id='modal-add-course-semester' class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="javascript: ;">Spring</a></li>
-                                    <li><a href="javascript: ;">Fall</a></li>
-                                    <li><a href="javascript: ;">Summer</a></li>
+                                    <?= $this->produceList(['Spring', 'Fall', 'Summer']) ?>
                                 </ul>
                             </span>
                             <span id='modal-add-course-year' class="btn-group">
