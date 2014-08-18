@@ -1,0 +1,25 @@
+<div id='login'>
+    <div id='login-inner'>
+        <div class="panel panel-default" style='margin-top: 20px'>
+            <div class="panel-heading bold" style='font-size: 17px; text-align: center'>Change password of <strong><?= $this->andrewId ?></strong></div>
+            <div class="panel-body">
+                <?php if ($this->passwords_error) { ?>
+                    <div style='width: 300px; margin-left: auto; margin-right: auto' class="alert alert-danger">Passwords do not match</div>
+                <?php } ?>
+                <form action="" method="post">
+                    <div class="form-input">
+                        <input type="password" name='password' placeholder='Password' class="form-control">
+                    </div>
+
+                    <div class="form-input">
+                        <input type="password" name='repeat' placeholder='Repeat' class="form-control">
+                    </div>
+
+                    <div style='width: 300px; margin-left: auto; margin-right: auto; margin-top: 20px'>
+                        <button style='width: 300px;' class='btn btn-info' type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

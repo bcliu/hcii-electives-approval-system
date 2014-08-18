@@ -1,0 +1,14 @@
+<div class="panel panel-default" style='margin-top: 200px; width: 400px; margin-left: auto; margin-right: auto; font-size: 16px'>
+  <div class="panel-body">
+    Your credentials do not match any user in EASy. Please make sure to use <b>Carnegie Mellon University</b> as <b>Identity Provider</b> and try to log in again. If the problem persists, please contact the advisors.<br /><br />
+You will be logged out in 15 seconds. You can also manually <a href="/Shibboleth.sso/Logout">log out</a>.
+  </div>
+</div>
+
+<script>
+
+  setTimeout(function () {
+      window.location = "/Shibboleth.sso/Logout";
+    }, 15000);
+
+</script>

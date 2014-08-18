@@ -1,0 +1,85 @@
+<div class="row main-row" style='height: 100%; width: 1024px'>
+    <div id='div-student-info' class="col-sm-5" style='height: 100%'>
+        <h3>My Info</h3>
+        <table class='table'>
+            <tr>
+                <td style='width:200px'><b>Name</b></td>
+                <td><?= $this->info->name ?></td>
+            </tr>
+            <tr>
+                <td><b>Andrew ID</b></td>
+                <td><?= $this->info->andrew_id ?></td>
+            </tr>
+            <tr>
+                <td><b>Status</b></td>
+                <td><?= ucfirst($this->info->status) ?></td>
+            </tr>
+            <tr>
+                <td><b>FT/PT</b></td>
+                <td><?php if ($this->info->is_full_time == '0') echo "Part Time"; else echo "Full Time"; ?></td>
+            </tr>
+            <tr>
+                <td><b>Program</b></td>
+                <td><?php if ($this->info->program == "ugminor") echo "Undergraduate Minor"; else echo strtoupper($this->info->program); ?></td>
+            </tr>
+            <tr>
+                <td><b>Entered Program</b></td>
+                <td><?= $this->info->enroll_date ?></td>
+            </tr>
+            <tr>
+                <td><b>Expected Graduation</b></td>
+                <td><?= $this->info->graduation_date ?></td>
+            </tr>
+            <tr>
+                <td><b>Primary Major</b></td>
+                <td><?= $this->info->major ?></td>
+            </tr>
+        </table>
+        
+        Incorrect information? <a id='link-problem' href='javascript:;'>Request correction</a>.
+        
+        <div id='div-request-correction' style='margin-top:20px; display:none'>
+            <textarea class='form-control' placeholder='Write your request to the advisor here'></textarea>
+            <button style='margin-top:10px;float:right' class='btn btn-warning'>Request Correction</button>
+        </div>
+    </div>
+    
+    <div class='col-sm-7'>
+        <h3>&nbsp;</h3>
+        <h5>You have finished <label id='cores-taken'><?= $this->coresTaken ?></label> core course(s), and need another <label id='cores-left'><?= $this->totalCores - $this->coresTaken ?></label> to graduate.<label class='electives-progress'><?= "{$this->coresTaken}/{$this->totalCores}" ?></label></h5>
+        <div id='cores-progress-bar' class="progress">
+            <div class="progress-bar progress-bar-info" role="progressbar"></div>
+        </div>
+        
+        <?php if ($this->type == 'mhci' || $this->type == 'ugminor') { ?>
+
+        <h5 style='margin-top:40px'>You have finished <label id='electives-taken'><?= $this->electivesTaken ?></label> elective(s)<?php if ($this->totalElectives != -1) { ?>, and need another <label id='electives-left'><?= $this->totalElectives - $this->electivesTaken ?></label> to graduate.<label class='electives-progress'><?= "{$this->electivesTaken}/{$this->totalElectives}" ?></label></h5>
+        <div id='electives-progress-bar' class="progress">
+            <div class="progress-bar progress-bar-info" role="progressbar"></div>
+        </div><?php } else { ?>.<?php } ?>
+
+        <?php } else if ($this->type == 'bhci') { ?>
+
+        <h5 style='margin-top:40px'>You have finished <label id='application-electives-taken'><?= $this->applicationElectivesTaken ?></label> restricted application elective(s)<?php if ($this->totalApplicationElectives != -1) { ?>, and need another <label id='application-electives-left'><?= $this->totalApplicationElectives - $this->applicationElectivesTaken ?></label> to graduate.<label class='electives-progress'><?= "{$this->applicationElectivesTaken}/{$this->totalApplicationElectives}" ?></label></h5>
+        <div id='application-electives-progress-bar' class="progress">
+            <div class="progress-bar progress-bar-info" role="progressbar"></div>
+        </div><?php } else { ?>.<?php } ?>
+
+        <?php if ($this->type == 'bhci') { ?>
+
+        <h5 style='margin-top:40px'>You have finished <label id='free-electives-taken'><?= $this->freeElectivesTaken ?></label> free elective(s)<?php if ($this->totalFreeElectives != -1) { ?>, and need another <label id='free-electives-left'><?= $this->totalFreeElectives - $this->freeElectivesTaken ?></label> to graduate.<label class='electives-progress'><?= "{$this->freeElectivesTaken}/{$this->totalFreeElectives}" ?></label></h5>
+        <div id='free-electives-progress-bar' class="progress">
+            <div class="progress-bar progress-bar-info" role="progressbar"></div>
+        </div><?php } else { ?>.<?php } ?>
+
+        <?php } } ?>
+        
+        <?php if ($this->coursesSubmitted != 0) { ?>
+            <h5 style='margin-top:40px'><label><?= $this->coursesSubmitted ?></label> submitted course<?= ($this->coursesSubmitted == 1 ? " is" : "s are") ?> currently under review.</h5>
+        <?php } ?>
+
+        <?php if ($this->clarificationNeeded != 0) { ?>
+            <h5 style='margin-top:10px'><label><?= $this->clarificationNeeded ?></label> course<?= ($this->clarificationNeeded == 1 ? " needs" : "s need") ?> additional clarification.</h5>
+        <?php } ?>
+    </div>
+</div>

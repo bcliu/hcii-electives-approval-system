@@ -1,0 +1,66 @@
+<div id='new-course' style='display:table; min-height:95%; width:100%; text-align:center'>
+    <div id='new-course-inner' style='display:table-cell; vertical-align:middle'>
+        <div class="panel panel-default" style='width: 480px; margin-left: auto; margin-right: auto'>
+            <div class="panel-heading bold" style='font-size: 17px; text-align: center'>Submit New Elective</div>
+            <div class="panel-body">
+                <?php if ($this->submission_error) { ?>
+                <span class="alert alert-danger">Format error</span>
+                <?php } ?>
+                
+                <?php if ($this->submitted) { ?>
+                <div class="alert alert-success" style='width: 400px; margin-left: auto; margin-right: auto'>Course submitted successfully</div>
+                <?php } ?>
+                
+                <form action="" method="post">
+                    <div class="input-group" style='margin-top:30px'>
+                        <span class="input-group-addon">Course Number</span>
+                        <input type="text" name='course-number' class="form-control" placeholder="XX-XXX">
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="input-group-addon">Course Name</span>
+                        <input type="text" name='course-name' class="form-control">
+                    </div>
+                    
+                    <div class="input-group">
+                        <span class="input-group-addon">Units</span>
+                        <input type="text" name='units' class="form-control">
+                    </div>
+
+                    <?php if ($this->type == "mhci" || $this->type == "bhci") { ?>
+                    <div class="input-group">
+                        <span class="input-group-addon">Type</span>
+                        <?php if ($this->type == "mhci") { ?>
+                        <span class="btn-group" id='buttons-taking-as' data-toggle="buttons" style='float: left'>
+                            <label class="btn btn-default" style='border-top-left-radius: 0; border-bottom-left-radius: 0'>
+                                <input type="radio" name="taking-as" value="elective">Elective
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="taking-as" value="place-out">Place-out
+                            </label>
+                        </span>
+                        <?php } else { ?>
+                        <span class="btn-group" id='buttons-taking-as' data-toggle="buttons" style='float: left'>
+                            <label class="btn btn-default" style='border-top-left-radius: 0; border-bottom-left-radius: 0'>
+                                <input type="radio" name="taking-as" value="free-elective">Free Elective
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="taking-as" value="application-elective">Restricted Application Elective
+                            </label>
+                        </span>
+                        <?php } ?>
+                    </div>
+		    <?php } ?>
+                    
+                    <div class="input-group">
+                        <textarea name='description' class="form-control" placeholder="Course description" rows='3'></textarea>
+                    </div>
+                    
+                    <div style='margin-top: 20px; margin-left: auto; margin-right: auto'>
+                        <button id='submit-new-course' class='btn btn-primary' type="button" style='width: 400px'>Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

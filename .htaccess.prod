@@ -1,0 +1,16 @@
+# Set environment to development if running on localhost,
+# and to production otherwise
+SetEnvIf Host ^localhost$ APPLICATION_ENV development
+SetEnvIf Host ^^((?!localhost).)*$$ APPLICATION_ENV production
+
+RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/easy/public/
+RewriteRule (.*) /easy/public/$1
+#Satisfy Any
+#Allow from all
+
+AuthType Shibboleth
+ShibRequestSetting requireSession 1
+ShibRequestSetting redirectToSSL 443
+#require eppn   ~ .*@andrew.cmu.edu
+require eppn  ~ .*@andrew.cmu.edu|.*@cs.cmu.edu

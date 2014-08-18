@@ -1,0 +1,185 @@
+@font-face {
+    font-family: "carto";
+    src: url("/easy/public/fonts/CartoGothicStd-Book-webfont.woff") format('woff');
+}
+
+@font-face {
+    font-family: "carto";
+    src: url("/easy/public/fonts/CartoGothicStd-Bold-webfont.woff") format('woff');
+    font-weight: bold
+}
+
+a {
+    text-decoration: none !important
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+html,
+body,
+h1, h2, h3, h4, h5, h6 {
+    font-family: carto, Arial, Helvetica, sans-serif
+}
+
+html {
+    overflow-y: scroll;
+}
+
+button {
+    outline: none !important
+}
+
+.modal {
+    overflow-y: auto; /* Hide scrollbar when not overflowing */
+}
+
+.alert {
+    margin-top:20px;
+    margin-bottom:20px;
+}
+
+.badge {
+    background-color: #ed9c28 !important
+}
+
+.navbar-brand {
+    font-family: cartoBold, Arial, Helvetica, sans-serif
+}
+
+/* For login page */
+#login .panel {
+    width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#login .form-input, #login #bottom-inputs {
+    margin-top: 20px;
+    width: 300px;
+    margin-left:auto;
+    margin-right:auto
+}
+
+#login {
+    min-height: 100%;
+    width: 100%;
+    display:table;
+    background-color: #fcfcfc
+}
+
+#login-inner {
+    display:table-cell;
+    vertical-align:middle
+}
+
+#users-table tbody tr,
+#table-courses tbody tr,
+#panel-place-outs tbody tr,
+#panel-prereqs tbody tr {
+    cursor: pointer;
+}
+
+#user-editor .input-group {
+    margin-bottom:20px;
+}
+
+#new-course .input-group {
+    width:400px;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:10px
+}
+
+.main-row {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Force popover to show content in one line */
+.popover {
+    white-space: nowrap !important
+}
+
+.bold {
+    font-family: cartoBold, Arial, Helvetica, sans-serif !important
+}
+
+.glyphicon {
+    opacity: 0.8 !important
+}
+
+#prgmgr-page .glyphicon {
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.token-input {
+    width: 140px !important;
+}
+
+#prgmgr-page .table>tbody>tr>td {
+    border-top: 0px;
+}
+
+#prgmgr-page .table .index {
+    padding-top: 12px;
+}
+
+.electives-progress {
+    font-size: 14px !important;
+    float:right !important
+}
+
+.user-selected td {
+    background-color: #d9edf7 !important;
+}
+
+/*
+td {
+    -webkit-transition: background-color 0.1s linear;
+    -moz-transition: background-color 0.1s linear;
+    -ms-transition: background-color 0.1s linear;
+    -o-transition: background-color 0.1s linear;
+    transition: background-color 0.1s linear;
+}
+
+#panel-import,
+#panel-filter {
+    opacity: 0.5;
+    -webkit-transition: opacity 0.3s ease;
+    -moz-transition: opacity 0.3s ease;
+    -ms-transition: opacity 0.3s ease;
+    -o-transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease;
+}*/
+
+#panel-import:hover,
+#panel-filter:hover {
+    opacity: 1
+}
+
+table#users-table:not(.admin-table) tbody,
+table#users-table:not(.admin-table) thead {
+    display: block;
+}
+
+table#users-table tbody {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#users-table tbody tr td:nth-child(1),
+#users-table thead tr th:nth-child(1),
+#users-table tbody tr td:nth-child(2),
+#users-table thead tr th:nth-child(2),
+#users-table tbody tr td:nth-child(3),
+#users-table thead tr th:nth-child(3),
+#users-table tbody tr td:nth-child(4),
+#users-table thead tr th:nth-child(4),
+#users-table thead tr th:nth-child(5),
+#users-table tbody tr td:nth-child(5) {
+    width: 50% !important;
+}

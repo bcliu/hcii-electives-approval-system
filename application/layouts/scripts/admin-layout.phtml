@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+
+Created by Chen Liu (CS'16) for Human-Computer Interaction Institute @ CMU
+Hope you'll like it!
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8">
+	<title><?=$this->title ?></title>
+	<script type="text/javascript" src="<?= $this->baseUrl(); ?>/public/js/lib/jquery-2.0.3.min.js"></script>
+    <link href="<?= $this->baseUrl(); ?>/public/css/lib/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="<?= $this->baseUrl(); ?>/public/js/lib/bootstrap-datepicker.js"></script>
+    <link href="<?= $this->baseUrl(); ?>/public/css/lib/datepicker.css" rel="stylesheet">
+    <script src="<?= $this->baseUrl(); ?>/public/js/lib/bootstrap.min.js"></script>
+    <script src="<?= $this->baseUrl(); ?>/public/js/lib/bootstrap-tokenfield.min.js"></script>
+    <link href="<?= $this->baseUrl(); ?>/public/css/lib/bootstrap-tokenfield.min.css" rel="stylesheet">
+    <link href="<?= $this->baseUrl(); ?>/public/css/lib/tokenfield-typeahead.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<?php
+	$this->headLink()->prependStylesheet($this->baseUrl() . '/public/css/global.css');
+	$this->headScript()->prependFile($this->baseUrl() . '/public/js/global.js');
+
+	echo $this->headScript();
+	echo $this->headLink();
+	?>
+</head>
+<body>
+    <?php $currentAction = Zend_Controller_Front::getInstance()->getRequest()->getActionName(); ?>
+    
+    <nav class="navbar navbar-default" role="navigation">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <a class="navbar-brand" href="<?= $this->baseUrl(); ?>">EASy <label style='font-weight:500; color:#bbbbbb; margin-bottom:0px'>Administrator</label></a>
+      </div>
+    
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="<?= ($currentAction == 'usrmgr' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/admin/usrmgr">User Manager</a></li>
+          <li class="<?= ($currentAction == 'prgmgr' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/admin/prgmgr">Program Manager</a></li>
+        </ul>
+    
+        <ul class="nav navbar-nav navbar-right">
+            <p class="navbar-text" style='margin-right: 5px'>Logged in as </p>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><?php
+                  if ($this->name != null && strlen($this->name) != 0) {
+                      echo "<b>{$this->name} </b> ({$this->andrewId})";
+                  } else {
+                      echo $this->andrewId;
+                  } ?>
+                  <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+		<li><a href="<?= $this->baseUrl(); ?>/admin/bhci-view">Switch to BHCI student view</a></li>
+		<li><a href="<?= $this->baseUrl(); ?>/admin/mhci-view">Switch to MHCI student view</a></li>
+		<li><a href="<?= $this->baseUrl(); ?>/admin/ugminor-view">Switch to minor student view</a></li>
+		<li class="divider"></li>
+                <li><a href="<?= $this->baseUrl(); ?>/users/logout">Log out</a></li>
+              </ul>
+            </li>
+        </ul>
+      </div>
+    </nav>
+    
+    <?php echo $this->layout()->content; ?>
+
+    <?php require_once('footer.phtml'); ?>
+</body>
+</html>

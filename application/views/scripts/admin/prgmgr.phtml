@@ -1,0 +1,287 @@
+<div id='requirements-storage' style='display: none'><?= $this->requirements ?></div>
+
+<div class="modal" id='modal-remove-semester'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Remove semester</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure to remove course requirements of <b id='txt-semester-to-remove'></b> semester?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id='btn-remove-semester' type="button" class="btn btn-danger">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id='modal-add-semester'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Add semester</h4>
+      </div>
+      <div class="modal-body">
+        <div style='margin-top: 10px'>
+            <span id="span-new-semester" class="btn-group">
+                <button id='btn-new-semester' type="button" class="btn btn-default dropdown-toggle" style='margin-right: 10px' data-toggle="dropdown">Spring</button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="javascript: ;">Spring</a></li>
+                    <li><a href="javascript: ;">Fall</a></li>
+                    <li><a href="javascript: ;">Summer</a></li>
+                </ul>
+            </span>
+            <input type='number' style='width: 100px; display: inline' class="form-control" placeholder='Year' />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id='btn-add-semester' type="button" class="btn btn-primary">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id='modal-duplicate-semester'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Duplicate semester</h4>
+      </div>
+      <div class="modal-body">
+        Create a copy of course requirements from <b id='txt-semester-to-dup'></b> semester for
+        <div style='margin-top: 10px'>
+            <span id="span-duplicate-semester" class="btn-group">
+                <button id='btn-dup-semester' type="button" class="btn btn-default dropdown-toggle" style='margin-right: 10px' data-toggle="dropdown">Spring</button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="javascript: ;">Spring</a></li>
+                    <li><a href="javascript: ;">Fall</a></li>
+                    <li><a href="javascript: ;">Summer</a></li>
+                </ul>
+            </span>
+            <input type='number' style='width: 100px; display: inline' class="form-control" placeholder='Year' />
+        </div>
+        <h5 style='color: red'>Requirements created previously for this semester will be overwritten.</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button id='btn-duplicate-semester' type="button" class="btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id='prgmgr-page' style='width: 90%; margin-left: auto; margin-right: auto; min-height: calc(100% - 55px)' current-page='<?= $this->program ?>'>
+    <div class="col-sm-12">
+    	<ul class="nav nav-tabs">
+
+            <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/mhci">MHCI</a>
+            </li>
+            
+            <li id='bhci-tab' class='<?= $this->program == "bhci" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/bhci">BHCI</a>
+            </li>
+
+            <li id='ugminor-tab' class='<?= $this->program == "ugminor" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/ugminor">Undergraduate Minor</a>
+            </li>
+
+            <div id='profile-header' style='margin-top: 5px' class='pull-right'>
+                Enrolled in
+                <div id='year-semester' class="btn-group" style='margin-left: 10px'>
+                    <span id='semester' class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="javascript: ;">Spring</a></li>
+                            <li><a href="javascript: ;">Fall</a></li>
+                            <li><a href="javascript: ;">Summer</a></li>
+                        </ul>
+                    </span>
+                    <span id='year' class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">2014</button>
+                        <ul class="dropdown-menu" role="menu"><li><a href="javascript: ;">2013</a></li></ul>
+                    </span>
+                </div>
+                <a href='javascript: ;' id='a-new-semester'>
+                    <span class="glyphicon glyphicon-plus"></span>New semester
+                </a>
+                <a href='javascript: ;' id='a-duplicate-semester'>
+                    <span class="glyphicon glyphicon-file"></span>Duplicate
+                </a>
+                <a href='javascript: ;' id='a-remove-semester'>
+                    <span class="glyphicon glyphicon-remove"></span>Remove
+                </a>
+
+                <span id='save-profile' class="btn-group" style='margin-left: 15px'>
+                    <button type="button" class="btn btn-primary" disabled>Update Program</button>
+                </span>
+            </div>
+        </ul>
+
+        <?php if ($this->program == 'bhci' || $this->program == 'ugminor') { ?>
+
+            <div id="<?= $this->program ?>-pane">
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
+                <table id='table-cores' class='table' type='core'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course name</th>
+                            <th style='width: 50%'>Course numbers <span id='course-number-notice' style='margin-left: 10px' class="glyphicon glyphicon-question-sign"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='tr-add-course'>
+                            <td>&nbsp;</td>
+                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Prerequisites</h4>
+                <table id='table-prerequisite' class='table' type='prerequisite'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course name</th>
+                            <th style='width: 50%'>Course numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='tr-add-course'>
+                            <td>&nbsp;</td>
+                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
+                    <table id='table-electives' class='table' style='width: 0'>
+                        <tbody>
+                            <tr>
+				<td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application" : "") ?> Electives needed: </td>
+                                <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
+                                    <span class="btn-group">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="javascript: ;">No requirement</a></li>
+                                            <li><a href="javascript: ;">1</a></li>
+                                            <li><a href="javascript: ;">2</a></li>
+                                            <li><a href="javascript: ;">3</a></li>
+                                            <li><a href="javascript: ;">4</a></li>
+                                            <li><a href="javascript: ;">5</a></li>
+                                            <li><a href="javascript: ;">6</a></li>
+                                            <li><a href="javascript: ;">7</a></li>
+                                            <li><a href="javascript: ;">8</a></li>
+                                            <li><a href="javascript: ;">9</a></li>
+                                            <li><a href="javascript: ;">10</a></li>
+                                        </ul>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php if ($this->program == 'bhci') { ?>
+                            <tr>
+                                <td style='line-height: 35px'>Number of Free Electives needed: </td>
+                                <td id='num-free-electives'>
+                                    <span class="btn-group">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="javascript: ;">No requirement</a></li>
+                                            <li><a href="javascript: ;">1</a></li>
+                                            <li><a href="javascript: ;">2</a></li>
+                                            <li><a href="javascript: ;">3</a></li>
+                                            <li><a href="javascript: ;">4</a></li>
+                                            <li><a href="javascript: ;">5</a></li>
+                                            <li><a href="javascript: ;">6</a></li>
+                                            <li><a href="javascript: ;">7</a></li>
+                                            <li><a href="javascript: ;">8</a></li>
+                                            <li><a href="javascript: ;">9</a></li>
+                                            <li><a href="javascript: ;">10</a></li>
+                                        </ul>
+                                    </span>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+            </div>
+
+        <?php } else { ?>
+
+            <div id="mhci-pane">
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
+                <table id='table-cores' class='table' type='core'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course name</th>
+                            <th style='width: 50%'>Course numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='tr-add-course'>
+                            <td>&nbsp;</td>
+                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Place-out Courses</h4>
+                <table id='table-place-out' class='table' type='place-out' style='width: 50%'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='tr-add-course'>
+                            <td>&nbsp;</td>
+                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
+                <table id='table-electives' class='table' style='width: 0'>
+                    <tbody>
+                        <tr>
+                            <td style='line-height: 35px'>Number of Electives needed: </td>
+                            <td id='num-electives'>
+                                <span class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li><a href="javascript: ;">No requirement</a></li>
+                                        <li><a href="javascript: ;">1</a></li>
+                                        <li><a href="javascript: ;">2</a></li>
+                                        <li><a href="javascript: ;">3</a></li>
+                                        <li><a href="javascript: ;">4</a></li>
+                                        <li><a href="javascript: ;">5</a></li>
+                                        <li><a href="javascript: ;">6</a></li>
+                                        <li><a href="javascript: ;">7</a></li>
+                                        <li><a href="javascript: ;">8</a></li>
+                                        <li><a href="javascript: ;">9</a></li>
+                                        <li><a href="javascript: ;">10</a></li>
+                                    </ul>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        <?php } ?>
+
+        </div>
+
+    </div>
+</div>

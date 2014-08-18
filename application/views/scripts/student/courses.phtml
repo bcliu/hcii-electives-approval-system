@@ -1,0 +1,83 @@
+<div class="row main-row" style='width: auto; min-width: 1024px; max-width: 90%; min-height: 95%'>
+    <div class="col-sm-12">
+        <table class='table'>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Course name</th>
+                    <th>Course number</th>
+                    <th>Units</th>
+                    <th>Description</th>
+                    <th>Taking as</th>
+                    <th>Submission time</th>
+                    <th>Status</th>
+                    <th>Advisor comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+                $index = 1;
+                foreach ($this->all_courses as $course) { ?>
+                <tr>
+                    <td><?= $index ?></td>
+                    <td><?= $course->course_name ?></td>
+                    <td><?php if ($course->taking_as != 'place-out') echo $course->course_number; ?></td>
+                    <td><?php if ($course->taking_as != 'place-out') echo $course->units; ?></td>
+                    <td><?= $course->course_description ?></td>
+                    <td><?php
+                        switch ($course->taking_as) {
+                            case "free-elective":
+                            echo "Free elective";
+                            break;
+
+                            case "application-elective":
+                            echo "Restricted application elective";
+                            break;
+
+                            default:
+                            echo ucfirst($course->taking_as);
+                        } ?></td>
+                    <td><?php if ($course->taking_as != 'place-out') echo $course->submission_time; ?></td>
+                    <td><?php
+                        switch ($course->status) {
+                            case 'taking':
+                            echo "<span>In progress</span>";
+                            break;
+
+                            case 'taken':
+                            echo "<span class='text-success'>Taken</span>";
+                            break;
+
+                            case 'submitted':
+                            echo "<span class='text-info'>Submitted and under review</span>";
+                            break;
+
+                            case 'rejected':
+                            echo "<span class='text-danger'>Rejected</span>";
+                            break;
+
+                            case 'approved':
+                            echo "<span class='text-success'>Approved but not taken</span>";
+                            break;
+
+                            case 'need-clarification':
+                            echo "<span class='text-warning'>Clarification needed</span>";
+                            break;
+
+                            case 'satisfied':
+                            echo "<span class='text-success'>Satisfied</span>";
+                            break;
+
+                            case 'not-satisfied':
+                            echo "<span class='text-danger'>Not satisfied</span>";
+                            break;
+                        }
+
+                         ?></td>
+                    <td><?php if ($course->taking_as != 'place-out') echo $course->comment; ?></td>
+                </tr>
+                <?php $index++; } ?>
+            </tbody>
+        </table>
+    </div>
+</div>

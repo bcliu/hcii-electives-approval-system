@@ -1,0 +1,32 @@
+<div id='login'>
+    <div id='login-inner'>
+        <div class="panel panel-default" style='margin-top: 20px'>
+            <div class="panel-heading bold" style='font-size: 17px; font-weight: bold; text-align: center'>EASy Login</div>
+            <div class="panel-body">
+                <form action="" method="post">
+                    <?php
+                    if ($this->login_error) {
+                    ?>
+                    <div class="alert alert-danger">Invalid username or password</div>
+                    <?php } ?>
+                    <div class="form-input">
+                        <input type="text" name='andrew-id' id='andrew-id' placeholder='Andrew ID' class="form-control">
+                    </div>
+                    
+                    <div class="form-input" style='position: relative'>
+                        <input type="password" name='password' id='password' placeholder='Password' class="form-control">
+                        <span id='new-user-password-notice' style='position: absolute; right: -20px; top: 30%' class="glyphicon glyphicon-question-sign"></span>
+                    </div>
+                    
+                    <div id='bottom-inputs'>
+                        <span id='reset-password'>
+                            <a class='btn btn-link' href='<?= $this->baseUrl(); ?>/users/resetpwd'>Reset password</a>
+                        </span>
+                        
+                        <button class='btn btn-primary pull-right' type="submit">Log In</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

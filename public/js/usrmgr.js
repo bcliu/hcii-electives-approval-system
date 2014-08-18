@@ -1,0 +1,1265 @@
+var sortingMethod = 'order-by-time';
+
+/**
+ * Scroll users list to some student.
+ * Originally used to locate some student. Not used after changing to only showing matched students.
+ */
+function scrollListTo(obj) {
+    try {
+        var tbody = $('#users-table tbody');
+        var currentTop = tbody.scrollTop();
+        var objOffset = obj.offset().top;
+        var tbodyOffset = tbody.offset().top;
+        tbody.scrollTop(currentTop+objOffset-tbodyOffset);
+    } catch (e) {
+        /* Doing nothing here */
+    }
+}
+
+function infer(type) {
+    $.get(baseUrl + "/users/get-info/andrew-id/" + $('input[name="andrew-id"]').val() + "/type/" + type, function(result) {
+        var input;
+
+        if (type == 'name') {
+            input = $('input[name="name"]');
+        }
+        else if (type == 'major') {
+            input = $('input[name="major"]');
+        }
+
+        if (result.length > 80 || result.length == 0) {
+            var andrewIdInput = $('input[name="andrew-id"]');
+            andrewIdInput.parent().addClass('has-error');
+            setTimeout(function () {
+                andrewIdInput.parent().removeClass('has-error');
+                andrewIdInput.popover('hide');
+            }, 2333);
+
+            andrewIdInput.popover({
+                html: true,
+                placement: 'top',
+                content: "Failed to look up the Andrew ID",
+                trigger: 'manual'
+            });
+            andrewIdInput.popover('show');
+            return;
+        }
+
+        input.val(result);
+        input.parent().addClass('has-success');
+        setTimeout(function () {
+            input.parent().removeClass('has-success');
+        }, 2333);
+    });
+}
+
+function clearFilter() {
+    $('#show-graduated').prop('checked', false);
+    $('#filter-year-lower-bound').val('');
+    $('#filter-year-upper-bound').val('');
+    $('#show-enrolled').prop('checked', true);
+
+    loadStudents();
+}
+
+function selectStudentRow(andrewId) {
+    $('tr[andrewid="' + andrewId + '"]').addClass('user-selected');
+}
+
+/**
+ * Make an AJAX call to get students based on the specified filter.
+ * Update the Users list on the left of the screen.
+ * @param  {string} studentToShow   The student to load after AJAX call is completed
+ * @param {boolean} goToCoursesTab  Whether to switch to courses tab after student is loaded
+ * @param {boolean} selectStudent   Whether to select that student row after loaded
+ */
+function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
+    clearUserInfoFields();
+    $('#loading-users').css({ 'display': 'block' });
+    $('#no-users').css({ 'display': 'none' });
+    var showGraduated = $('#show-graduated').is(":checked") ? 1 : 0;
+    var showEnrolled = $('#show-enrolled').is(":checked") ? 1 : 0;
+    var startYear = $('#filter-year-lower-bound').val();
+    var startYear = startYear.substr(startYear.length - 4);
+    var endYear = $('#filter-year-upper-bound').val();
+    var endYear = endYear.substr(endYear.length - 4);
+
+    var period = "";
+    if (startYear != null && endYear != null) {
+        period = "/start-year/" + startYear + "/end-year/" + endYear;
+    }
+
+    var url = baseUrl + "/admin/get-students/program/" + currentProgram +
+        "/include-graduated/" + showGraduated +
+        "/include-enrolled/" + showEnrolled + period;
+    $.get(url, function(result) {
+        try {
+            var json = $.parseJSON(result);
+        } catch (e) {
+            alert("Server error");
+            return;
+        }
+        $('body').data('users-info', json);
+
+        /* Reload users table */
+        var table = $('#users-table tbody');
+        table.html('');
+
+	json.sort(lastNameSorter);
+        $.each(json, function (i, e) {
+            table.append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>" + e['name'] +
+                "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
+                "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
+        });
+
+        $('#loading-users').css({ 'display': 'none' });
+
+        if (json.length == 0) {
+            $('#no-users').css({ 'display': 'block' });
+            adjustTableStyle();
+            return;
+        }
+
+        adjustTableStyle();
+
+        /* Attach events handlers */
+        $('#users-table tbody tr').each(function () {
+            var numAwaiting = $(this).find('.badge').text();
+            if (numAwaiting.length != 0) {
+                $(this).popover({
+                    html: true,
+                    placement: 'top',
+                    content: "<b>" + numAwaiting + "</b> course(s) awaiting approval",
+                    trigger: 'hover',
+                    container: 'body' /* Prevent being attached to tbody and affect stripes */
+                });
+            }
+        });
+
+	searchStudents();
+        if (studentToShow != null) {
+            fillInfoCoursesWithAndrewId(studentToShow);
+
+            if (goToCoursesTab) {
+                $('#courses-tab a').tab('show');
+            }
+
+            if (selectStudent) {
+                selectStudentRow(studentToShow);
+            }
+        }
+    });
+}
+
+function loadAdministrators() {
+    clearUserInfoFields();
+    $.get(baseUrl + "/admin/get-administrators", function(result) {
+        var json = $.parseJSON(result);
+        $('body').data('users-info', json);
+
+        var table = $('#users-table tbody');
+        table.html('');
+
+        $.each(json, function (i, e) {
+            table.append('<tr><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>" + e['name'] + "</td></tr>");
+        });
+
+        adjustTableStyle();
+        attachUserClickHandler();
+    });
+}
+
+/**
+ * Align th's with td's in tbody
+ */
+function adjustTableStyle() {
+    var tbodyWidth = $('#users-table tbody').width();
+    var rowWidth = $('#users-table tbody tr:first').width();
+
+    var table = $('#users-table');
+    var tbody = $('#users-table tbody');
+
+    var sumTrHeights = 0;
+    table.find('tr').each(function (e) {
+        sumTrHeights += $(this).height();
+    });
+
+    var idealHeight = $('body').height() - 200;
+    if (sumTrHeights < idealHeight) {
+        tbody.height(sumTrHeights);
+    }
+    else {
+        tbody.height(idealHeight);
+    }
+
+    if (tbody.find('tr').length == 0) {
+        tbody.height(0);
+    }
+}
+
+function attachUserClickHandler() {
+    $('#users-table tbody tr').click(function () {
+        /* When clicking on some user, update the inputs with data */
+        $('tr.user-selected').removeClass('user-selected');
+        $(this).addClass('user-selected');
+	if ($(this).find('#td-andrew-id').length == 0) {
+	    return;
+	}
+        var andrewId = $(this).find('#td-andrew-id').text();
+        fillInfoCoursesWithAndrewId(andrewId);
+    });
+}
+
+/**
+ * Helper function sort() takes to sort the students list by last name.
+ */
+function lastNameSorter(a, b) {
+    var lastNameA = a['name'].split(" ").pop();
+    var lastNameB = b['name'].split(" ").pop();
+    return lastNameA.localeCompare(lastNameB);
+}
+
+function searchStudents() {
+    $('#users-table tbody').html('');
+    var text = $('#search-student').val().toLowerCase();
+    var search;
+
+    var lastNameMatches = [];
+    var otherMatches = [];
+    $('body').data('users-info').forEach(function (e, i) {
+	var lastName = e['name'].split(" ").pop();
+	if (lastName.toLowerCase().indexOf(text) != -1) {
+	    lastNameMatches.push(i);
+	}
+	else if ((e['andrew_id'].toLowerCase().indexOf(text) != -1 ||
+	     e['name'].toLowerCase().indexOf(text) != -1)) {
+	    otherMatches.push(i);
+		    /* If it's the same one as previously spotted, don't animate again */
+		    /*              (typeof previousLocated == 'undefined' || previousLocated != e['andrew_id'])) {
+                search = $('tr[andrewid="' + e['andrew_id'] + '"]');                                                                                                         
+                $('#users-table td').css('background-color', '');             
+                previousLocated = e['andrew_id'];                                                                                                                            
+                search.find('td').css('background-color', '#F0AD4E');                                                                                                        
+                setTimeout(function () {                                                                                                                                     
+                    search.find('td').css('background-color', '');                                                
+		    }, 1000);*/
+	}
+    });
+
+    var i = 0;
+    var numLastNameMatches = lastNameMatches.length;
+    var numOtherMatches = otherMatches.length;
+
+    for (; i < numLastNameMatches; i++) {
+	var e = $('body').data('users-info')[lastNameMatches[i]];
+	$('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
+				       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
+                                       "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
+    }
+
+    for (var p = 0; p < numOtherMatches; p++) {
+        var e = $('body').data('users-info')[otherMatches[p]];
+        $('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
+                                       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
+                                       "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
+        i++;
+    }
+    attachUserClickHandler();
+}
+
+var currentProgram;
+
+$(function () {
+    $('#show-graduated, #show-enrolled').click(loadStudents);
+    adjustTableStyle();
+
+    $('#search-student').on('input', searchStudents);
+
+    currentProgram = $('input[name="type"]').val();
+
+    $('#new-user-email-notice').popover({
+        html: true,
+        content: "<h5>When a new user is added, an email<br />will be sent to his/her Andrew email<br />address with a temporary password.</h5>",
+        trigger: 'hover',
+        placement: 'top'
+    });
+
+    $('#btn-infer-major').popover({
+        html: true,
+        content: "<h5>Infer primary major<br />using Andrew ID</h5>",
+        trigger: 'hover',
+        placement: 'top'
+    });
+
+    $('#btn-infer-name').popover({
+        html: true,
+        content: "<h5>Infer name<br />using Andrew ID</h5>",
+        trigger: 'hover',
+        placement: 'top'
+    });
+
+    var panelFilter = $('#panel-filter');
+    if (panelFilter.attr('id') != undefined) {
+        /* This whole thing is to avoid that when mouse is over
+         * datepicker, the Filter panel is dimmed again
+         */
+        datePickerHidden = false;
+        panelFilter.mouseover(function () {
+            if (datePickerHidden) {
+                panelFilter.css("opacity", "");
+            }
+        });
+
+        var selectors = $('#filter-year-lower-bound, #filter-year-upper-bound');
+        selectors.datepicker({
+            format: "mm/yyyy",
+            viewMode: "years", 
+            minViewMode: "years"
+        }).on('changeDate', function (ev){
+            selectors.datepicker('hide');
+            var newDate = new Date(ev.date);
+            if ($(this).attr('id') == 'filter-year-upper-bound') {
+                newDate.setMonth(11);
+            }
+            else {
+                newDate.setMonth(0);
+            }
+            $(this).datepicker('setValue', newDate);
+            loadStudents();
+        }).on('show', function () {
+            panelFilter.css("opacity", 1);
+        }).on('hide', function () {
+            datePickerHidden = true;
+        });
+
+        selectors.click(function () {
+            $(this).datepicker('show');
+        });
+    }
+
+    if ($('#enroll-date').attr('id') != undefined) {
+        
+        /* Set enroll date datepicker */
+        $('#enroll-date').datepicker({
+            format: "mm/yyyy",
+            viewMode: "months", 
+            minViewMode: "months"
+        }).on('changeDate', function (){
+            $('#enroll-date').datepicker('hide');
+        });
+        $('#enroll-date').click(function () {
+            $(this).datepicker('show');
+        });
+        
+        /* Set graduation date datepicker */
+        $('#graduation-date').datepicker({
+            format: "mm/yyyy",
+            viewMode: "months", 
+            minViewMode: "months"
+        }).on('changeDate', function () {
+            $('#graduation-date').datepicker('hide');
+        });
+        $('#graduation-date').click(function () {
+            $(this).datepicker('show');
+        });
+    }
+
+    /* Form submitted successfully: load students again */
+    $(document).ajaxComplete(function (e) {
+        console.log("Inside ajaxComplete");
+        if (typeof(reloadList) != 'undefined' && reloadList) {
+            reloadList = false;
+
+            if (currentProgram == 'admin') {
+                setTimeout(loadAdministrators, 400);
+            }
+            else {
+                setTimeout(loadStudents, 400);
+            }
+        }
+    });
+
+    /* Submit form button event */
+    $('#submit-new-user').click(function () {
+        var andrewId = $('input[name="andrew-id"]').val();
+        
+        if (andrewId.length == 0) {
+            alert("Andrew ID cannot be empty");
+            return;
+        }
+        
+        $.get(baseUrl + "/users/user/andrewid/" + andrewId, function(result) {
+            if (result == '0') {
+                /* If user does not exist, quietly submit form */
+                reloadList = true;
+                $('#user-info-form').submit();
+            }
+            else {
+                /* Otherwise, ask if user wants to continue */
+                var override = confirm('User "' + andrewId + '" already exists. Update the current user?');
+                if (override == true) {
+                    reloadList = true;
+                    $('#user-info-form').submit();
+                }
+            }
+        });
+    });
+    
+    /* Toggle default buttons: enrolled and full time */
+    $('input[value="enrolled"]').parent().button('toggle');
+    $('input[name="is-full-time"][value="1"]').parent().button('toggle');
+    
+    $('input[name="andrew-id"]').on('change keydown paste input', function () {
+        $('#delete-user').css(displayNone);
+        $('#submit-new-user').text("Add or Update");
+        $('#courses-tab').css(displayNone);
+        $('#span-after-add').css(displayDefault);
+        $('#not-activated-notice').css(displayNone);
+    });
+    
+    $('#delete-user').click(function () {
+        var andrewId = $('input[name="andrew-id"]').val();
+        
+        $.get(baseUrl + "/users/user/andrewid/" + andrewId, function(result) {
+            if (result == '0') {
+                alert("User '" + andrewId + "' has not been created yet");
+            }
+            else {
+                var del = confirm("Are you sure to remove " + andrewId + "?");
+                if (del == true) {
+                    $.get(baseUrl + "/users/remove/andrewid/" + andrewId, function () {
+                        if (currentProgram != 'admin') {
+                            loadStudents();
+                        }
+                        else {
+                            loadAdministrators();
+                        }
+                    });
+                }
+            }
+        });
+    });
+    
+    if (currentProgram != 'admin') {
+        loadStudents();
+    }
+    else {
+        loadAdministrators();
+    }
+
+    /* Append course status options to Course details modal dialog, and Add Course dialog */
+    $.each(status2Text, function (key, value) {
+        $('#dialog-status .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#dialog-status .dropdown-menu li:last').data('status', key);
+
+        $('#modal-add-course-status .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+    });
+    /* Append grades options */
+    $.each(grade2Text, function (key, value) {
+        $('#dialog-grade .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#dialog-grade .dropdown-menu li:last').data('grade', key);
+
+        $('#modal-add-course-grade .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+    });
+    /* Append year options (current year - 4 to current year + 4) */
+    for (var i = -4; i <= 4; i++) {
+        $('#dialog-semester-year .dropdown-menu').append("<li><a href='#'>"
+                 + (new Date().getFullYear() + i) + "</a></li>");
+        $('#modal-add-course-year .dropdown-menu').append("<li><a href='#'>"
+                 + (new Date().getFullYear() + i) + "</a></li>");
+    }
+
+    /* Change status text and data when option selected */
+    $('#dialog-status .dropdown-menu li').click(function () {
+        /* When selected is different from the current one, enable Update Status button */
+        var newStatus = $(this).data('status');
+        $('#dialog-status button').html(getColoredStatusText(newStatus));
+        /* Append status value to the button for later retrieval */
+        $('#dialog-status button').data('status', newStatus);
+
+        if (newStatus == 'taken' || newStatus == 'taking') {
+            $('#tr-semester').css(displayDefault);
+            $('#tr-grade').css(displayDefault);
+        }
+        else {
+            $('#tr-semester').css(displayNone);
+            $('#tr-grade').css(displayNone);
+        }
+    });
+
+    /* Change grade text and data when option selected */
+    $('#dialog-grade .dropdown-menu li').click(function () {
+        $('#dialog-grade button').text(grade2Text[$(this).data('grade')]);
+        $('#dialog-grade button').data('grade', $(this).data('grade'));
+    });
+
+    /* Change year when option selected */
+    $('#dialog-semester-year .dropdown-menu li').click(function () {
+        var newYear = $(this).find('a').text();
+        $('#dialog-semester-year button').text(newYear);
+    });
+
+    /* Change semester when option selected */
+    $('#dialog-semester-semester .dropdown-menu li').click(function () {
+        var newSemester = $(this).find('a').text();
+        $('#dialog-semester-semester button').text(newSemester);
+    });
+
+    addUpdateStatusHandler();
+
+    /* In Add Course modal dialog, change status text when option selected */
+    $('#modal-add-course-type .dropdown-menu li').click(function () {
+        $('#modal-add-course-type button').text($(this).text());
+    });
+
+    $('#modal-add-course-status .dropdown-menu li').click(function () {
+        var newStatus = getKey(status2Text, $(this).text());
+        var statusHtml = getColoredStatusText(newStatus);
+        $('#modal-add-course-status button').html(statusHtml);
+
+        if (newStatus == 'taken' || newStatus == 'taking') {
+            $('#tr-add-course-semester').css(displayDefault);
+            $('#tr-add-course-grade').css(displayDefault);
+        }
+        else {
+            $('#tr-add-course-semester').css(displayNone);
+            $('#tr-add-course-grade').css(displayNone);
+        }
+    });
+
+    $('#modal-add-course-grade .dropdown-menu li').click(function () {
+        $('#modal-add-course-grade button').html($(this).text());
+    });
+
+    $('#modal-add-course-year .dropdown-menu li').click(function () {
+        var newYear = $(this).find('a').text();
+        $('#modal-add-course-year button').text(newYear);
+    });
+
+    /* Change semester when option selected */
+    $('#modal-add-course-semester .dropdown-menu li').click(function () {
+        var newSemester = $(this).find('a').text();
+        $('#modal-add-course-semester button').text(newSemester);
+    });
+
+    attachAddCourseHandler();
+
+    $('#div-ordering label').click(function () {
+        sortingMethod = $(this).attr('id');
+        $('tr.user-selected').trigger('click');
+    });
+
+    /* Bind two notes textareas in two panes */
+    var coursesNotes = $('#courses-pane-notes');
+
+    $('textarea[name="notes"]').on('keydown paste input', function () {
+        coursesNotes.val($(this).val());
+    });
+
+    var timeOut;
+    coursesNotes.on('keydown paste input', function () {
+        $('textarea[name="notes"]').val($(this).val());
+        /* Make sure that only when there is no typing for .5 sec will the popover show */
+        clearTimeout(timeOut);
+        timeOut = setTimeout(function () {
+            /* Save the notes, update .data, and show popover */
+            var newNotes = coursesNotes.val();
+            var data = {
+                andrew_id: $('.user-selected #td-andrew-id').text(),
+                notes: newNotes
+            };
+            $.post(baseUrl + "/admin/updatenotes", data).done(function (ret) {
+                coursesNotes.popover({ content: "Notes saved", placement: "left", trigger: "manual" });
+                coursesNotes.popover('show');
+                setTimeout(function () {
+                    coursesNotes.popover('hide');
+                }, 1000);
+
+                var oldData = $('body').data('users-info');
+                oldData.forEach(function (e, i) {
+                    if (e['andrew_id'] == $('#dialog-andrew-id').text()) {
+                        /* Found the user */
+                        oldData[i]['notes'] = newNotes;
+                    }
+                });
+            }).fail(function (ret) {
+                coursesNotes.popover({
+                    html: true,
+                    content: "<h5 style='color: red'>Failed to save notes</h5>",
+                    placement: "left",
+                    trigger: "manual"
+                });
+                coursesNotes.popover('show');
+                setTimeout(function () {
+                    coursesNotes.popover('hide');
+                }, 1000);
+            });
+        }, 500);
+    });
+
+    /* Process the program requirements */
+    var jsonRequirements = $.parseJSON($('#requirements-storage').text());
+    $('body').data('requirements', jsonRequirements);
+
+    /* Attach remove course handler */
+    $('#delete-course').click(function () {
+        var courseId = $('#dialog-course-id').text();
+        var answer = confirm("Are you sure to delete the course?");
+        if (answer) {
+            $.post(baseUrl + '/admin/remove-course', { course_id: courseId }).done(function () {
+                $('#course-details').modal('hide');
+                var currentStudentAndrewId = $('.user-selected #td-andrew-id').text();
+                loadStudents(currentStudentAndrewId, true, true);
+            }).fail(function (ret) {
+                console.log(ret);
+                alert("Failed to delete course. Please try again later.");
+            });
+        }
+    });
+});
+
+function attachAddCourseHandler() {
+    var modal = $('#modal-add-course');
+    var courseNumber = modal.find('#modal-add-course-number input');
+    var courseName = modal.find('#modal-add-course-name input');
+    var units = modal.find('#modal-add-course-units input');
+    var takingAs = modal.find('#modal-add-course-type button');
+    var status = modal.find('#modal-add-course-status button');
+    var comment = modal.find('#modal-add-course-comment textarea');
+    modal.find('#btn-add-course').click(function () {
+        var data = {
+            andrew_id: $('.user-selected #td-andrew-id').text(),
+            course_number: courseNumber.val(),
+            course_name: courseName.val(),
+            units: units.val(),
+            taking_as: getKey(takingAs2Text, takingAs.text()),
+            status: getKey(status2Text, status.text()),
+            comment: comment.val(),
+            semester: '',
+            year: '',
+            grade: ''
+        };
+
+        if (data['status'] == 'taking' || data['status'] == 'taken') {
+            data['semester'] = modal.find('#modal-add-course-semester button').text();
+            data['year'] = modal.find('#modal-add-course-year button').text();
+            data['grade'] = getKey(grade2Text, modal.find('#modal-add-course-grade button').text());
+        }
+
+        $.post(baseUrl + "/admin/add-course", data).done(function (ret) {
+            courseNumber.val('');
+            courseName.val('');
+            units.val('');
+            comment.val('');
+            var currentStudentAndrewId = $('.user-selected #td-andrew-id').text();
+            loadStudents(currentStudentAndrewId, true, true);
+            $('.modal').modal('hide');
+        }).fail(function (ret) {
+            alert('Failed to add course. Please try again later.');
+            console.log(ret);
+        });
+    });
+}
+
+/**
+ * Update the status of some course
+ */
+function addUpdateStatusHandler() {
+    /* Add Ajax event to the Update Status button */
+    /* TODO: Only allow updating if content is changed */
+    $('.modal #update-status').click(function () {
+        var status = $('#dialog-status button').data('status');
+        var data = {
+            course_id: $('#dialog-course-id').text(),
+            status: status,
+            comment: $('#dialog-comment textarea').text()
+        };
+
+        if (status == 'taking' || status == 'taken') {
+            data['semester'] = $('#dialog-semester-semester button').text();
+            data['year'] = $('#dialog-semester-year button').text();
+            data['grade'] = $('#dialog-grade button').data('grade');
+        }
+
+        $.post(baseUrl + "/admin/updatestatus", data).done(function (ret) {
+            $('.modal').modal('hide');
+            /* Load the students info and course info again */
+            var currentStudentAndrewId = $('#dialog-andrew-id').text();
+            loadStudents(currentStudentAndrewId, true, true);
+        }).fail(function (ret) {
+            alert('Failed to update status at this time. Please try again later.');
+        });
+    });
+}
+
+/**
+ * Switch back to User info pane if not currently,
+ * then clear all fields in User Info pane and hide Courses pane.
+ */
+function clearUserInfoFields() {
+    $('#user-info-tab a').tab('show');
+    $('input[name="andrew-id"]').val("");
+    $('input[name="name"]').val("");
+    $('textarea[name="notes"]').val("");
+    $('#courses-pane-notes').val('');
+    $('input[name="andrew-id"]').trigger('change');
+    /* Above are shared inputs between admin and students */
+
+    if ($('#receive-from-mhci').attr('id') != undefined) {
+        $('#receive-from-mhci input').prop('checked', false);
+        $('#receive-from-bhci input').prop('checked', false);
+        $('#receive-from-ugminor input').prop('checked', false);
+    }
+    
+    if ($('input[name="major"]').attr('name') != undefined) {
+        /* If major exists, then it is a student page */
+        $('input[name="major"]').val("");
+        $('input[name="enroll-date"]').val("");
+        $('input[name="graduation-date"]').val("");
+        $('input[value="enrolled"]').parent().button('toggle');
+        $('input[name="is-full-time"][value="1"]').parent().button('toggle');
+    }
+}
+
+function fillInfoCoursesWithAndrewId(andrewId) {
+    /* TODO: add color when selected ? */
+    $('body').data('users-info').forEach(function (e) {
+        if (e['andrew_id'] == andrewId) {
+            /* Update the inputs using e */
+            $('input[name="andrew-id"]').val(andrewId);
+            $('#delete-user').css(displayDefault);
+            $('#delete-user').text('Delete "' + andrewId + '"');
+            $('input[name="name"]').val(e['name']);
+            $('textarea[name="notes"]').text(e['notes']);
+            $('#courses-pane-notes').text(e['notes']);
+            $('#not-activated-notice').css({
+                display: (e['is_activated'] == '0' ? "" : "none")
+            });
+
+            $('#submit-new-user').text("Update User");
+            $('#span-after-add').css(displayNone);
+            /* Above are shared inputs between admin and students */
+
+            /* For admin page, receive updates from which students */
+            if ($('#receive-from-mhci').attr('id') != undefined) {
+                var receiveFrom = e['receive_from'];
+                if (receiveFrom.indexOf('mhci') != -1) {
+                    $('#receive-from-mhci input').prop('checked', true);
+                }
+                else {
+                    $('#receive-from-mhci input').prop('checked', false);
+                }
+
+                if (receiveFrom.indexOf('bhci') != -1) {
+                    $('#receive-from-bhci input').prop('checked', true);
+                }
+                else {
+                    $('#receive-from-bhci input').prop('checked', false);
+                }
+
+                if (receiveFrom.indexOf('ugminor') != -1) {
+                    $('#receive-from-ugminor input').prop('checked', true);
+                }
+                else {
+                    $('#receive-from-ugminor input').prop('checked', false);
+                }
+            }
+            
+            if ($('input[name="major"]').attr('name') != undefined) {
+                /* If major exists, then it is a student page */
+
+                $('#courses-tab').css(displayDefault);
+                if (e['number_awaiting_approval'] > 0) {
+                    $('#courses-tab .badge').text(e['number_awaiting_approval']);
+                }
+                else {
+                    $('#courses-tab .badge').text('');
+                }
+
+                $('input[name="major"]').val(e['major']);
+                $('input[name="enroll-date"]').val(e['enroll_date']);
+                $('input[name="graduation-date"]').val(e['graduation_date']);
+                $('input[value="' + e['status'] + '"]').parent().button('toggle');
+                $('input[name="is-full-time"][value="' + e['is_full_time'] + '"]').parent().button('toggle');
+
+                /* Fill in the table in Courses pane */
+                $('#courses-pane tbody').html('');
+
+                $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
+                    var tmp = $.parseJSON(result);
+		    var courses = tmp['courses'];
+		    forcedValues = tmp['forced_values'];
+                    courses.sort(function (a, b) {
+                        if (sortingMethod == 'order-by-time') {
+                            /* Sort by time */
+                            return parseInt(b['id']) - parseInt(a['id']);
+                        }
+                        else {
+                            /* Otherwise, sort by status */
+                            /* If a or b is 'submitted' (awaiting approval), always put that in front of the other */
+                            if (a['status'] == 'submitted' && b['status'] == 'submitted') {
+                                return 0;
+                            }
+                            else if (a['status'] == 'submitted') {
+                                return -1;
+                            }
+                            else if (b['status'] == 'submitted') {
+                                return 1;
+                            }
+                            /* Otherwise, compare by ASCII order */
+                            return a['status'].localeCompare(b['status']);
+                        }
+                    });
+
+                    var nonPlaceoutCount = 0;
+                    courses.forEach(function (e, i, arr) {
+                        if (e['taking_as'] != 'place-out') {
+                            nonPlaceoutCount++;
+                        }
+                    });
+
+                    if (nonPlaceoutCount == 0) {
+                        $('#row-electives-placeouts #no-courses').css(displayDefault);
+                        $('#row-electives-placeouts #table-courses').css(displayNone);
+                        $('#row-electives-placeouts #div-ordering').css(displayNone);
+                    }
+                    else {
+                        $('#row-electives-placeouts #no-courses').css(displayNone);
+                        $('#row-electives-placeouts #table-courses').css(displayDefault);
+                        $('#row-electives-placeouts #div-ordering').css(displayDefault);
+
+
+                        for (var i = 0; i < courses.length; i++) {
+                            var course = courses[i];
+                            /* Don't add place-out courses in here */
+                            if (course['taking_as'] == 'place-out') {
+                                continue;
+                            }
+
+                            var str = "<tr><td>" + (i + 1) + "</td><td>"
+                                 + course['course_name'] + "</td><td>"
+                                 + course['course_number'] + "</td><td>"
+                                 + takingAs2Text[course['taking_as']] + "</td><td>"
+                                 + grade2Text[course['grade']] + "</td><td>"
+				 + getColoredStatusText(course['status']) + "</td></tr>";
+                            $('#row-electives-placeouts tbody').append(str);
+                            $('#row-electives-placeouts tbody tr:last').data('course-data', course);
+                        }
+
+                        /* Set name in course details dialog */
+                        $('#dialog-student-name').text(e['name']);
+                        $('#dialog-andrew-id').text(e['andrew_id']);
+
+                        addCourseSelectedHandler();
+                    }
+
+                    /* Fill in the Core Requirements / Prereqs / Place-outs panels */
+                    /* Load requirements for the year the student entered program */
+                    $('#panel-cores tbody').html('');
+                    if ($('#panel-place-outs').attr('id') != undefined) {
+                        $('#panel-place-outs tbody').html('');
+                    }
+                    if ($('#panel-prereqs').attr('id') != undefined) {
+                        $('#panel-prereqs tbody').html('');
+                    }
+
+                    var reqs = $('body').data('requirements');
+                    var enrollDate = $('#enroll-date').val();
+                    var enrollSemester;
+                    var enrollMonth = parseInt(enrollDate.substr(0, 2));
+                    var enrollYear = enrollDate.substr(3, 7);
+
+                    if (enrollMonth >= 1 && enrollMonth < 5) {
+                        enrollSemester = "Spring";
+                    }
+                    else if (enrollMonth >= 5 && enrollMonth < 8) {
+                        enrollSemester = "Summer";
+                    }
+                    else {
+                        enrollSemester = "Fall";
+                    }
+
+                    var numElectivesNeeded, numFreeElectivesNeeded, numApplicationElectivesNeeded;
+                    var coresFound = false, placeOutsFound = false, prereqsFound = false;
+                    var coresIdx = 1, placeOutsIdx = 1, prereqsIdx = 1;
+                    reqs.forEach(function (e, i, arr) {
+                        if (e['program'] == $('input[name="type"]').val() &&
+                            e['semester'] == enrollSemester &&
+                            e['year'] == enrollYear) {
+                            /* Found the requirement */
+                            var type = e['type'];
+
+                            /* If it is the electives requirements */
+                            if (type == 'elective') {
+                                numElectivesNeeded = e['number'];
+                                return;
+                            }
+                            
+                            if (type == 'free-elective') {
+                                numFreeElectivesNeeded = e['number'];
+                                return;
+                            }
+                            
+                            if (type == 'application-elective') {
+                                numApplicationElectivesNeeded = e['number'];
+                                return;
+                            }
+
+                            if (type == 'core' || type == 'prerequisite') {
+                                /* Check if the specified course is taken, and grade >= B */
+
+                                /* Rewrite the requirements into a boolean expression and evaluate it */
+                                var reqs = '(' + e['course_numbers'] + ')';
+                                reqs = replaceAll(',', ') || (', reqs);
+                                reqs = replaceAll('&', ' && ', reqs);
+				
+                                var isTaking = false;
+
+                                courses.forEach(function (eC) {
+                                    var courseType = eC['taking_as'],
+                                        courseStatus = eC['status'],
+                                        courseNum = eC['course_number'];
+                                    if ((isBAbove(eC['grade']) || eC['grade'] == 'na') && /*courseType == e['type'] &&*/ courseStatus == 'taken') {
+                                        reqs = replaceAll(courseNum, ' true ', reqs);
+                                    }
+                                    else if (/*courseType == e['type'] &&*/ courseStatus == 'taking' && e['course_numbers'].search(courseNum) != -1) {
+                                        isTaking = true;
+                                    }
+                                });
+
+                                var reg = /\d{2}-\d{3}/g;
+                                reqs = reqs.replace(reg, " false ");
+                                var isSatisfied;
+				
+				if (type == 'core') {
+				    isSatisfied = eval(reqs);
+				}
+				else {
+				    var forcedValue = getPrerequisiteForcedStatus(e['course_name']);
+				    var status = forcedValue['value'];
+				    if (status == 'infer') {
+					isSatisfied = eval(reqs);
+				    }
+				    else if (status == 'satisfied') {
+					isSatisfied = true;
+				    }
+				    else {
+					isSatisfied = false;
+					isTaking = false;
+				    }
+				}
+
+                                var str = '<tr><td>' + (e['type'] == 'core' ? coresIdx : prereqsIdx) + '</td><td class="column-course-name">' + e['course_name'] + '</td>' +
+                                            (isSatisfied ? "<td class='text-success'>Satisfied" : (isTaking ? "In Progress" : "<td>Not satisfied")) +
+                                            '</td></tr>';
+                                if (e['type'] == 'core') {
+                                    coresFound = true;
+                                    coresIdx++;
+                                    $('#panel-cores tbody').append(str);
+                                }
+                                else {
+                                    prereqsFound = true;
+                                    prereqsIdx++;
+                                    $('#panel-prereqs tbody').append(str);
+                                }
+                            }
+                            else if (e['type'] == 'place-out') {
+                                placeOutsFound = true;
+
+                                var satisfied = '<td>Not satisfied';
+                                var courseComment = '';
+                                courses.forEach(function (eC) {
+                                    if (eC['course_name'] == e['course_name']) {
+                                        /* Retrieve comment */
+                                        courseComment = eC['comment'];
+
+                                        if (courseComment == null || courseComment == undefined) {
+                                            courseComment = "";
+                                        }
+
+                                        if (eC['status'] == 'satisfied') {
+                                            satisfied = '<td class="text-success">Satisfied';
+                                        }
+                                    }
+                                });
+
+                                var str = '<tr><td>' + placeOutsIdx + '</td><td class="place-out-name">' + e['course_name'] +
+                                            '</td>' + satisfied + '</td><td>' + courseComment + '</td></tr>';
+                                $('#panel-place-outs tbody').append(str);
+                                placeOutsIdx++;
+                            }
+                        }
+
+                    });
+
+                    var emptyNotice = 'No requirements are specified for ' + enrollSemester + ' ' + enrollYear + ' semester.';
+                    if (!coresFound) {
+                        $('#table-cores').css({ display: 'none' });
+                        $('#panel-cores .no-courses').css({ display: '' });
+                        $('#panel-cores .no-courses').text(emptyNotice);
+                        $('#panel-electives').css({ display: 'none' });
+                    }
+                    else {
+                        $('#table-cores').css({ display: '' });
+                        $('#panel-cores .no-courses').css({ display: 'none' });
+
+                        /* If cores are found, then requirements for this semester are defined. Show courses summary */
+                        var summaryElectives = $('#summary-electives');
+                        summaryElectives.html('');
+                        var numElectivesCompleted = 0, numFreeElectivesCompleted = 0, numApplicationElectivesCompleted = 0;
+
+                        courses.forEach(function (eC) {
+                            var takingAs = eC['taking_as'];
+                            if (isCAbove(eC['grade']) || eC['grade'] == 'na') {
+                                if (eC['status'] == 'taken') {
+                                    if (takingAs == 'elective') {
+                                        numElectivesCompleted++;
+                                    }
+                                    else if (takingAs == 'application-elective') {
+                                        numApplicationElectivesCompleted++;
+                                    }
+                                    else if (takingAs == 'free-elective') {
+                                        numFreeElectivesCompleted++;
+                                    }
+                                }
+                            }
+                        });
+
+                        if (numElectivesNeeded != null) {
+                            if (numElectivesNeeded != -1) {
+                                summaryElectives.append(numElectivesCompleted + " out of " + numElectivesNeeded + " required electives are completed.");
+                                summaryElectives.append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' +
+                                    numElectivesCompleted + '" aria-valuemin="0" aria-valuemax="' +
+                                    numElectivesNeeded + '" style="width: ' +
+                                    (numElectivesCompleted / numElectivesNeeded * 100) + '%;"></div></div>');
+                            }
+                            else {
+                                summaryElectives.append(numElectivesCompleted + " electives are completed.");
+                            }
+                        }
+
+                        if (numFreeElectivesNeeded != null) {
+                            if (numFreeElectivesNeeded != -1) {
+                                summaryElectives.append(numFreeElectivesCompleted + " out of " + numFreeElectivesNeeded + " required free electives are completed.");
+                                summaryElectives.append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' +
+                                    numFreeElectivesCompleted + '" aria-valuemin="0" aria-valuemax="' +
+                                    numFreeElectivesNeeded + '" style="width: ' +
+                                    (numFreeElectivesCompleted / numFreeElectivesNeeded * 100) + '%;"></div></div>');
+                            }
+                            else {
+                                summaryElectives.append(numFreeElectivesCompleted + " free electives are completed.");
+                            }
+                        }
+
+                        if (numApplicationElectivesNeeded != null) {
+                            if (numApplicationElectivesNeeded != -1) {
+                                summaryElectives.append(numApplicationElectivesCompleted + " out of " + numApplicationElectivesNeeded + " required restricted application electives are completed.");
+                                summaryElectives.append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' +
+                                    numApplicationElectivesCompleted + '" aria-valuemin="0" aria-valuemax="' +
+                                    numApplicationElectivesNeeded + '" style="width: ' +
+                                    (numApplicationElectivesCompleted / numApplicationElectivesNeeded * 100) + '%;"></div></div>');
+                            }
+                            else {
+                                summaryElectives.append(numApplicationElectivesCompleted + " restricted application electives are completed.");
+                            }
+                        }
+
+                    }
+
+                    if (!placeOutsFound && $('#panel-place-outs').attr('id') != undefined) {
+                        $('#panel-place-outs table').css({ display: 'none' });
+                        $('#panel-place-outs .no-courses').css({ display: '' });
+                        $('#panel-place-outs .no-courses').text(emptyNotice);
+                    }
+                    else {
+                        $('#panel-place-outs table').css({ display: '' });
+                        $('#panel-place-outs .no-courses').css({ display: 'none' });
+                    }
+
+                    if (!prereqsFound && $('#panel-prereqs').attr('id') != undefined) {
+                        $('#panel-prereqs table').css({ display: 'none' });
+                        $('#panel-prereqs .no-courses').css({ display: '' });
+                        $('#panel-prereqs .no-courses').text(emptyNotice);
+                    }
+                    else {
+                        $('#panel-prereqs table').css({ display: '' });
+                        $('#panel-prereqs .no-courses').css({ display: 'none' });
+                    }
+
+                    attachPlaceoutHandler();
+		    attachPrerequisiteHandler();
+                });
+            }
+        }
+    });
+}
+
+function getPrerequisiteForcedStatus(prereqName) {
+    var idx;
+    for (idx = 0; idx < forcedValues.length; idx++) {
+	if (forcedValues[idx]['key'] == prereqName) {
+	    return forcedValues[idx];
+	}
+    }
+
+    return { value: 'infer' };
+}
+
+function attachPrerequisiteHandler() {
+    var andrewId = $('.user-selected #td-andrew-id').text();
+    var modal = $('#prerequisite-details');
+
+    $('#panel-prereqs table tbody tr').click(function () {
+	var prereqName = $(this).find('.column-course-name').text();
+	modal.find('#prerequisite-name').text(prereqName);
+	var forcedValue = getPrerequisiteForcedStatus(prereqName);
+	var status = forcedValue['value'];
+	if (status == 'infer') {
+	    $('input[value="infer"]').parent().button('toggle');
+	}
+	else if (status == 'satisfied') {
+	    $('input[value="satisfied"]').parent().button('toggle');
+	}
+	else if (status == 'not-satisfied') {
+	    $('input[value="not-satisfied"]').parent().button('toggle');
+	}
+        $('#prerequisite-details').modal('show');
+    });
+
+    var updateButton = $('#prerequisite-update-status');
+    updateButton.click(function () {
+	    var data = {
+		'andrew-id': andrewId,
+		type: 'prerequisite',
+		key: modal.find('#prerequisite-name').text(),
+		value: $('input[name="prerequisite-status"]:checked').val(),
+		notes: ''
+	    };
+
+	    $.post(baseUrl + "/admin/update-forced-value", data).done(function () {
+		modal.modal('hide');
+	        fillInfoCoursesWithAndrewId(andrewId);
+	    }).fail(function (ret) {
+	        alert('Failed to update status. Try again later.');
+	        console.log(ret);
+	    });
+    });
+}
+
+
+function attachPlaceoutHandler() {
+    var andrewId = $('.user-selected #td-andrew-id').text();
+    var courseId = $('#place-out-id');
+
+    $('#panel-place-outs table tbody tr').click(function () {
+        var courseName = $(this).find('.place-out-name').text();
+        var studentName = $('input[name="name"]').val();
+
+        $('#modal-place-out-student-name').text(studentName);
+        $('#modal-place-out-andrew-id').text(andrewId);
+        $('#modal-place-out-name').text(courseName);
+        courseId.text('');
+        var statusButton = $('#modal-place-out-status button');
+        var notes = $('#modal-place-out-comment textarea');
+        statusButton.text('Not satisfied');
+        notes.val('');
+
+        /* Search in courses array to see if comment exists */
+        $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
+            var courses = $.parseJSON(result);
+            courses.forEach(function (eC) {
+                if (eC['course_name'] == courseName) {
+                    if (eC['status'] == 'satisfied') {
+                        statusButton.text('Satisfied');
+                    }
+                    notes.val(eC['comment']);
+                    courseId.text(eC['id']);
+                }
+            });
+
+            $('#place-out-details').modal('show');
+        });
+    });
+
+    $('#modal-place-out-status li').click(function () {
+        $('#modal-place-out-status button').text($(this).find('a').text());
+    });
+
+    var updateButton = $('#place-out-update-status');
+    updateButton.off('click');
+    updateButton.click(function () {
+        var data = {
+            andrew_id: andrewId,
+            course_name: $('#modal-place-out-name').text(),
+            status: $('#modal-place-out-status button').text() == 'Satisfied' ? 'satisfied' : 'not-satisfied',
+            comment: $('#modal-place-out-comment textarea').val(),
+            taking_as: 'place-out',
+            course_id: parseInt(courseId.text()),
+
+            units: '0',
+            year: '0',
+            course_number: '00-000',
+            grade: 'na'
+        };
+
+        var url;
+        if (courseId.text().length == 0) {
+            /* The course does not exist yet */
+            url = "/admin/add-course";
+        }
+        else {
+            /* Course exists */
+            url = "/admin/updatestatus";
+        }
+
+        $.post(baseUrl + url, data).done(function () {
+            $('#place-out-details').modal('hide');
+            fillInfoCoursesWithAndrewId(andrewId);
+        }).fail(function (ret) {
+            alert('Failed to update status. Try again later.');
+            console.log(ret);
+        });
+    });
+}
+
+function addCourseSelectedHandler() {
+    $('#table-courses tbody tr').click(function () {
+        var dialogCourseData = $(this).data('course-data');
+        $('#dialog-course-name').text(dialogCourseData['course_name']);
+        $('#dialog-course-number').text(dialogCourseData['course_number']);
+        $('#dialog-units').text(dialogCourseData['units']);
+        $('#dialog-description').text(dialogCourseData['course_description']);
+        $('#dialog-taking-as').text(takingAs2Text[dialogCourseData['taking_as']]);
+        $('#dialog-submission-time').text(dialogCourseData['submission_time']);
+
+        var status = dialogCourseData['status'];
+        $('#dialog-status button').html(getColoredStatusText(status));
+        $('#dialog-status button').data('status', status);
+
+        $('#dialog-grade button').text(grade2Text[dialogCourseData['grade']]);
+        $('#dialog-grade button').data(dialogCourseData['grade']);
+
+        /* If semester is null, set it to Spring by default */
+        var semester = dialogCourseData['semester'] == null ? "Spring" : dialogCourseData['semester'];
+        $('#dialog-semester-semester button').text(semester);
+
+        /* If year is null, set it to current year by default */
+        var year = dialogCourseData['year'] == null ? (new Date().getFullYear()) : dialogCourseData['year'];
+        $('#dialog-semester-year button').text(year);
+
+        $('#dialog-comment textarea').text(dialogCourseData['comment']);
+        $('#dialog-course-id').text(dialogCourseData['id']); /* Store course ID in db for updating status */
+
+        /* Only show grade and semester if the course is Taken or Taking */
+        if (status == 'taken' || status == 'taking') {
+            $('#tr-semester').css(displayDefault);
+            $('#tr-grade').css(displayDefault);
+        }
+        else {
+            $('#tr-semester').css(displayNone);
+            $('#tr-grade').css(displayNone);
+        }
+
+        $('#course-details').modal('show');
+    });
+}
