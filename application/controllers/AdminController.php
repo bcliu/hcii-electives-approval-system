@@ -89,20 +89,20 @@ class AdminController extends Zend_Controller_Action {
     
     function getForcedValues($andrew_id) {
         $dbForcedValues = new Application_Model_DbTable_ForcedValues();
-	return $dbForcedValues->fetchAll("user_andrew_id = '$andrew_id' AND type = 'prerequisite'");
+        return $dbForcedValues->fetchAll("user_andrew_id = '$andrew_id' AND type = 'prerequisite'");
     }
 
     function updateForcedValueAction() {
         $this->_helper->layout()->disableLayout();
         $this->_helper->viewRenderer->setNoRender(true);
 
-	$andrewId = $this->getRequest()->getParam('andrew-id');
-	$type = $this->getRequest()->getParam('type');
-	$key = $this->getRequest()->getParam('key');
-	$value = $this->getRequest()->getParam('value');
-	$notes = $this->getRequest()->getParam('notes');
-	$dbForcedValues = new Application_Model_DbTable_ForcedValues();
-	$dbForcedValues->updateValue($andrewId, $type, $key, $value, $notes);
+        $andrewId = $this->getRequest()->getParam('andrew-id');
+        $type = $this->getRequest()->getParam('type');
+        $key = $this->getRequest()->getParam('key');
+        $value = $this->getRequest()->getParam('value');
+        $notes = $this->getRequest()->getParam('notes');
+        $dbForcedValues = new Application_Model_DbTable_ForcedValues();
+        $dbForcedValues->updateValue($andrewId, $type, $key, $value, $notes);
     }
 
     function getStudentCoursesAction() {
@@ -110,7 +110,7 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
 
         $andrewId = $this->getRequest()->getParam('andrew-id');
-	$forcedValues = $this->getForcedValues($andrewId)->toArray();
+        $forcedValues = $this->getForcedValues($andrewId)->toArray();
         $dbCourses = new Application_Model_DbTable_Courses();
         $courses = $dbCourses->getAllCoursesOfUser($andrewId)->toArray();
         echo Zend_Json::encode(array('courses' => $courses, 'forced_values' => $forcedValues));
@@ -163,16 +163,16 @@ class AdminController extends Zend_Controller_Action {
         if ($type == 'bhci') {
             /* Load core and prerequisite requirements for BHCI of all years */
             $reqs = $dbPrograms->getRequirementsByProgram('bhci');
-        }
-        else if ($type == 'ugminor') {
+        } else if ($type == 'ugminor') {
             /* Load core and prerequisite requirements for UGMinor, of all years */
             $reqs = $dbPrograms->getRequirementsByProgram('ugminor');
-        }
-        else if ($type == 'admin') {
+        } else if ($type == 'admin') {
             /* Show administrators */
             $this->view->users = $db->getAdministrators()->toArray();
-        }
-        else {
+        } else if ($type == 'metals') {
+            /* Load core, prereq and electives requirements for METALS, of all years */
+            $reqs = $dbPrograms->getRequirementsByProgram('metals');
+        } else {
             /* Show MHCI users for all other cases */
             $this->view->type = 'mhci';
 
@@ -590,21 +590,27 @@ class AdminController extends Zend_Controller_Action {
         echo "Done";
     }
 
+    public function metalsViewAction() {
+        $this->session_user->loginType = "student";
+        $this->session_user->andrewId = "metalsstudent";
+        $this->_redirect("/");
+    }
+
     public function mhciViewAction() {
-      $this->session_user->loginType = "student";
-      $this->session_user->andrewId = "mhcistudent";
-      $this->_redirect("/");
+        $this->session_user->loginType = "student";
+        $this->session_user->andrewId = "mhcistudent";
+        $this->_redirect("/");
     }
 
     public function bhciViewAction() {
-      $this->session_user->loginType = "student";
-      $this->session_user->andrewId = "bhcistudent";
-      $this->_redirect("/");
+        $this->session_user->loginType = "student";
+        $this->session_user->andrewId = "bhcistudent";
+        $this->_redirect("/");
     }
 
     public function ugminorViewAction() {
-      $this->session_user->loginType = "student";
-      $this->session_user->andrewId = "minorstudent";
-      $this->_redirect("/");
+        $this->session_user->loginType = "student";
+        $this->session_user->andrewId = "minorstudent";
+        $this->_redirect("/");
     }
 }

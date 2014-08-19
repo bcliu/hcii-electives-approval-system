@@ -51,7 +51,7 @@
             <div class="progress-bar progress-bar-info" role="progressbar"></div>
         </div>
         
-        <?php if ($this->type == 'mhci' || $this->type == 'ugminor') { ?>
+        <?php if ($this->type == 'mhci' || $this->type == 'ugminor' || $this->type == 'metals') { ?>
 
         <h5 style='margin-top:40px'>You have finished <label id='electives-taken'><?= $this->electivesTaken ?></label> elective(s)<?php if ($this->totalElectives != -1) { ?>, and need another <label id='electives-left'><?= $this->totalElectives - $this->electivesTaken ?></label> to graduate.<label class='electives-progress'><?= "{$this->electivesTaken}/{$this->totalElectives}" ?></label></h5>
         <div id='electives-progress-bar' class="progress">

@@ -7,6 +7,10 @@
             <li class='<?= ($this->type == "mhci" ? "active" : "") ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/usrmgr/type/mhci">MHCI</a>
             </li>
+
+            <li class='<?= ($this->type == "metals" ? "active" : "") ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/usrmgr/type/metals">METALS</a>
+            </li>
             
             <li class='<?= ($this->type == "bhci" ? "active" : "") ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/usrmgr/type/bhci">BHCI</a>
@@ -20,7 +24,6 @@
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/usrmgr/type/admin">Administrators</a>
             </li>
         </ul>
-        
         
         <div style='overflow: auto; max-height:80%'>
 
@@ -194,6 +197,12 @@
                         <label class="form-control">MHCI</label>
                     </span>
                     <span class="input-group">
+                        <span class="input-group-addon" id='receive-from-metals'>
+                            <input type="checkbox" name='receive-from-metals'>
+                        </span>
+                        <label class="form-control">METALS</label>
+                    </span>
+                    <span class="input-group">
                         <span class="input-group-addon" id='receive-from-bhci'>
                             <input type="checkbox" name='receive-from-bhci'>
                         </span>
@@ -212,6 +221,7 @@
                 <button type="button" onclick='clearUserInfoFields()' class="btn btn-warning" style='margin-right:10px'>Clear All Fields</button>
                 <button type="button" id='submit-new-user' class="btn btn-primary" style='margin-right: 5px'>Add or Update</button> <span id='span-after-add'>as <b><?php 
                                                     if ($this->type == 'mhci') echo("MHCI");
+                                                    else if ($this->type == 'metals') echo('METALS');
                                                     else if ($this->type == 'bhci') echo("BHCI");
                                                     else if ($this->type == 'ugminor') echo("Undergraduate Minor");
                                                     else if ($this->type == 'admin') echo("Administrator") ?></b>
@@ -241,9 +251,9 @@
                     </div>
                 </div>
 
-                <div class="panel panel-default" id='panel-<?= ($this->type == "mhci") ? "place-outs" : "prereqs" ?>'>
+                <div class="panel panel-default" id='panel-<?= ($this->type == "mhci" || $this->type == "metals") ? "place-outs" : "prereqs" ?>'>
                     <div class="panel-heading bold" style='font-size: 15px'><?= 
-                        ($this->type == "mhci") ? "Place-out courses" : "Prerequisites"
+                        ($this->type == "mhci" || $this->type == "metals") ? "Place-out courses" : "Prerequisites"
                     ?></div>
                     <div class="row main-row">
                         <div class="col-sm-12">
@@ -254,7 +264,7 @@
                                         <th>#</th>
                                         <th>Course name</th>
                                         <th>Status</th>
-                                        <?php if ($this->type == 'mhci') { ?><th>Notes</th><?php } ?>
+                                        <?php if ($this->type == 'mhci' || $this->type == 'metals') { ?><th>Notes</th><?php } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -419,7 +429,7 @@
                 <div class="modal-body" style='padding-bottom: 0px'>
                     <div class="well">
                         The Excel file (*.xls, *.xlsx) should contain columns with the following headers (columns do not have to be in order):<br /><br />
-                        <b>Program</b> (m = MHCI, b = BHCI, minor = Undergraduate minor)<br />
+                        <b>Program</b> (m = MHCI, metals = METALS, b = BHCI, minor = Undergraduate minor)<br />
                         <b>Andrew ID</b></br>
                         <b>Status</b> (e = Enrolled, g = Graduated, i = Inactive) (will default to Enrolled if no value specified)<br />
                         <b>FT/PT</b> (f = Full-time, p = Part-time) (will default to Full-time if no value specified)<br />
@@ -591,7 +601,7 @@
                                         <?= $this->produceList(['Elective', 'Prerequisite', 'Core']) ?>
                                     <?php } else if ($this->type == "bhci") { ?>
                                         <?= $this->produceList(['Restricted application elective', 'Free elective', 'Core', 'Prerequisite']) ?>
-                                    <?php } else if ($this->type == "mhci") { ?>
+                                    <?php } else if ($this->type == "mhci" || $this->type == 'metals') { ?>
                                         <?= $this->produceList(['Elective', 'Core']) ?>
                                     <?php } ?>
                                 </ul>

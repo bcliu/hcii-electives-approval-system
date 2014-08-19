@@ -79,6 +79,10 @@
             <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/mhci">MHCI</a>
             </li>
+
+            <li id='metals-tab' class='<?= $this->program == "metals" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/metals">METALS</a>
+            </li>
             
             <li id='bhci-tab' class='<?= $this->program == "bhci" ? "active" : "" ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/bhci">BHCI</a>
@@ -189,8 +193,7 @@
             </div>
 
         <?php } else { ?>
-
-            <div id="mhci-pane">
+            <div id="<?= $this->program ?>-pane">
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
                 <table id='table-cores' class='table' type='core'>
                     <thead>

@@ -73,7 +73,7 @@ class StudentController extends Zend_Controller_Action {
                 $enrollYear, $enrollSemester, $program, "application-elective");
             $this->view->applicationElectivesTaken = $db->getNumberSatisfiedByType($andrewId, "application-elective");
         }
-        else if ($program == 'mhci' || $program == 'ugminor') {
+        else if ($program == 'mhci' || $program == 'ugminor' || $program == 'metals') {
             $this->view->totalElectives = $programs->getNumberOfElectivesByProgram(
                 $enrollYear, $enrollSemester, $program, "elective");
             $this->view->electivesTaken = $db->getNumberSatisfiedByType($andrewId, "elective");

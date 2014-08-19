@@ -1,1 +1,100 @@
-function isBAbove(e){return e=="b"||e=="bp"||e=="am"||e=="a"||e=="ap"}function isCAbove(e){return isBAbove(e)||e=="c"||e=="cp"||e=="bm"}function replaceAll(e,t,n){return n.replace(new RegExp(e,"g"),t)}function getColoredStatusText(e){var t=status2Text[e];switch(e){case"need-clarification":return"<span class='text-warning'>"+t+"</span>";break;case"submitted":return"<span class='text-danger'>"+t+"</span>";break;case"approved":return"<span class='text-success'>"+t+"</span>";break;default:return"<span>"+t+"</span>"}}function getKey(e,t){for(var n in e){if(e[n]==t){return n}}return null}var baseUrl="/easy";var displayNone={display:"none"};var displayDefault={display:""};var status2Text={"need-clarification":"Clarification needed",submitted:"Awaiting approval",approved:"Approved but not taken",rejected:"Rejected",taking:"In progress",taken:"Taken"};var takingAs2Text={elective:"Elective",core:"Core","free-elective":"Free elective","application-elective":"Restricted application elective","place-out":"Place-out",prerequisite:"Prerequisite"};var grade2Text={ap:"A+",a:"A",am:"A-",bp:"B+",b:"B",bm:"B-",cp:"C+",c:"C",cm:"C-",dp:"D+",d:"D",r:"R",s:"S",p:"P",n:"N",w:"W",i:"I",na:"N/A"};$(function(){if($("#new-user-password-notice").attr("id")!=undefined){$("#new-user-password-notice").popover({html:true,content:"<h5>For new users, use the temporary<br />password sent to your Andrew<br />mail address to log in and create an<br />EASy-specific password.</h5><h5>If you have lost your password,<br />use Reset to send the email again.</h5>",trigger:"hover"})}})
+var baseUrl = "";
+
+var displayNone = {
+    display: 'none'
+};
+
+var displayDefault = {
+    display: ''
+};
+
+var status2Text = {
+    "need-clarification": "Clarification needed",
+    submitted: "Awaiting approval",
+    approved: "Approved but not taken",
+    rejected: "Rejected",
+    taking: "In progress",
+    taken: "Taken"
+};
+
+var takingAs2Text = {
+    elective: "Elective",
+    core: "Core",
+    "free-elective": "Free elective",
+    "application-elective": "Restricted application elective",
+    "place-out": "Place-out",
+    'prerequisite': 'Prerequisite'
+};
+
+var grade2Text = {
+    ap: 'A+',
+    a: 'A',
+    am: 'A-',
+    bp: 'B+',
+    b: 'B',
+    bm: 'B-',
+    cp: 'C+',
+    c: 'C',
+    cm: 'C-',
+    dp: 'D+',
+    d: 'D',
+    r: 'R',
+    s: 'S',
+    p: 'P',
+    n: 'N',
+    w: 'W',
+    i: 'I',
+    na: 'N/A'
+};
+
+function isBAbove(grade) {
+    return grade == 'b' || grade == 'bp' || grade == 'am' || grade == 'a' || grade == 'ap';
+}
+
+function isCAbove(grade) {
+    return isBAbove(grade) || grade == 'c' || grade == 'cp' || grade == 'bm';
+}
+
+function replaceAll(find, replace, str) {
+    return str.replace(new RegExp(find, 'g'), replace);
+}
+
+function getColoredStatusText(status) {
+    var statusText = status2Text[status];
+    switch (status) {
+        case "need-clarification":
+        return "<span class='text-warning'>" + statusText + "</span>";
+        break;
+
+        case "submitted":
+        return "<span class='text-danger'>" + statusText + "</span>";
+        break;
+
+        case "approved":
+        return "<span class='text-success'>" + statusText + "</span>";
+        break;
+
+        default:
+        return "<span>" + statusText + "</span>";
+    }
+}
+
+$(function () {
+    if ($('#new-user-password-notice').attr('id') != undefined) {
+        $('#new-user-password-notice').popover({
+            html: true,
+            content: "<h5>For new users, use the temporary<br />password sent to your Andrew<br />mail address to log in and create an<br />EASy-specific password.</h5><h5>If you have lost your password,<br />use Reset to send the email again.</h5>",
+            trigger: 'hover'
+        });
+    }
+
+});
+
+function getKey(obj, v) {
+    for (var key in obj) {
+        if(obj[key] == v){
+            return key;
+        }
+    }
+    return null;
+}

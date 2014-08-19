@@ -2,14 +2,14 @@
 <!--
 
 Created by Chen Liu (CS'16) for Human-Computer Interaction Institute @ CMU
-Hope you'll like it!
+Hope you like it!
 
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta charset="utf-8">
-	<title><?=$this->title ?></title>
-	<script type="text/javascript" src="<?= $this->baseUrl(); ?>/public/js/lib/jquery-2.0.3.min.js"></script>
+    <meta charset="utf-8">
+    <title><?=$this->title ?></title>
+    <script type="text/javascript" src="<?= $this->baseUrl(); ?>/public/js/lib/jquery-2.0.3.min.js"></script>
     <link href="<?= $this->baseUrl(); ?>/public/css/lib/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="<?= $this->baseUrl(); ?>/public/js/lib/bootstrap-datepicker.js"></script>
     <link href="<?= $this->baseUrl(); ?>/public/css/lib/datepicker.css" rel="stylesheet">
@@ -18,13 +18,13 @@ Hope you'll like it!
     <link href="<?= $this->baseUrl(); ?>/public/css/lib/bootstrap-tokenfield.min.css" rel="stylesheet">
     <link href="<?= $this->baseUrl(); ?>/public/css/lib/tokenfield-typeahead.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-	<?php
-	$this->headLink()->prependStylesheet($this->baseUrl() . '/public/css/global.css');
-	$this->headScript()->prependFile($this->baseUrl() . '/public/js/global.js');
+    <?php
+    $this->headLink()->prependStylesheet($this->baseUrl() . '/public/css/global.css');
+    $this->headScript()->prependFile($this->baseUrl() . '/public/js/global.js');
 
-	echo $this->headScript();
-	echo $this->headLink();
-	?>
+    echo $this->headScript();
+    echo $this->headLink();
+    ?>
 </head>
 <body>
     <?php $currentAction = Zend_Controller_Front::getInstance()->getRequest()->getActionName(); ?>
@@ -53,10 +53,11 @@ Hope you'll like it!
                   } ?>
                   <b class="caret"></b></a>
               <ul class="dropdown-menu">
-		<li><a href="<?= $this->baseUrl(); ?>/admin/bhci-view">Switch to BHCI student view</a></li>
-		<li><a href="<?= $this->baseUrl(); ?>/admin/mhci-view">Switch to MHCI student view</a></li>
-		<li><a href="<?= $this->baseUrl(); ?>/admin/ugminor-view">Switch to minor student view</a></li>
-		<li class="divider"></li>
+                <li><a href="<?= $this->baseUrl(); ?>/admin/bhci-view">Switch to BHCI student view</a></li>
+                <li><a href="<?= $this->baseUrl(); ?>/admin/mhci-view">Switch to MHCI student view</a></li>
+                <li><a href="<?= $this->baseUrl(); ?>/admin/metals-view">Switch to METALS student view</a></li>
+                <li><a href="<?= $this->baseUrl(); ?>/admin/ugminor-view">Switch to minor student view</a></li>
+                <li class="divider"></li>
                 <li><a href="<?= $this->baseUrl(); ?>/users/logout">Log out</a></li>
               </ul>
             </li>

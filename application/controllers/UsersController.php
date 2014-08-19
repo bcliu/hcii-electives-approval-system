@@ -203,14 +203,13 @@ class UsersController extends Zend_Controller_Action
                     $program = strtolower($row[$PROGRAM]);
                     if ($program == "m" || $program == "mhci") {
                         $program = "mhci";
-                    }
-                    else if ($program == "b" || $program == "bhci") {
+                    } else if ($program == 'metals') {
+                        $program = 'metals';
+                    } else if ($program == "b" || $program == "bhci") {
                         $program = "bhci";
-                    }
-                    else if ($program == "minor") {
+                    } else if ($program == "minor") {
                         $program = "ugminor";
-                    }
-                    else {
+                    } else {
                         throw new Exception("Unrecognized program for user with Andrew ID $andrewId");
                     }
 
@@ -287,7 +286,7 @@ class UsersController extends Zend_Controller_Action
         }
     }
     
-    /* Create a mhci/bhci/ugminor/admin user, then redirect back to the original page */
+    /* Create a mhci/metals/bhci/ugminor/admin user, then redirect back to the original page */
     public function createAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
@@ -311,6 +310,7 @@ class UsersController extends Zend_Controller_Action
 
             if ($type == 'admin') {
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-mhci') ? "mhci," : "";
+                $receiveFrom .= $this->getRequest()->getPost('receive-from-metals') ? "metals," : "";
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-bhci') ? "bhci," : "";
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-ugminor') ? "ugminor" : "";
             }
