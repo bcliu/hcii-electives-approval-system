@@ -366,7 +366,6 @@ $(function () {
 
     /* Form submitted successfully: load students again */
     $(document).ajaxComplete(function (e) {
-        console.log("Inside ajaxComplete");
         if (typeof(reloadList) != 'undefined' && reloadList) {
             reloadList = false;
 
@@ -455,12 +454,17 @@ $(function () {
         $('#modal-add-course-status .dropdown-menu').append(generateDropdownItem(value));
     });
     /* Append grades options */
-    $.each(grade2Text, function (key, value) {
+    /* For undergrad programs, use letter grades only */
+    var isUndergradProgram = (currentProgram == 'bhci' || currentProgram == 'ugminor');
+    var gradesToUse = isUndergradProgram ? letterGrades : grade2Text;
+    $.each(gradesToUse, function (key, value) {
         $('#dialog-grade .dropdown-menu').append(generateDropdownItem(value));
-        $('#dialog-grade .dropdown-menu li:last').data('grade', key);
-
+        /* Since letterGrades is only letters array, need to call getKey */
+        var gradeKey = isUndergradProgram ? getKey(grade2Text, value) : key;
+        $('#dialog-grade .dropdown-menu li:last').data('grade', gradeKey);
         $('#modal-add-course-grade .dropdown-menu').append(generateDropdownItem(value));
     });
+    
     /* Append year options (current year - 4 to current year + 4) */
     for (var i = -4; i <= 4; i++) {
         $('#dialog-semester-year .dropdown-menu').append(
@@ -704,8 +708,6 @@ function addUpdateStatusHandler() {
             data['year'] = $('#dialog-semester-year button').text();
             data['grade'] = $('#dialog-grade button').data('grade');
         }
-
-        alert(JSON.stringify(data));
 
         $.post(baseUrl + "/admin/updatestatus", data).done(function (ret) {
             $('.modal').modal('hide');

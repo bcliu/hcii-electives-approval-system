@@ -47,6 +47,9 @@ var grade2Text = {
     na: 'N/A'
 };
 
+/* For BHCI and undergrad minor, there are only letter grades */
+var letterGrades = ['A', 'B', 'C', 'D', 'R', 'S', 'P', 'N', 'W', 'I', 'N/A'];
+
 function isBAbove(grade) {
     return grade == 'b' || grade == 'bp' || grade == 'am' || grade == 'a' || grade == 'ap';
 }
