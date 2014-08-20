@@ -696,7 +696,7 @@ function addUpdateStatusHandler() {
         var data = {
             course_id: $('#dialog-course-id').text(),
             status: status,
-            comment: $('#dialog-comment textarea').text()
+            comment: $('#dialog-comment textarea').val()
         };
 
         if (status == 'taking' || status == 'taken') {
@@ -704,6 +704,8 @@ function addUpdateStatusHandler() {
             data['year'] = $('#dialog-semester-year button').text();
             data['grade'] = $('#dialog-grade button').data('grade');
         }
+
+        alert(JSON.stringify(data));
 
         $.post(baseUrl + "/admin/updatestatus", data).done(function (ret) {
             $('.modal').modal('hide');
@@ -1277,7 +1279,7 @@ function addCourseSelectedHandler() {
         var year = dialogCourseData['year'] == null ? (new Date().getFullYear()) : dialogCourseData['year'];
         $('#dialog-semester-year button').text(year);
 
-        $('#dialog-comment textarea').text(dialogCourseData['comment']);
+        $('#dialog-comment textarea').val(dialogCourseData['comment']);
         $('#dialog-course-id').text(dialogCourseData['id']); /* Store course ID in db for updating status */
 
         var detailsSemesterRow = $('#tr-semester');
