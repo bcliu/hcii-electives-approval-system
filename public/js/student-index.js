@@ -34,7 +34,7 @@ $(function () {
     /* Show the textarea for requesting correction on click */
     $('#link-problem').click(function () {
         $('#div-request-correction textarea').val("");
-        $('#div-request-correction').css(displayDefault);
+        $('#div-request-correction').setVisible();
     });
     
     /* Submit the request */
@@ -47,6 +47,6 @@ $(function () {
             $('#div-student-info').append("<div class='alert alert-block alert-danger'><a class='close' data-dismiss='alert' href='#'>X</a>Failed to send request. Please try again later.</div>");
         });
         
-        $('#div-request-correction').css(displayNone);
+        $('#div-request-correction').setGone();
     });
 });

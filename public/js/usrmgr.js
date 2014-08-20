@@ -76,7 +76,7 @@ function selectStudentRow(andrewId) {
 function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
     clearUserInfoFields();
     $('#loading-users').css({ 'display': 'block' });
-    $('#no-users').css({ 'display': 'none' });
+    $('#no-users').setGone();
     var showGraduated = $('#show-graduated').is(":checked") ? 1 : 0;
     var showEnrolled = $('#show-enrolled').is(":checked") ? 1 : 0;
     var startYear = $('#filter-year-lower-bound').val();
@@ -112,7 +112,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
                 "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
         });
 
-        $('#loading-users').css({ 'display': 'none' });
+        $('#loading-users').setGone();
 
         if (json.length == 0) {
             $('#no-users').css({ 'display': 'block' });
@@ -410,11 +410,11 @@ $(function () {
     $('input[name="is-full-time"][value="1"]').parent().button('toggle');
     
     $('input[name="andrew-id"]').on('change keydown paste input', function () {
-        $('#delete-user').css(displayNone);
+        $('#delete-user').setGone();
         $('#submit-new-user').text("Add or Update");
-        $('#courses-tab').css(displayNone);
-        $('#span-after-add').css(displayDefault);
-        $('#not-activated-notice').css(displayNone);
+        $('#courses-tab').setGone();
+        $('#span-after-add').setVisible();
+        $('#not-activated-notice').setGone();
     });
     
     $('#delete-user').click(function () {
@@ -483,18 +483,18 @@ $(function () {
 
         /* If Taken, show both grade and semester selectors */
         if (newStatus == 'taken') {
-            detailsSemesterRow.css(displayDefault);
-            detailsGradeRow.css(displayDefault);
+            detailsSemesterRow.setVisible();
+            detailsGradeRow.setVisible();
         /* If Taking, hide grade and set grade to N/A */
         } else if (newStatus == 'taking') {
-            detailsSemesterRow.css(displayDefault);
-            detailsGradeRow.css(displayNone);
+            detailsSemesterRow.setVisible();
+            detailsGradeRow.setGone();
             detailsGradeButton.text(grade2Text['na']);
             detailsGradeButton.data('grade', 'na');
         /* Hide both otherwise */
         } else {
-            detailsSemesterRow.css(displayNone);
-            detailsGradeRow.css(displayNone);
+            detailsSemesterRow.setGone();
+            detailsGradeRow.setGone();
         }
     });
 
@@ -535,21 +535,21 @@ $(function () {
 
         /* Show semester and grade selector when status is Taken */
         if (newStatus == 'taken') {
-            addCourseSemesterRow.css(displayDefault);
-            addCourseGradeRow.css(displayDefault);
+            addCourseSemesterRow.setVisible();
+            addCourseGradeRow.setVisible();
         /* Show semester but hide grade, and set grade to N/A when Taking */
         } else if (newStatus == 'taking') {
-            addCourseSemesterRow.css(displayDefault);
-            addCourseGradeRow.css(displayNone);
+            addCourseSemesterRow.setVisible();
+            addCourseGradeRow.setGone();
             addCourseGradeButton.html("N/A");
         /* Otherwise hide both */
         } else {
-            addCourseSemesterRow.css(displayNone);
-            addCourseGradeRow.css(displayNone);
+            addCourseSemesterRow.setGone();
+            addCourseGradeRow.setGone();
         }
     });
     /* Initialize grade row in add course modal dialog to invisible */
-    addCourseGradeRow.css(displayNone);
+    addCourseGradeRow.setGone();
 
     $('#modal-add-course-grade .dropdown-menu li').click(function () {
         addCourseGradeButton.html($(this).text());
@@ -752,7 +752,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
         if (e['andrew_id'] == andrewId) {
             /* Update the inputs using e */
             $('input[name="andrew-id"]').val(andrewId);
-            $('#delete-user').css(displayDefault);
+            $('#delete-user').setVisible();
             $('#delete-user').text('Delete "' + andrewId + '"');
             $('input[name="name"]').val(e['name']);
             $('textarea[name="notes"]').text(e['notes']);
@@ -762,7 +762,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
             });
 
             $('#submit-new-user').text("Update User");
-            $('#span-after-add').css(displayNone);
+            $('#span-after-add').setGone();
             /* Above are shared inputs between admin and students */
 
             /* For admin page, receive updates from which students */
@@ -796,7 +796,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
             if ($('input[name="major"]').attr('name') != undefined) {
                 /* If major exists, then it is a student page */
 
-                $('#courses-tab').css(displayDefault);
+                $('#courses-tab').setVisible();
                 if (e['number_awaiting_approval'] > 0) {
                     $('#courses-tab .badge').text(e['number_awaiting_approval']);
                 }
@@ -847,14 +847,14 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     });
 
                     if (nonPlaceoutCount == 0) {
-                        $('#row-electives-placeouts #no-courses').css(displayDefault);
-                        $('#row-electives-placeouts #table-courses').css(displayNone);
-                        $('#row-electives-placeouts #div-ordering').css(displayNone);
+                        $('#row-electives-placeouts #no-courses').setVisible();
+                        $('#row-electives-placeouts #table-courses').setGone();
+                        $('#row-electives-placeouts #div-ordering').setGone();
                     }
                     else {
-                        $('#row-electives-placeouts #no-courses').css(displayNone);
-                        $('#row-electives-placeouts #table-courses').css(displayDefault);
-                        $('#row-electives-placeouts #div-ordering').css(displayDefault);
+                        $('#row-electives-placeouts #no-courses').setGone();
+                        $('#row-electives-placeouts #table-courses').setVisible();
+                        $('#row-electives-placeouts #div-ordering').setVisible();
 
 
                         for (var i = 0; i < courses.length; i++) {
@@ -1025,14 +1025,14 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                     var emptyNotice = 'No requirements are specified for ' + enrollSemester + ' ' + enrollYear + ' semester.';
                     if (!coresFound) {
-                        $('#table-cores').css({ display: 'none' });
-                        $('#panel-cores .no-courses').css({ display: '' });
+                        $('#table-cores').setGone();
+                        $('#panel-cores .no-courses').setVisible();
                         $('#panel-cores .no-courses').text(emptyNotice);
-                        $('#panel-electives').css({ display: 'none' });
+                        $('#panel-electives').setGone();
                     }
                     else {
-                        $('#table-cores').css({ display: '' });
-                        $('#panel-cores .no-courses').css({ display: 'none' });
+                        $('#table-cores').setVisible();
+                        $('#panel-cores .no-courses').setGone();
 
                         /* If cores are found, then requirements for this semester are defined. Show courses summary */
                         var summaryElectives = $('#summary-electives');
@@ -1096,23 +1096,23 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     }
 
                     if (!placeOutsFound && $('#panel-place-outs').attr('id') != undefined) {
-                        $('#panel-place-outs table').css({ display: 'none' });
-                        $('#panel-place-outs .no-courses').css({ display: '' });
+                        $('#panel-place-outs table').setGone();
+                        $('#panel-place-outs .no-courses').setVisible();
                         $('#panel-place-outs .no-courses').text(emptyNotice);
                     }
                     else {
-                        $('#panel-place-outs table').css({ display: '' });
-                        $('#panel-place-outs .no-courses').css({ display: 'none' });
+                        $('#panel-place-outs table').setVisible();
+                        $('#panel-place-outs .no-courses').setGone();
                     }
 
                     if (!prereqsFound && $('#panel-prereqs').attr('id') != undefined) {
-                        $('#panel-prereqs table').css({ display: 'none' });
-                        $('#panel-prereqs .no-courses').css({ display: '' });
+                        $('#panel-prereqs table').setGone();
+                        $('#panel-prereqs .no-courses').setVisible();
                         $('#panel-prereqs .no-courses').text(emptyNotice);
                     }
                     else {
-                        $('#panel-prereqs table').css({ display: '' });
-                        $('#panel-prereqs .no-courses').css({ display: 'none' });
+                        $('#panel-prereqs table').setVisible();
+                        $('#panel-prereqs .no-courses').setGone();
                     }
 
                     attachPlaceoutHandler();
@@ -1284,18 +1284,18 @@ function addCourseSelectedHandler() {
         var detailsGradeRow = $('#tr-grade');
         /* Show semester and grade rows if Taken */
         if (status == 'taken') {
-            detailsSemesterRow.css(displayDefault);
-            detailsGradeRow.css(displayDefault);
+            detailsSemesterRow.setVisible();
+            detailsGradeRow.setVisible();
         /* Hide grade and set to N/A if Taking */
         } else if (status == 'taking') {
-            detailsSemesterRow.css(displayDefault);
-            detailsGradeRow.css(displayNone);
+            detailsSemesterRow.setVisible();
+            detailsGradeRow.setGone();
             detailsGradeButton.text(grade2Text['na']);
             detailsGradeButton.data('na');
         /* Hide both otherwise */
         } else {
-            detailsSemesterRow.css(displayNone);
-            detailsGradeRow.css(displayNone);
+            detailsSemesterRow.setGone();
+            detailsGradeRow.setGone();
         }
 
         $('#course-details').modal('show');

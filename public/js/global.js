@@ -112,3 +112,17 @@ function getKey(obj, v) {
 function generateDropdownItem(text) {
     return "<li><a href='#'>" + text + "</a></li>";
 }
+
+/* Extend jQuery to support setting element to visible or gone using CSS */
+jQuery.fn.extend({
+    setVisible: function () {
+        return this.each(function () {
+            $(this).css(displayDefault);
+        });
+    },
+    setGone: function () {
+        return this.each(function () {
+            $(this).css(displayNone);
+        });
+    }
+});
