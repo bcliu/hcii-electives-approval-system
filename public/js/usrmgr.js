@@ -546,13 +546,11 @@ $(function () {
     };
 
     /* Change year when option selected */
-    var detailsYearButton = $('#dialog-semester-year button');
-    var detailsSemesterButton = $('#dialog-semester-semester button');
     addYearSemesterSelectHandler(
         $('#dialog-semester-semester .dropdown-menu li'),
-        detailsSemesterButton,
+        $('#dialog-semester-semester button'),
         $('#dialog-semester-year .dropdown-menu li'),
-        detailsYearButton);
+        $('#dialog-semester-year button'));
 
     addUpdateStatusHandler();
 
@@ -793,7 +791,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
             $('#delete-user').setVisible();
             $('#delete-user').text('Delete "' + andrewId + '"');
             $('input[name="name"]').val(e['name']);
-            $('textarea[name="notes"]').text(e['notes']);
+            $('textarea[name="notes"]').val(e['notes']);
             $('#courses-pane-notes').text(e['notes']);
             $('#not-activated-notice').css({
                 display: (e['is_activated'] == '0' ? "" : "none")
