@@ -90,6 +90,12 @@ $(function () {
 
 });
 
+/**
+ * Given a human readable grade text (e.g. A+),
+ * find the database representation (e.g. ap) by
+ * searching for the key with the given value
+ * in a key-value pair variable obj.
+ */
 function getKey(obj, v) {
     for (var key in obj) {
         if(obj[key] == v){
@@ -97,4 +103,12 @@ function getKey(obj, v) {
         }
     }
     return null;
+}
+
+/**
+ * Generate li element with a link as its only child.
+ * (<li><a href='#'>[string]</a></li>)
+ */
+function generateDropdownItem(text) {
+    return "<li><a href='#'>" + text + "</a></li>";
 }

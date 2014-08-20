@@ -449,48 +449,59 @@ $(function () {
 
     /* Append course status options to Course details modal dialog, and Add Course dialog */
     $.each(status2Text, function (key, value) {
-        $('#dialog-status .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#dialog-status .dropdown-menu').append(generateDropdownItem(value));
         $('#dialog-status .dropdown-menu li:last').data('status', key);
 
-        $('#modal-add-course-status .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#modal-add-course-status .dropdown-menu').append(generateDropdownItem(value));
     });
     /* Append grades options */
     $.each(grade2Text, function (key, value) {
-        $('#dialog-grade .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#dialog-grade .dropdown-menu').append(generateDropdownItem(value));
         $('#dialog-grade .dropdown-menu li:last').data('grade', key);
 
-        $('#modal-add-course-grade .dropdown-menu').append("<li><a href='#'>" + value + "</a></li>");
+        $('#modal-add-course-grade .dropdown-menu').append(generateDropdownItem(value));
     });
     /* Append year options (current year - 4 to current year + 4) */
     for (var i = -4; i <= 4; i++) {
-        $('#dialog-semester-year .dropdown-menu').append("<li><a href='#'>"
-                 + (new Date().getFullYear() + i) + "</a></li>");
-        $('#modal-add-course-year .dropdown-menu').append("<li><a href='#'>"
-                 + (new Date().getFullYear() + i) + "</a></li>");
+        $('#dialog-semester-year .dropdown-menu').append(
+            generateDropdownItem(new Date().getFullYear() + i));
+        $('#modal-add-course-year .dropdown-menu').append(
+            generateDropdownItem(new Date().getFullYear() + i));
     }
 
+    var detailsSemesterRow = $('#tr-semester');
+    var detailsGradeRow = $('#tr-grade');
+    var detailsStatusButton = $('#dialog-status button');
+    var detailsGradeButton = $('#dialog-grade button');
     /* Change status text and data when option selected */
     $('#dialog-status .dropdown-menu li').click(function () {
         /* When selected is different from the current one, enable Update Status button */
         var newStatus = $(this).data('status');
-        $('#dialog-status button').html(getColoredStatusText(newStatus));
+        detailsStatusButton.html(getColoredStatusText(newStatus));
         /* Append status value to the button for later retrieval */
-        $('#dialog-status button').data('status', newStatus);
+        detailsStatusButton.data('status', newStatus);
 
-        if (newStatus == 'taken' || newStatus == 'taking') {
-            $('#tr-semester').css(displayDefault);
-            $('#tr-grade').css(displayDefault);
-        }
-        else {
-            $('#tr-semester').css(displayNone);
-            $('#tr-grade').css(displayNone);
+        /* If Taken, show both grade and semester selectors */
+        if (newStatus == 'taken') {
+            detailsSemesterRow.css(displayDefault);
+            detailsGradeRow.css(displayDefault);
+        /* If Taking, hide grade and set grade to N/A */
+        } else if (newStatus == 'taking') {
+            detailsSemesterRow.css(displayDefault);
+            detailsGradeRow.css(displayNone);
+            detailsGradeButton.text(grade2Text['na']);
+            detailsGradeButton.data('grade', 'na');
+        /* Hide both otherwise */
+        } else {
+            detailsSemesterRow.css(displayNone);
+            detailsGradeRow.css(displayNone);
         }
     });
 
     /* Change grade text and data when option selected */
     $('#dialog-grade .dropdown-menu li').click(function () {
-        $('#dialog-grade button').text(grade2Text[$(this).data('grade')]);
-        $('#dialog-grade button').data('grade', $(this).data('grade'));
+        detailsGradeButton.text(grade2Text[$(this).data('grade')]);
+        detailsGradeButton.data('grade', $(this).data('grade'));
     });
 
     /* Change year when option selected */
@@ -512,23 +523,36 @@ $(function () {
         $('#modal-add-course-type button').text($(this).text());
     });
 
+    var addCourseStatusButton = $('#modal-add-course-status button');
+    var addCourseSemesterRow = $('#tr-add-course-semester');
+    var addCourseGradeRow = $('#tr-add-course-grade');
+    var addCourseGradeButton = $('#modal-add-course-grade button');
     $('#modal-add-course-status .dropdown-menu li').click(function () {
+        /* Database representation status, e.g. na (for N/A) */
         var newStatus = getKey(status2Text, $(this).text());
         var statusHtml = getColoredStatusText(newStatus);
-        $('#modal-add-course-status button').html(statusHtml);
+        addCourseStatusButton.html(statusHtml);
 
-        if (newStatus == 'taken' || newStatus == 'taking') {
-            $('#tr-add-course-semester').css(displayDefault);
-            $('#tr-add-course-grade').css(displayDefault);
-        }
-        else {
-            $('#tr-add-course-semester').css(displayNone);
-            $('#tr-add-course-grade').css(displayNone);
+        /* Show semester and grade selector when status is Taken */
+        if (newStatus == 'taken') {
+            addCourseSemesterRow.css(displayDefault);
+            addCourseGradeRow.css(displayDefault);
+        /* Show semester but hide grade, and set grade to N/A when Taking */
+        } else if (newStatus == 'taking') {
+            addCourseSemesterRow.css(displayDefault);
+            addCourseGradeRow.css(displayNone);
+            addCourseGradeButton.html("N/A");
+        /* Otherwise hide both */
+        } else {
+            addCourseSemesterRow.css(displayNone);
+            addCourseGradeRow.css(displayNone);
         }
     });
+    /* Initialize grade row in add course modal dialog to invisible */
+    addCourseGradeRow.css(displayNone);
 
     $('#modal-add-course-grade .dropdown-menu li').click(function () {
-        $('#modal-add-course-grade button').html($(this).text());
+        addCourseGradeButton.html($(this).text());
     });
 
     $('#modal-add-course-year .dropdown-menu li').click(function () {
@@ -1021,11 +1045,9 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 if (eC['status'] == 'taken') {
                                     if (takingAs == 'elective') {
                                         numElectivesCompleted++;
-                                    }
-                                    else if (takingAs == 'application-elective') {
+                                    } else if (takingAs == 'application-elective') {
                                         numApplicationElectivesCompleted++;
-                                    }
-                                    else if (takingAs == 'free-elective') {
+                                    } else if (takingAs == 'free-elective') {
                                         numFreeElectivesCompleted++;
                                     }
                                 }
@@ -1213,8 +1235,7 @@ function attachPlaceoutHandler() {
         if (courseId.text().length == 0) {
             /* The course does not exist yet */
             url = "/admin/add-course";
-        }
-        else {
+        } else {
             /* Course exists */
             url = "/admin/updatestatus";
         }
@@ -1232,6 +1253,8 @@ function attachPlaceoutHandler() {
 function addCourseSelectedHandler() {
     $('#table-courses tbody tr').click(function () {
         var dialogCourseData = $(this).data('course-data');
+        var detailsGradeButton = $('#dialog-grade button');
+        var detailsStatusButton = $('#dialog-status button');
         $('#dialog-course-name').text(dialogCourseData['course_name']);
         $('#dialog-course-number').text(dialogCourseData['course_number']);
         $('#dialog-units').text(dialogCourseData['units']);
@@ -1240,11 +1263,11 @@ function addCourseSelectedHandler() {
         $('#dialog-submission-time').text(dialogCourseData['submission_time']);
 
         var status = dialogCourseData['status'];
-        $('#dialog-status button').html(getColoredStatusText(status));
-        $('#dialog-status button').data('status', status);
+        detailsStatusButton.html(getColoredStatusText(status));
+        detailsStatusButton.data('status', status);
 
-        $('#dialog-grade button').text(grade2Text[dialogCourseData['grade']]);
-        $('#dialog-grade button').data(dialogCourseData['grade']);
+        detailsGradeButton.text(grade2Text[dialogCourseData['grade']]);
+        detailsGradeButton.data(dialogCourseData['grade']);
 
         /* If semester is null, set it to Spring by default */
         var semester = dialogCourseData['semester'] == null ? "Spring" : dialogCourseData['semester'];
@@ -1257,14 +1280,22 @@ function addCourseSelectedHandler() {
         $('#dialog-comment textarea').text(dialogCourseData['comment']);
         $('#dialog-course-id').text(dialogCourseData['id']); /* Store course ID in db for updating status */
 
-        /* Only show grade and semester if the course is Taken or Taking */
-        if (status == 'taken' || status == 'taking') {
-            $('#tr-semester').css(displayDefault);
-            $('#tr-grade').css(displayDefault);
-        }
-        else {
-            $('#tr-semester').css(displayNone);
-            $('#tr-grade').css(displayNone);
+        var detailsSemesterRow = $('#tr-semester');
+        var detailsGradeRow = $('#tr-grade');
+        /* Show semester and grade rows if Taken */
+        if (status == 'taken') {
+            detailsSemesterRow.css(displayDefault);
+            detailsGradeRow.css(displayDefault);
+        /* Hide grade and set to N/A if Taking */
+        } else if (status == 'taking') {
+            detailsSemesterRow.css(displayDefault);
+            detailsGradeRow.css(displayNone);
+            detailsGradeButton.text(grade2Text['na']);
+            detailsGradeButton.data('na');
+        /* Hide both otherwise */
+        } else {
+            detailsSemesterRow.css(displayNone);
+            detailsGradeRow.css(displayNone);
         }
 
         $('#course-details').modal('show');
