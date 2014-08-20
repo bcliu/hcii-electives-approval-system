@@ -257,6 +257,7 @@ function saveRequirements() {
         saveButton.popover('show');
         setTimeout(function () {
             saveButton.popover('hide');
+            location.reload();
         }, 1000);
     }).fail(function (ret) {
         saveButton.popover({
@@ -269,10 +270,8 @@ function saveRequirements() {
         setTimeout(function () {
             saveButton.popover('hide');
         }, 1000);
-        alert(ret);
+        alert(JSON.stringify(ret));
     });
-
-    location.reload();
 }
 
 function afterCreateTokenEvent(e) {

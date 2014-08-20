@@ -105,7 +105,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
         var table = $('#users-table tbody');
         table.html('');
 
-	json.sort(lastNameSorter);
+        json.sort(lastNameSorter);
         $.each(json, function (i, e) {
             table.append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>" + e['name'] +
                 "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
@@ -136,7 +136,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
             }
         });
 
-	searchStudents();
+        searchStudents();
         if (studentToShow != null) {
             fillInfoCoursesWithAndrewId(studentToShow);
 
@@ -202,9 +202,9 @@ function attachUserClickHandler() {
         /* When clicking on some user, update the inputs with data */
         $('tr.user-selected').removeClass('user-selected');
         $(this).addClass('user-selected');
-	if ($(this).find('#td-andrew-id').length == 0) {
-	    return;
-	}
+        if ($(this).find('#td-andrew-id').length == 0) {
+            return;
+        }
         var andrewId = $(this).find('#td-andrew-id').text();
         fillInfoCoursesWithAndrewId(andrewId);
     });
@@ -227,23 +227,23 @@ function searchStudents() {
     var lastNameMatches = [];
     var otherMatches = [];
     $('body').data('users-info').forEach(function (e, i) {
-	var lastName = e['name'].split(" ").pop();
-	if (lastName.toLowerCase().indexOf(text) != -1) {
-	    lastNameMatches.push(i);
-	}
-	else if ((e['andrew_id'].toLowerCase().indexOf(text) != -1 ||
-	     e['name'].toLowerCase().indexOf(text) != -1)) {
-	    otherMatches.push(i);
-		    /* If it's the same one as previously spotted, don't animate again */
-		    /*              (typeof previousLocated == 'undefined' || previousLocated != e['andrew_id'])) {
+        var lastName = e['name'].split(" ").pop();
+        if (lastName.toLowerCase().indexOf(text) != -1) {
+            lastNameMatches.push(i);
+        }
+        else if ((e['andrew_id'].toLowerCase().indexOf(text) != -1 ||
+             e['name'].toLowerCase().indexOf(text) != -1)) {
+            otherMatches.push(i);
+                    /* If it's the same one as previously spotted, don't animate again */
+                    /*              (typeof previousLocated == 'undefined' || previousLocated != e['andrew_id'])) {
                 search = $('tr[andrewid="' + e['andrew_id'] + '"]');                                                                                                         
                 $('#users-table td').css('background-color', '');             
                 previousLocated = e['andrew_id'];                                                                                                                            
                 search.find('td').css('background-color', '#F0AD4E');                                                                                                        
                 setTimeout(function () {                                                                                                                                     
                     search.find('td').css('background-color', '');                                                
-		    }, 1000);*/
-	}
+                    }, 1000);*/
+        }
     });
 
     var i = 0;
@@ -251,9 +251,9 @@ function searchStudents() {
     var numOtherMatches = otherMatches.length;
 
     for (; i < numLastNameMatches; i++) {
-	var e = $('body').data('users-info')[lastNameMatches[i]];
-	$('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
-				       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
+        var e = $('body').data('users-info')[lastNameMatches[i]];
+        $('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
+                                       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
                                        "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
     }
 
@@ -707,6 +707,7 @@ function clearUserInfoFields() {
 
     if ($('#receive-from-mhci').attr('id') != undefined) {
         $('#receive-from-mhci input').prop('checked', false);
+        $('#receive-from-metals input').prop('checked', false);
         $('#receive-from-bhci input').prop('checked', false);
         $('#receive-from-ugminor input').prop('checked', false);
     }
@@ -745,22 +746,25 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                 var receiveFrom = e['receive_from'];
                 if (receiveFrom.indexOf('mhci') != -1) {
                     $('#receive-from-mhci input').prop('checked', true);
-                }
-                else {
+                } else {
                     $('#receive-from-mhci input').prop('checked', false);
+                }
+
+                if (receiveFrom.indexOf('metals') != -1) {
+                    $('#receive-from-metals input').prop('checked', true);
+                } else {
+                    $('#receive-from-metals input').prop('checked', false);
                 }
 
                 if (receiveFrom.indexOf('bhci') != -1) {
                     $('#receive-from-bhci input').prop('checked', true);
-                }
-                else {
+                } else {
                     $('#receive-from-bhci input').prop('checked', false);
                 }
 
                 if (receiveFrom.indexOf('ugminor') != -1) {
                     $('#receive-from-ugminor input').prop('checked', true);
-                }
-                else {
+                } else {
                     $('#receive-from-ugminor input').prop('checked', false);
                 }
             }
@@ -787,8 +791,8 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                 $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
                     var tmp = $.parseJSON(result);
-		    var courses = tmp['courses'];
-		    forcedValues = tmp['forced_values'];
+                    var courses = tmp['courses'];
+                    forcedValues = tmp['forced_values'];
                     courses.sort(function (a, b) {
                         if (sortingMethod == 'order-by-time') {
                             /* Sort by time */
@@ -841,7 +845,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                  + course['course_number'] + "</td><td>"
                                  + takingAs2Text[course['taking_as']] + "</td><td>"
                                  + grade2Text[course['grade']] + "</td><td>"
-				 + getColoredStatusText(course['status']) + "</td></tr>";
+                                 + getColoredStatusText(course['status']) + "</td></tr>";
                             $('#row-electives-placeouts tbody').append(str);
                             $('#row-electives-placeouts tbody tr:last').data('course-data', course);
                         }
@@ -912,17 +916,20 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 var reqs = '(' + e['course_numbers'] + ')';
                                 reqs = replaceAll(',', ') || (', reqs);
                                 reqs = replaceAll('&', ' && ', reqs);
-				
+                                
                                 var isTaking = false;
 
                                 courses.forEach(function (eC) {
                                     var courseType = eC['taking_as'],
                                         courseStatus = eC['status'],
                                         courseNum = eC['course_number'];
-                                    if ((isBAbove(eC['grade']) || eC['grade'] == 'na') && /*courseType == e['type'] &&*/ courseStatus == 'taken') {
-                                        reqs = replaceAll(courseNum, ' true ', reqs);
-                                    }
-                                    else if (/*courseType == e['type'] &&*/ courseStatus == 'taking' && e['course_numbers'].search(courseNum) != -1) {
+                                    if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
+                                        if ((type == 'core' && (isBAbove(eC['grade']) || eC['grade'] == 'na')) ||
+                                            (type == 'prerequisite')) {
+                                            reqs = replaceAll(courseNum, ' true ', reqs);
+                                        }
+                                    } else if (/*courseType == e['type'] &&*/ courseStatus == 'taking' &&
+                                               e['course_numbers'].search(courseNum) != -1) {
                                         isTaking = true;
                                     }
                                 });
@@ -930,24 +937,24 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 var reg = /\d{2}-\d{3}/g;
                                 reqs = reqs.replace(reg, " false ");
                                 var isSatisfied;
-				
-				if (type == 'core') {
-				    isSatisfied = eval(reqs);
-				}
-				else {
-				    var forcedValue = getPrerequisiteForcedStatus(e['course_name']);
-				    var status = forcedValue['value'];
-				    if (status == 'infer') {
-					isSatisfied = eval(reqs);
-				    }
-				    else if (status == 'satisfied') {
-					isSatisfied = true;
-				    }
-				    else {
-					isSatisfied = false;
-					isTaking = false;
-				    }
-				}
+                                
+                                if (type == 'core') {
+                                    isSatisfied = eval(reqs);
+                                }
+                                else {
+                                    var forcedValue = getPrerequisiteForcedStatus(e['course_name']);
+                                    var status = forcedValue['value'];
+                                    if (status == 'infer') {
+                                        isSatisfied = eval(reqs);
+                                    }
+                                    else if (status == 'satisfied') {
+                                        isSatisfied = true;
+                                    }
+                                    else {
+                                        isSatisfied = false;
+                                        isTaking = false;
+                                    }
+                                }
 
                                 var str = '<tr><td>' + (e['type'] == 'core' ? coresIdx : prereqsIdx) + '</td><td class="column-course-name">' + e['course_name'] + '</td>' +
                                             (isSatisfied ? "<td class='text-success'>Satisfied" : (isTaking ? "In Progress" : "<td>Not satisfied")) +
@@ -1087,7 +1094,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     }
 
                     attachPlaceoutHandler();
-		    attachPrerequisiteHandler();
+                    attachPrerequisiteHandler();
                 });
             }
         }
@@ -1097,9 +1104,9 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 function getPrerequisiteForcedStatus(prereqName) {
     var idx;
     for (idx = 0; idx < forcedValues.length; idx++) {
-	if (forcedValues[idx]['key'] == prereqName) {
-	    return forcedValues[idx];
-	}
+        if (forcedValues[idx]['key'] == prereqName) {
+            return forcedValues[idx];
+        }
     }
 
     return { value: 'infer' };
@@ -1110,39 +1117,39 @@ function attachPrerequisiteHandler() {
     var modal = $('#prerequisite-details');
 
     $('#panel-prereqs table tbody tr').click(function () {
-	var prereqName = $(this).find('.column-course-name').text();
-	modal.find('#prerequisite-name').text(prereqName);
-	var forcedValue = getPrerequisiteForcedStatus(prereqName);
-	var status = forcedValue['value'];
-	if (status == 'infer') {
-	    $('input[value="infer"]').parent().button('toggle');
-	}
-	else if (status == 'satisfied') {
-	    $('input[value="satisfied"]').parent().button('toggle');
-	}
-	else if (status == 'not-satisfied') {
-	    $('input[value="not-satisfied"]').parent().button('toggle');
-	}
+        var prereqName = $(this).find('.column-course-name').text();
+        modal.find('#prerequisite-name').text(prereqName);
+        var forcedValue = getPrerequisiteForcedStatus(prereqName);
+        var status = forcedValue['value'];
+        if (status == 'infer') {
+            $('input[value="infer"]').parent().button('toggle');
+        }
+        else if (status == 'satisfied') {
+            $('input[value="satisfied"]').parent().button('toggle');
+        }
+        else if (status == 'not-satisfied') {
+            $('input[value="not-satisfied"]').parent().button('toggle');
+        }
         $('#prerequisite-details').modal('show');
     });
 
     var updateButton = $('#prerequisite-update-status');
     updateButton.click(function () {
-	    var data = {
-		'andrew-id': andrewId,
-		type: 'prerequisite',
-		key: modal.find('#prerequisite-name').text(),
-		value: $('input[name="prerequisite-status"]:checked').val(),
-		notes: ''
-	    };
+            var data = {
+                'andrew-id': andrewId,
+                type: 'prerequisite',
+                key: modal.find('#prerequisite-name').text(),
+                value: $('input[name="prerequisite-status"]:checked').val(),
+                notes: ''
+            };
 
-	    $.post(baseUrl + "/admin/update-forced-value", data).done(function () {
-		modal.modal('hide');
-	        fillInfoCoursesWithAndrewId(andrewId);
-	    }).fail(function (ret) {
-	        alert('Failed to update status. Try again later.');
-	        console.log(ret);
-	    });
+            $.post(baseUrl + "/admin/update-forced-value", data).done(function () {
+                modal.modal('hide');
+                fillInfoCoursesWithAndrewId(andrewId);
+            }).fail(function (ret) {
+                alert('Failed to update status. Try again later.');
+                console.log(ret);
+            });
     });
 }
 

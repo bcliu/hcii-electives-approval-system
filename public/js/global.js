@@ -1,4 +1,4 @@
-var baseUrl = "";
+var baseUrl = "/easy"; /* /easy or empty string */
 
 var displayNone = {
     display: 'none'

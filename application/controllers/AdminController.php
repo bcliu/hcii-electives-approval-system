@@ -193,7 +193,7 @@ class AdminController extends Zend_Controller_Action {
         /* Pass all requirements of current program (of all semesters) to the view,
            let javascript further process and show them
          */
-        if ($type != 'mhci' && $type != 'bhci'
+        if ($type != 'mhci' && $type != 'bhci' && $type != 'metals'
              && $type != 'ugminor') {
             $type = 'mhci'; /* Default to MHCI */
         }
