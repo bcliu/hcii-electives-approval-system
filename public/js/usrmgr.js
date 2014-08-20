@@ -450,9 +450,9 @@ $(function () {
     $.each(status2Text, function (key, value) {
         $('#dialog-status .dropdown-menu').append(generateDropdownItem(value));
         $('#dialog-status .dropdown-menu li:last').data('status', key);
-
         $('#modal-add-course-status .dropdown-menu').append(generateDropdownItem(value));
     });
+
     /* Append grades options */
     /* For undergrad programs, use letter grades only */
     var isUndergradProgram = (currentProgram == 'bhci' || currentProgram == 'ugminor');
@@ -465,13 +465,17 @@ $(function () {
         $('#modal-add-course-grade .dropdown-menu').append(generateDropdownItem(value));
     });
     
+    var detailsYearDropdown = $('#dialog-semester-year .dropdown-menu');
+    var addCourseYearDropdown = $('#modal-add-course-year .dropdown-menu');
     /* Append year options (current year - 4 to current year + 4) */
     for (var i = -4; i <= 4; i++) {
-        $('#dialog-semester-year .dropdown-menu').append(
-            generateDropdownItem(new Date().getFullYear() + i));
-        $('#modal-add-course-year .dropdown-menu').append(
-            generateDropdownItem(new Date().getFullYear() + i));
+        detailsYearDropdown.append(generateDropdownItem(new Date().getFullYear() + i));
+        addCourseYearDropdown.append(generateDropdownItem(new Date().getFullYear() + i));
     }
+
+    /* Append N/A items to both dropdowns */
+    detailsYearDropdown.append(generateDropdownItem('N/A'));
+    addCourseYearDropdown.append(generateDropdownItem('N/A'));
 
     var detailsSemesterRow = $('#tr-semester');
     var detailsGradeRow = $('#tr-grade');
@@ -508,17 +512,47 @@ $(function () {
         detailsGradeButton.data('grade', $(this).data('grade'));
     });
 
-    /* Change year when option selected */
-    $('#dialog-semester-year .dropdown-menu li').click(function () {
-        var newYear = $(this).find('a').text();
-        $('#dialog-semester-year button').text(newYear);
-    });
+    /**
+     * A helper function which adds year and semester selectors
+     * onclick handlers, with N/A option.
+     * Used in Add Course modal dialog and Course Details dialog.
+     */
+    var addYearSemesterSelectHandler = function (
+        semesterLi, semesterButton, yearLi, yearButton) {
+        /* Add handler for clicking semester option */
+        yearLi.click(function () {
+            var newYear = $(this).find('a').text();
+            yearButton.text(newYear);
+            /* If selected year as N/A, change semester to N/A too */
+            if (newYear == "N/A") {
+                semesterButton.text("N/A");
+            /* If selected year is not N/A but semester is, change semester */
+            } else if (semesterButton.text() == 'N/A') {
+                semesterButton.text('Spring');
+            }
+        });
 
-    /* Change semester when option selected */
-    $('#dialog-semester-semester .dropdown-menu li').click(function () {
-        var newSemester = $(this).find('a').text();
-        $('#dialog-semester-semester button').text(newSemester);
-    });
+        semesterLi.click(function () {
+            var newSemester = $(this).find('a').text();
+            semesterButton.text(newSemester);
+            /* If semester selected is N/A, change year to N/A too */
+            if (newSemester == 'N/A') {
+                yearButton.text('N/A');
+            /* If semester is not N/A but year is, change year to current year */
+            } else if (yearButton.text() == 'N/A') {
+                yearButton.text(new Date().getFullYear());
+            }
+        });
+    };
+
+    /* Change year when option selected */
+    var detailsYearButton = $('#dialog-semester-year button');
+    var detailsSemesterButton = $('#dialog-semester-semester button');
+    addYearSemesterSelectHandler(
+        $('#dialog-semester-semester .dropdown-menu li'),
+        detailsSemesterButton,
+        $('#dialog-semester-year .dropdown-menu li'),
+        detailsYearButton);
 
     addUpdateStatusHandler();
 
@@ -559,16 +593,13 @@ $(function () {
         addCourseGradeButton.html($(this).text());
     });
 
-    $('#modal-add-course-year .dropdown-menu li').click(function () {
-        var newYear = $(this).find('a').text();
-        $('#modal-add-course-year button').text(newYear);
-    });
-
-    /* Change semester when option selected */
-    $('#modal-add-course-semester .dropdown-menu li').click(function () {
-        var newSemester = $(this).find('a').text();
-        $('#modal-add-course-semester button').text(newSemester);
-    });
+    /* Add onclick handlers for semester and year selectors in Add Course modal */
+    addYearSemesterSelectHandler(
+        $('#modal-add-course-semester .dropdown-menu li'),
+        $('#modal-add-course-semester button'),
+        $('#modal-add-course-year .dropdown-menu li'),
+        $('#modal-add-course-year button')
+    );
 
     attachAddCourseHandler();
 
@@ -704,8 +735,11 @@ function addUpdateStatusHandler() {
         };
 
         if (status == 'taking' || status == 'taken') {
-            data['semester'] = $('#dialog-semester-semester button').text();
-            data['year'] = $('#dialog-semester-year button').text();
+            var semester = $('#dialog-semester-semester button').text();
+            data['semester'] = semester;
+            /* If semester is N/A, set year to 0 since it has to be an int */
+            data['year'] = (semester == "N/A") ? 0
+                : $('#dialog-semester-year button').text();
             data['grade'] = $('#dialog-grade button').data('grade');
         }
 
@@ -1279,7 +1313,8 @@ function addCourseSelectedHandler() {
 
         /* If year is null, set it to current year by default */
         var year = dialogCourseData['year'] == null ? (new Date().getFullYear()) : dialogCourseData['year'];
-        $('#dialog-semester-year button').text(year);
+        /* If semester is N/A, set year to N/A too */
+        $('#dialog-semester-year button').text(semester == "N/A" ? "N/A" : year);
 
         $('#dialog-comment textarea').val(dialogCourseData['comment']);
         $('#dialog-course-id').text(dialogCourseData['id']); /* Store course ID in db for updating status */
