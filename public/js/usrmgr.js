@@ -1016,8 +1016,13 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                     }
                                 }
 
-                                var str = '<tr><td>' + (e['type'] == 'core' ? coresIdx : prereqsIdx) + '</td><td class="column-course-name">' + e['course_name'] + '</td>' +
-                                            (isSatisfied ? "<td class='text-success'>Satisfied" : (isTaking ? "In Progress" : "<td>Not satisfied")) +
+                                var str = '<tr><td>' + (e['type'] == 'core' ? coresIdx : prereqsIdx) +
+                                            '</td><td class="column-course-name">' + e['course_name'] + '</td>' +
+                                            (isSatisfied ?
+                                                "<td class='text-success'>Satisfied" :
+                                                (isTaking ?
+                                                    "<td>In Progress" :
+                                                    "<td>Not satisfied")) +
                                             '</td></tr>';
                                 if (e['type'] == 'core') {
                                     coresFound = true;
