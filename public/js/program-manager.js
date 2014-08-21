@@ -91,7 +91,7 @@ $(function () {
 
         var data = {
             action: 'duplicate',
-            program: $('#prgmgr-page').attr('current-page'),
+            program: $('#program-manager-page').attr('current-page'),
             fromSemester: $('#semester button').text(),
             fromYear: $('#year button').text(),
             toSemester: toSemester,
@@ -207,7 +207,7 @@ function saveRequirements() {
     var data = {
         year: $('#year button').text(),
         semester: $('#semester button').text(),
-        program: $('#prgmgr-page').attr('current-page'),
+        program: $('#program-manager-page').attr('current-page'),
         requirements: []
     };
 

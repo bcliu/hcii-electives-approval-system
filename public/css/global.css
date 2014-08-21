@@ -111,7 +111,7 @@ button {
     opacity: 0.8 !important
 }
 
-#prgmgr-page .glyphicon {
+#program-manager-page .glyphicon {
     margin-left: 10px;
     margin-right: 5px;
 }
@@ -120,11 +120,11 @@ button {
     width: 140px !important;
 }
 
-#prgmgr-page .table>tbody>tr>td {
+#program-manager-page .table>tbody>tr>td {
     border-top: 0px;
 }
 
-#prgmgr-page .table .index {
+#program-manager-page .table .index {
     padding-top: 12px;
 }
 

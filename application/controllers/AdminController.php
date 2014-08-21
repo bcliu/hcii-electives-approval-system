@@ -23,7 +23,7 @@ class AdminController extends Zend_Controller_Action {
      */
     public function indexAction() {
         $this->view->title = 'EASy Administrator';
-        $this->_redirect("/admin/usrmgr");
+        $this->_redirect("/admin/user-manager");
     }
 
     public function updateAwaitingCountAction() {
@@ -150,9 +150,9 @@ class AdminController extends Zend_Controller_Action {
         echo Zend_Json::encode($db->getAdministrators()->toArray());
     }
     
-    public function usrmgrAction() {
+    public function userManagerAction() {
         $this->view->title = 'EASy - User Manager';
-        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/usrmgr.js');
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/user-manager.js');
         $type = $this->getRequest()->getParam('type');
         $db = new Application_Model_DbTable_Users();
         
@@ -185,9 +185,9 @@ class AdminController extends Zend_Controller_Action {
         }
     }
 
-    public function prgmgrAction() {
+    public function programManagerAction() {
         $this->view->title = 'EASy - Program Manager';
-        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/prgmgr.js');
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/program-manager.js');
         $type = $this->getRequest()->getParam('type');
 
         /* Pass all requirements of current program (of all semesters) to the view,

@@ -72,24 +72,24 @@
   </div>
 </div>
 
-<div class="row" id='prgmgr-page' style='width: 90%; margin-left: auto; margin-right: auto; min-height: calc(100% - 55px)' current-page='<?= $this->program ?>'>
+<div class="row" id='program-manager-page' style='width: 90%; margin-left: auto; margin-right: auto; min-height: calc(100% - 55px)' current-page='<?= $this->program ?>'>
     <div class="col-sm-12">
     	<ul class="nav nav-tabs">
 
             <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/mhci">MHCI</a>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/mhci">MHCI</a>
             </li>
 
             <li id='metals-tab' class='<?= $this->program == "metals" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/metals">METALS</a>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/metals">METALS</a>
             </li>
             
             <li id='bhci-tab' class='<?= $this->program == "bhci" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/bhci">BHCI</a>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/bhci">BHCI</a>
             </li>
 
             <li id='ugminor-tab' class='<?= $this->program == "ugminor" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/prgmgr/type/ugminor">Undergraduate Minor</a>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/ugminor">Undergraduate Minor</a>
             </li>
 
             <div id='profile-header' style='margin-top: 5px' class='pull-right'>
