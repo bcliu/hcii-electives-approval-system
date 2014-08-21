@@ -969,6 +969,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 return;
                             }
 
+                            var reg = /\d{2}-\d{3}/g;
                             if (type == 'core' || type == 'prerequisite') {
                                 /* Check if the specified course is taken, and grade >= B */
 
@@ -983,6 +984,11 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                     var courseType = eC['taking_as'],
                                         courseStatus = eC['status'],
                                         courseNum = eC['course_number'];
+
+                                    /* Return if course number is malformed */
+                                    if (!reg.test(courseNum)) {
+                                        return;
+                                    }
                                     if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
                                         if ((type == 'core' && (isBAbove(eC['grade']) || eC['grade'] == 'na')) ||
                                             (type == 'prerequisite')) {
@@ -994,7 +1000,6 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                     }
                                 });
 
-                                var reg = /\d{2}-\d{3}/g;
                                 reqs = reqs.replace(reg, " false ");
                                 var isSatisfied;
                                 
@@ -1021,15 +1026,14 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                             (isSatisfied ?
                                                 "<td class='text-success'>Satisfied" :
                                                 (isTaking ?
-                                                    "<td>In Progress" :
+                                                    "<td class='text-info'>In Progress" :
                                                     "<td>Not satisfied")) +
                                             '</td></tr>';
                                 if (e['type'] == 'core') {
                                     coresFound = true;
                                     coresIdx++;
                                     $('#panel-cores tbody').append(str);
-                                }
-                                else {
+                                } else {
                                     prereqsFound = true;
                                     prereqsIdx++;
                                     $('#panel-prereqs tbody').append(str);
