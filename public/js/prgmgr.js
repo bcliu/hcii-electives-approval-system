@@ -36,7 +36,7 @@ $(function () {
             year: $('#year button').text()
         };
 
-        $.post(baseUrl + "/admin/updatesemester", data).done(function (ret) {
+        $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
             location.reload();
         }).fail(function (ret) {
             alert('Failed to remove the semester specified. Please try again later.');
@@ -98,7 +98,7 @@ $(function () {
             toYear: toYear
         };
 
-        $.post(baseUrl + "/admin/updatesemester", data).done(function (ret) {
+        $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
             location.reload();
         }).fail(function (ret) {
             alert('Failed to duplicate the semester. Please try again later.');
@@ -252,7 +252,7 @@ function saveRequirements() {
     }
     
     var saveButton = $('#save-profile button');
-    $.post(baseUrl + "/admin/updatereqs", data).done(function (ret) {
+    $.post(baseUrl + "/admin/update-program", data).done(function (ret) {
         saveButton.popover({ content: "Saved", placement: "left", trigger: "manual" });
         saveButton.popover('show');
         setTimeout(function () {

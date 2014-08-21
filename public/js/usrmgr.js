@@ -625,7 +625,7 @@ $(function () {
                 andrew_id: $('.user-selected #td-andrew-id').text(),
                 notes: newNotes
             };
-            $.post(baseUrl + "/admin/updatenotes", data).done(function (ret) {
+            $.post(baseUrl + "/admin/update-notes", data).done(function (ret) {
                 coursesNotes.popover({ content: "Notes saved", placement: "left", trigger: "manual" });
                 coursesNotes.popover('show');
                 setTimeout(function () {
@@ -741,7 +741,7 @@ function addUpdateStatusHandler() {
             data['grade'] = $('#dialog-grade button').data('grade');
         }
 
-        $.post(baseUrl + "/admin/updatestatus", data).done(function (ret) {
+        $.post(baseUrl + "/admin/update-status", data).done(function (ret) {
             $('.modal').modal('hide');
             /* Load the students info and course info again */
             var currentStudentAndrewId = $('#dialog-andrew-id').text();
@@ -1282,7 +1282,7 @@ function attachPlaceoutHandler() {
             url = "/admin/add-course";
         } else {
             /* Course exists */
-            url = "/admin/updatestatus";
+            url = "/admin/update-status";
         }
 
         $.post(baseUrl + url, data).done(function () {

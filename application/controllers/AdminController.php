@@ -204,7 +204,7 @@ class AdminController extends Zend_Controller_Action {
         $this->view->requirements = Zend_Json::encode($db->getRequirementsByProgram($type)->toArray());
     }
 
-    public function updatestatusAction() {
+    public function updateStatusAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
 
@@ -221,7 +221,7 @@ class AdminController extends Zend_Controller_Action {
         }
     }
 
-    public function updatenotesAction() {
+    public function updateNotesAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
 
@@ -234,7 +234,11 @@ class AdminController extends Zend_Controller_Action {
         }
     }
 
-    public function updatereqsAction() {
+    /**
+     * Update requirements of a program, given program,
+     * year, semester, and the course requirements
+     */
+    public function updateProgramAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
 
@@ -249,7 +253,10 @@ class AdminController extends Zend_Controller_Action {
         }
     }
 
-    public function updatesemesterAction() {
+    /**
+     * An AJAX call to remove or duplicate a semester
+     */
+    public function updateSemesterAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
 
@@ -263,8 +270,7 @@ class AdminController extends Zend_Controller_Action {
                 $year = $this->getRequest()->getPost('year');
 
                 $dbPrograms->removeSemester($semester, $year);
-            }
-            else if ($action == 'duplicate') {
+            } else if ($action == 'duplicate') {
                 $program = $this->getRequest()->getPost('program');
                 $fromSemester = $this->getRequest()->getPost('fromSemester');
                 $fromYear = $this->getRequest()->getPost('fromYear');
