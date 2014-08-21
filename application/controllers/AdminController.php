@@ -185,6 +185,17 @@ class AdminController extends Zend_Controller_Action {
         }
     }
 
+    /**
+     * An AJAX call which returns requirements of some specified program
+     */
+    public function getRequirementsAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        $type = $this->getRequest()->getParam('program');
+        $db = new Application_Model_DbTable_Programs();
+        echo Zend_Json::encode($db->getRequirementsByProgram($type)->toArray());
+    }
+
     public function programManagerAction() {
         $this->view->title = 'EASy - Program Manager';
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/program-manager.js');
@@ -199,9 +210,6 @@ class AdminController extends Zend_Controller_Action {
         }
 
         $this->view->program = $type;
-
-        $db = new Application_Model_DbTable_Programs();
-        $this->view->requirements = Zend_Json::encode($db->getRequirementsByProgram($type)->toArray());
     }
 
     public function updateStatusAction() {

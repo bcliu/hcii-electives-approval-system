@@ -1,3 +1,57 @@
+function populateYearSelector(requirements) {
+    /* Fill in year options. By default, current year - 4 to current year + 4.
+     * Extend if years of current requirements are outside of this range.
+     */
+    var earliest = new Date().getFullYear() - 4;
+    var latest = new Date().getFullYear() + 4;
+    requirements.forEach(function (e, i) {
+        var thisYear = parseInt(e['year']);
+        if (thisYear < earliest) {
+            earliest = thisYear;
+        }
+
+        if (thisYear > latest) {
+            latest = thisYear;
+        }
+    });
+
+    $('#year ul').html('');
+    for (var i = earliest; i <= latest; i++) {
+        $('#year ul').append('<li><a href="javascript: ;">' + i + '</a></li>');
+    }
+
+    var yearItems = $('#year li');
+    yearItems.off('click');
+    yearItems.click(function () {
+        var newYear = $(this).find('a').text();
+        $('#year button').text(newYear);
+        loadRequirements($('#semester button').text(), newYear);
+    });
+}
+
+/**
+ * Asynchronously get requirements of current program
+ */
+function getRequirements() {
+    var currentProgram = $('#program-manager-page').attr('current-page');
+    $.get(baseUrl + "/admin/get-requirements/program/" + currentProgram,
+        function (result) {
+            var jsonRequirements = $.parseJSON(result);
+            $('body').data('requirements', jsonRequirements);
+            populateYearSelector(jsonRequirements);
+
+            /* TODO: Better load the requirement closest to current semester and year */
+            if (jsonRequirements.length > 0) {
+                var semester = jsonRequirements[0]['semester'];
+                var year = jsonRequirements[0]['year'];
+                $('#semester button').text(semester);
+                $('#year button').text(year);
+                loadRequirements(semester, year);
+            }
+        }
+    );
+}
+
 /* Run the following when document is ready on Program Manager page */
 $(function () {
 
@@ -37,7 +91,7 @@ $(function () {
         };
 
         $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
-            location.reload();
+            getRequirements();
         }).fail(function (ret) {
             alert('Failed to remove the semester specified. Please try again later.');
         });
@@ -99,57 +153,19 @@ $(function () {
         };
 
         $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
-            location.reload();
+            getRequirements();
         }).fail(function (ret) {
             alert('Failed to duplicate the semester. Please try again later.');
         });
     });
 
-	var jsonRequirements = $.parseJSON($('#requirements-storage').text());
-    $('body').data('requirements', jsonRequirements);
-
-    /* Fill in year options. By default, current year - 4 to current year + 4.
-       Extend if years of current requirements are outside of this range.
-     */
-    var earliest = new Date().getFullYear() - 4;
-    var latest = new Date().getFullYear() + 4;
-    jsonRequirements.forEach(function (e, i) {
-        var thisYear = parseInt(e['year']);
-        if (thisYear < earliest) {
-            earliest = thisYear;
-        }
-
-        if (thisYear > latest) {
-            latest = thisYear;
-        }
-    });
-
-    $('#year ul').html('');
-    for (var i = earliest; i <= latest; i++) {
-        $('#year ul').append('<li><a href="javascript: ;">' + i + '</a></li>');
-    }
-
-    /* Set the current year and semester to the first item in requirements */
-
-    if (jsonRequirements.length > 0) {
-        var semester = jsonRequirements[0]['semester'];
-        var year = jsonRequirements[0]['year'];
-        $('#semester button').text(semester);
-        $('#year button').text(year);
-        loadRequirements(semester, year);
-    }
+    getRequirements();
 
     /* Attach option selected handlers */
     $('#semester li').click(function () {
     	var newSemester = $(this).find('a').text();
     	$('#semester button').text(newSemester);
     	loadRequirements(newSemester, $('#year button').text());
-    });
-
-    $('#year li').click(function () {
-    	var newYear = $(this).find('a').text();
-    	$('#year button').text(newYear);
-    	loadRequirements($('#semester button').text(), newYear);
     });
 
     $('#course-number-notice').popover({
@@ -166,8 +182,7 @@ $(function () {
         if (prevRow.hasClass('tr-course') == false) {
             /* If there are no courses in this table yet */
             nextIndex = 1;
-        }
-        else {
+        } else {
             /* Otherwise, pick the next number available */
             nextIndex = parseInt(prevRow.find('.index').html()) + 1;
         }
@@ -178,8 +193,7 @@ $(function () {
                             <td class="index">' + nextIndex + '</td>\
                             <td><input type="text" class="form-control course-name" /></td>\
                           </tr>';
-        }
-        else {
+        } else {
         	var newRow = '<tr class="tr-course">\
                             <td class="index">' + nextIndex + '</td>\
                             <td><input type="text" class="form-control course-name" /></td>\
@@ -257,8 +271,9 @@ function saveRequirements() {
         saveButton.popover('show');
         setTimeout(function () {
             saveButton.popover('hide');
-            location.reload();
         }, 1000);
+        saveButton.attr('disabled', 'disabled');
+        getRequirements();
     }).fail(function (ret) {
         saveButton.popover({
             html: true,
@@ -354,9 +369,9 @@ function loadRequirements(semester, year) {
             if (e['type'] != 'place-out') {
                 /* When an invalid course number is added */
                 parentTable.find('.tags:last')
-                .on('afterCreateToken', afterCreateTokenEvent)
-                .on('beforeCreateToken', beforeCreateTokenEvent)
-                .tokenfield();
+                    .on('afterCreateToken', afterCreateTokenEvent)
+                    .on('beforeCreateToken', beforeCreateTokenEvent)
+                    .tokenfield();
                 /* Note that need to tokenfield() at last (not at first) for the two events to take effect */
 
                 parentTable.find('.tokenfield:last').css({ width: '' }); /* Clear built-in width */
