@@ -25,14 +25,22 @@ function populateYearSelector(requirements) {
     yearItems.click(function () {
         var newYear = $(this).find('a').text();
         $('#year button').text(newYear);
-        loadRequirements($('#semester button').text(), newYear);
+        loadRequirements(getCurrentSemester(), newYear);
     });
+}
+
+function getCurrentSemester() {
+    return $('#semester button').text();
+}
+
+function getCurrentYear() {
+    return $('#year button').text();
 }
 
 /**
  * Asynchronously get requirements of current program
  */
-function getRequirements() {
+function getRequirements(semesterToLoad, yearToLoad) {
     var currentProgram = $('#program-manager-page').attr('current-page');
     $.get(baseUrl + "/admin/get-requirements/program/" + currentProgram,
         function (result) {
@@ -40,10 +48,20 @@ function getRequirements() {
             $('body').data('requirements', jsonRequirements);
             populateYearSelector(jsonRequirements);
 
-            /* TODO: Better load the requirement closest to current semester and year */
             if (jsonRequirements.length > 0) {
-                var semester = jsonRequirements[0]['semester'];
-                var year = jsonRequirements[0]['year'];
+                var semester;
+                var year;
+                /* If semester- or year-to-load is not defined, load
+                 * the one closest to current semester
+                 */
+                if (semesterToLoad == undefined || yearToLoad == undefined) {
+                    semester = jsonRequirements[0]['semester'];
+                    year = jsonRequirements[0]['year'];
+                /* Otherwise load the specified semester and year */
+                } else {
+                    semester = semesterToLoad;
+                    year = yearToLoad;
+                }
                 $('#semester button').text(semester);
                 $('#year button').text(year);
                 loadRequirements(semester, year);
@@ -74,11 +92,11 @@ $(function () {
         onContentChanged();
     });
 
+    var modalRemove = $('#modal-remove-semester');
     /* When Remove semester clicked, show modal */
     $('#a-remove-semester').click(function () {
-        var modalRemove = $('#modal-remove-semester');
-        modalRemove.find('#txt-semester-to-remove').text($('#semester button').text() + " "
-         + $('#year button').text());
+        modalRemove.find('#txt-semester-to-remove').text(
+            getCurrentSemester() + " " + getCurrentYear());
         modalRemove.modal('show');
     });
 
@@ -86,12 +104,13 @@ $(function () {
     $('#btn-remove-semester').click(function () {
         var data = {
             action: 'remove',
-            semester: $('#semester button').text(),
-            year: $('#year button').text()
+            semester: getCurrentSemester(),
+            year: getCurrentYear()
         };
 
         $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
             getRequirements();
+            modalRemove.modal('hide');
         }).fail(function (ret) {
             alert('Failed to remove the semester specified. Please try again later.');
         });
@@ -127,9 +146,9 @@ $(function () {
     });
 
     $('#a-duplicate-semester').click(function () {
-        var currentYear = $('#year button').text();
-        modalDuplicate.find('#txt-semester-to-dup').text($('#semester button').text() + " "
-         + currentYear);
+        var currentYear = getCurrentYear();
+        modalDuplicate.find('#txt-semester-to-dup').text(
+            getCurrentSemester() + " " + currentYear);
         modalDuplicate.find('input').val(currentYear);
         modalDuplicate.modal('show');
     });
@@ -146,14 +165,16 @@ $(function () {
         var data = {
             action: 'duplicate',
             program: $('#program-manager-page').attr('current-page'),
-            fromSemester: $('#semester button').text(),
-            fromYear: $('#year button').text(),
+            fromSemester: getCurrentSemester(),
+            fromYear: getCurrentYear(),
             toSemester: toSemester,
             toYear: toYear
         };
 
         $.post(baseUrl + "/admin/update-semester", data).done(function (ret) {
-            getRequirements();
+            /* Switch to the newly duplicated semester after finished */
+            getRequirements(toSemester, toYear);
+            modalDuplicate.modal('hide');
         }).fail(function (ret) {
             alert('Failed to duplicate the semester. Please try again later.');
         });
@@ -165,7 +186,7 @@ $(function () {
     $('#semester li').click(function () {
     	var newSemester = $(this).find('a').text();
     	$('#semester button').text(newSemester);
-    	loadRequirements(newSemester, $('#year button').text());
+    	loadRequirements(newSemester, getCurrentYear());
     });
 
     $('#course-number-notice').popover({
@@ -219,8 +240,8 @@ $(function () {
 
 function saveRequirements() {
     var data = {
-        year: $('#year button').text(),
-        semester: $('#semester button').text(),
+        year: getCurrentYear(),
+        semester: getCurrentSemester(),
         program: $('#program-manager-page').attr('current-page'),
         requirements: []
     };
@@ -273,7 +294,8 @@ function saveRequirements() {
             saveButton.popover('hide');
         }, 1000);
         saveButton.attr('disabled', 'disabled');
-        getRequirements();
+        /* Reload requirements for the current year and semester */
+        getRequirements(getCurrentSemester(), getCurrentYear());
     }).fail(function (ret) {
         saveButton.popover({
             html: true,
