@@ -17,7 +17,7 @@ function populateYearSelector(requirements) {
 
     $('#year ul').html('');
     for (var i = earliest; i <= latest; i++) {
-        $('#year ul').append('<li><a href="javascript: ;">' + i + '</a></li>');
+        $('#year ul').append(generateDropdownItem(i));
     }
 
     var yearItems = $('#year li');
@@ -54,9 +54,30 @@ function getRequirements(semesterToLoad, yearToLoad) {
                 /* If semester- or year-to-load is not defined, load
                  * the one closest to current semester
                  */
+                var date = new Date();
+                var currentSemester = getSemesterFromMonth(date.getMonth() + 1);
+                var currentYear = date.getFullYear();
                 if (semesterToLoad == undefined || yearToLoad == undefined) {
-                    semester = jsonRequirements[0]['semester'];
-                    year = jsonRequirements[0]['year'];
+                    $.each(jsonRequirements, function (i, e) {
+                        if (semester == null) {
+                            semester = e['semester'];
+                            year = e['year'];
+                            return true;
+                        }
+                        /* If found exact match, stop */
+                        if (e['semester'] == currentSemester &&
+                            e['year'] == currentYear) {
+                            semester = e['semester'];
+                            year = e['year'];
+                            return false;
+                        }
+                        /* Otherwise find a year closest to current year */
+                        if (Math.abs(e['year'] - currentYear) <
+                            Math.abs(year - currentYear)) {
+                            year = e['year'];
+                            semester = e['semester'];
+                        }
+                    });
                 /* Otherwise load the specified semester and year */
                 } else {
                     semester = semesterToLoad;

@@ -129,3 +129,13 @@ jQuery.fn.extend({
         });
     }
 });
+
+function getSemesterFromMonth(month) {
+    if (month >= 1 && month < 5) {
+        return "Spring";
+    } else if (month >= 5 && month < 8) {
+        return "Summer";
+    } else {
+        return "Fall";
+    }
+}

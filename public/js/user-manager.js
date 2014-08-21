@@ -929,19 +929,9 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                     var reqs = $('body').data('requirements');
                     var enrollDate = $('#enroll-date').val();
-                    var enrollSemester;
                     var enrollMonth = parseInt(enrollDate.substr(0, 2));
                     var enrollYear = enrollDate.substr(3, 7);
-
-                    if (enrollMonth >= 1 && enrollMonth < 5) {
-                        enrollSemester = "Spring";
-                    }
-                    else if (enrollMonth >= 5 && enrollMonth < 8) {
-                        enrollSemester = "Summer";
-                    }
-                    else {
-                        enrollSemester = "Fall";
-                    }
+                    var enrollSemester = getSemesterFromMonth(enrollMonth);
 
                     var numElectivesNeeded, numFreeElectivesNeeded, numApplicationElectivesNeeded;
                     var coresFound = false, placeOutsFound = false, prereqsFound = false;
