@@ -306,7 +306,7 @@ function saveRequirements() {
             number: isNaN(numElectives) ? -1 : numElectives
         });
     }
-    
+
     var saveButton = $('#save-profile button');
     $.post(baseUrl + "/admin/update-program", data).done(function (ret) {
         saveButton.popover({ content: "Saved", placement: "left", trigger: "manual" });

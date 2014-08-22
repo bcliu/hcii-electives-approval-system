@@ -6,12 +6,18 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
     protected $_name = 'programs';
     
     public function getRequirementsByProgram($program) {
-        $rows = $this->fetchAll("program = '$program'");
+        $rows = $this->fetchAll($this->select()
+                    ->where("program = '$program'")
+                    ->order('id ASC')
+                );
         return $rows;
     }
 
     public function getReqsByProgramSemester($program, $semester, $year) {
-        $rows = $this->fetchAll("program = '$program' AND semester = '$semester' AND year = '$year'");
+        $rows = $this->fetchAll($this->select()
+                    ->where("program = '$program' AND semester = '$semester' AND year = '$year'")
+                    ->order('id ASC')
+                );
         return $rows;
     }
 
