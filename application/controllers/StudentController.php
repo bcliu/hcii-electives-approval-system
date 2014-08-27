@@ -26,13 +26,13 @@ class StudentController extends Zend_Controller_Action {
         
         $this->config = array(
             'auth' => 'login',
-            'username' => 'hciieasy',
+            'username' => 'cmu.hcii.easy@gmail.com',
             'password' => Zend_Registry::get('AndrewPassword'),
             'ssl' => 'tls',
             'port' => 587
         );
 
-        $this->transport = new Zend_Mail_Transport_Smtp('smtp.andrew.cmu.edu', $this->config);
+        $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
     }
 
     public function indexAction() {

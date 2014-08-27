@@ -42,12 +42,12 @@ class ErrorController extends Zend_Controller_Action
                 $mail = new Zend_Mail();
                 $this->config = array(
                     'auth' => 'login',
-                    'username' => 'hciieasy',
+                    'username' => 'cmu.hcii.easy@gmail.com',
                     'password' => Zend_Registry::get('AndrewPassword'),
                     'ssl' => 'tls',
                     'port' => 587
                 );
-                $this->transport = new Zend_Mail_Transport_Smtp('smtp.andrew.cmu.edu', $this->config);
+                $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
                 $mail->setBodyHtml("<html><body>New error report: <h3>Exception information:</h3><p>
                     <b>Message:</b>" . $errors->exception->getMessage() . "</p><h3>Stack trace:</h3>
                     <pre>" . $errors->exception->getTraceAsString() . "</pre><h3>Request Parameters:</h3>
