@@ -141,6 +141,18 @@
                     </tbody>
                 </table>
 
+                <div id='core-grade-req'>
+                    Grade requirement:
+                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
+                        <!-- Grade requirement defaults to B or above, if not specified -->
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                        <ul class="dropdown-menu" role="menu">
+                            <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                        </ul>
+                    </span>
+                    <span>or above</span>
+                </div>
+
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Prerequisites</h4>
                 <table id='table-prerequisite' class='table' type='prerequisite'>
                     <thead>
@@ -159,34 +171,69 @@
                     </tbody>
                 </table>
 
+                <tr>
+                    <td style='line-height: 35px'>Grade requirement: </td>
+                    <td id='elect-grade-req'>
+                        <span class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                            <ul class="dropdown-menu" role="menu">
+                                <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                            </ul>
+                        </span>
+                        <span>or above</span>
+                    </td>
+                </tr>
+
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
                     <table id='table-electives' class='table' style='width: 0'>
-                        <tbody>
-                            <tr>
-                                <td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application" : "") ?> Electives needed: </td>
-                                <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
-                                    <span class="btn-group">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                        </ul>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php if ($this->program == 'bhci') { ?>
-                            <tr>
-                                <td style='line-height: 35px'>Number of Free Electives needed: </td>
-                                <td id='num-free-electives'>
-                                    <span class="btn-group">
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                        </ul>
-                                    </span>
-                                </td>
-                            </tr>
-                            <?php } ?>
-                        </tbody>
+                        <tr>
+                            <td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application Electives" : "electives") ?> needed: </td>
+                            <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
+                                <span class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
+                                    </ul>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style='line-height: 35px'><?= ($this->program == "bhci" ? " Restricted Application Electives" : "Electives") ?> grade requirement: </td>
+                            <td id='<?= ($this->program == "bhci" ? "restricted-elect-grade-req" : "elect-grade-req") ?>-grade-requirement'>
+                                <span class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                                    </ul>
+                                </span>
+                                <span>or above</span>
+                            </td>
+                        </tr>
+                        <?php if ($this->program == 'bhci') { ?>
+                        <tr>
+                            <td style='line-height: 35px'>Number of Free Electives needed: </td>
+                            <td id='num-free-electives'>
+                                <span class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
+                                    </ul>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style='line-height: 35px'>Free Electives grade requirement: </td>
+                            <td id='free-elect-grade-req'>
+                                <span class="btn-group">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                                    </ul>
+                                </span>
+                                <span>or above</span>
+                            </td>
+                        </tr>
+                        <?php } ?>
                     </table>
             </div>
 
@@ -210,6 +257,18 @@
                     </tbody>
                 </table>
 
+                <div id='core-grade-req'>
+                    Grade requirement:
+                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
+                        <!-- Grade requirement defaults to B or above, if not specified -->
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                        <ul class="dropdown-menu" role="menu">
+                            <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                        </ul>
+                    </span>
+                    <span>or above</span>
+                </div>
+
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Place-out Courses</h4>
                 <table id='table-place-out' class='table' type='place-out' style='width: 50%'>
                     <thead>
@@ -228,19 +287,30 @@
 
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
                 <table id='table-electives' class='table' style='width: 0'>
-                    <tbody>
-                        <tr>
-                            <td style='line-height: 35px'>Number of Electives needed: </td>
-                            <td id='num-electives'>
-                                <span class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                    </ul>
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tr>
+                        <td style='line-height: 35px'>Number of Electives needed: </td>
+                        <td id='num-electives'>
+                            <span class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
+                                </ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style='line-height: 35px'>Grade requirement: </td>
+                        <td id='elect-grade-req'>
+                            <span class="btn-group">
+                                <!-- Grade requirement defaults to B or above, if not specified -->
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
+                                </ul>
+                            </span>
+                            <span>or above</span>
+                        </td>
+                    </tr>
                 </table>
             </div>
 
