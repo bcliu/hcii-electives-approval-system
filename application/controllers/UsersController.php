@@ -8,13 +8,13 @@ class UsersController extends Zend_Controller_Action
     public function init() {
         $this->config = array(
             'auth' => 'login',
-            'username' => Zend_Registry::get('EasyMailUserName'),
+            'username' => 'cmu.hcii.easy@gmail.com',
             'password' => Zend_Registry::get('AndrewPassword'),
             'ssl' => 'tls',
-            'port' => Zend_Registry::get('EasyMailPort')
+            'port' => 587
         );
 
-        $this->transport = new Zend_Mail_Transport_Smtp(Zend_Registry::get('EasyMailSmtp'), $this->config);
+        $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
     }
     
     public function getInfoAction() {
@@ -278,7 +278,7 @@ class UsersController extends Zend_Controller_Action
             /* If new user, send a mail with temporary password */
             $mail = new Zend_Mail();
             $mail->setBodyHtml("<html><body><p>Dear $name,</p><p>Your HCII EASy account has just been created. Log in to http://easy.hcii.cs.cmu.edu/easy with your Andrew ID to manage your HCI courses, submit elective requests and track your graduation status.</p>&nbsp;<p></p><p>Best,</p><p>EASy Robot</p></body></html>");
-            $mail->setFrom(Zend_Registry::get('EasyMailFullAddress'), 'HCII EASy');
+            $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
             $mail->addTo("$andrewId@andrew.cmu.edu", $name);
             $mail->setSubject('Your HCII EASy account');
             $mail->send($this->transport);
@@ -493,7 +493,7 @@ class UsersController extends Zend_Controller_Action
                 $db->resetPassword($andrew, md5($password));
                 $mail = new Zend_Mail();
                 $mail->setBodyHtml("<html><body><p>Dear $andrew,</p><p>Your temporary password for EASy is</p><div style='font-weight: 700; text-align: center; font-size: 17px'>$password</div><p>Please use this password to log in to http://easy.hcii.cs.cmu.edu/easy to create a new password. If you did not try to recover your password, please report this incident to us by replying to this email.</p>&nbsp;<p></p><p>Best,</p><p>EASy Robot</p></body></html>");
-                $mail->setFrom(Zend_Registry::get('EasyMailFullAddress'), 'HCII EASy');
+                $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
                 $mail->addTo("$andrew@andrew.cmu.edu", $andrew);
                 $mail->setSubject('EASy account password reset');
                 $mail->send($this->transport);

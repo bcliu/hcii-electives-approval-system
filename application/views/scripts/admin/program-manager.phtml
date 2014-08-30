@@ -72,7 +72,7 @@
 
 <div class="row" id='program-manager-page' style='width: 90%; margin-left: auto; margin-right: auto; min-height: calc(100% - 55px)' current-page='<?= $this->program ?>'>
     <div class="col-sm-12">
-    	<ul class="nav nav-tabs">
+        <ul class="nav nav-tabs">
 
             <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/mhci">MHCI</a>
@@ -163,7 +163,7 @@
                     <table id='table-electives' class='table' style='width: 0'>
                         <tbody>
                             <tr>
-				<td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application" : "") ?> Electives needed: </td>
+                                <td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application" : "") ?> Electives needed: </td>
                                 <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
                                     <span class="btn-group">
                                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
