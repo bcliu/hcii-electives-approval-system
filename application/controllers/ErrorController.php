@@ -42,17 +42,17 @@ class ErrorController extends Zend_Controller_Action
                 $mail = new Zend_Mail();
                 $this->config = array(
                     'auth' => 'login',
-                    'username' => 'cmu.hcii.easy@gmail.com',
+                    'username' => Zend_Registry::get('EasyMailUserName'),
                     'password' => Zend_Registry::get('AndrewPassword'),
                     'ssl' => 'tls',
-                    'port' => 587
+                    'port' => Zend_Registry::get('EasyMailPort')
                 );
-                $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
+                $this->transport = new Zend_Mail_Transport_Smtp(Zend_Registry::get('EasyMailSmtp'), $this->config);
                 $mail->setBodyHtml("<html><body>New error report: <h3>Exception information:</h3><p>
                     <b>Message:</b>" . $errors->exception->getMessage() . "</p><h3>Stack trace:</h3>
                     <pre>" . $errors->exception->getTraceAsString() . "</pre><h3>Request Parameters:</h3>
                     <pre>" . var_export($this->view->request->getParams(), true) . "</pre></body></html>");
-                $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
+                $mail->setFrom(Zend_Registry::get('EasyMailFullAddress'), 'HCII EASy');
                 $mail->addTo("chenliu@andrew.cmu.edu");
                 $mail->setSubject("EASy error report");
                 $mail->send($this->transport);

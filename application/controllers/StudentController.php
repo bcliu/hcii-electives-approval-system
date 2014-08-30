@@ -26,13 +26,13 @@ class StudentController extends Zend_Controller_Action {
         
         $this->config = array(
             'auth' => 'login',
-            'username' => 'cmu.hcii.easy@gmail.com',
+            'username' => Zend_Registry::get('EasyMailUserName'),
             'password' => Zend_Registry::get('AndrewPassword'),
             'ssl' => 'tls',
-            'port' => 587
+            'port' => Zend_Registry::get('EasyMailPort')
         );
 
-        $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
+        $this->transport = new Zend_Mail_Transport_Smtp(Zend_Registry::get('EasyMailSmtp'), $this->config);
     }
 
     public function indexAction() {
@@ -105,7 +105,7 @@ class StudentController extends Zend_Controller_Action {
                 <div>Best,</div>
                 <div>EASy Robot</div>
                 </body></html>");
-            $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
+            $mail->setFrom(Zend_Registry::get('EasyMailFullAddress'), 'HCII EASy');
 
             $db = new Application_Model_DbTable_Users();
             $advisors = $db->getAdvisorsOfProgram($this->view->type);
@@ -174,7 +174,7 @@ class StudentController extends Zend_Controller_Action {
                     <div>Best,</div>
                     <div>EASy Robot</div>
                     </body></html>");
-                $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
+                $mail->setFrom(Zend_Registry::get('EasyMailFullAddress'), 'HCII EASy');
 
                 $db = new Application_Model_DbTable_Users();
                 $advisors = $db->getAdvisorsOfProgram($this->view->type);
