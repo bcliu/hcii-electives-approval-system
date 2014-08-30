@@ -95,23 +95,15 @@ function getRequirements(semesterToLoad, yearToLoad) {
 $(function () {
 
     /* Add number of electives click handler */
-    $('#num-electives li').click(function () {
-        var newNumber = $(this).find('a').text();
-        $('#num-electives button').text(newNumber);
-        onContentChanged();
-    });
-
-    $('#num-free-electives li').click(function () {
-        var newNumber = $(this).find('a').text();
-        $('#num-free-electives button').text(newNumber);
-        onContentChanged();
-    });
-
-    $('#num-application-electives li').click(function () {
-        var newNumber = $(this).find('a').text();
-        $('#num-application-electives button').text(newNumber);
-        onContentChanged();
-    });
+    $('#num-electives li, #num-free-electives li, #num-application-electives li,\
+        #core-grade-req li, #elect-grade-req li, #prereq-grade-req li,\
+        #free-elect-grade-req li, #application-elect-grade-req li')
+        .click(function () {
+            var newValue = $(this).find('a').text();
+            $(this).parent().parent().find('button').text(newValue);
+            onContentChanged();
+        }
+    );
 
     var modalRemove = $('#modal-remove-semester');
     /* When Remove semester clicked, show modal */
@@ -279,33 +271,40 @@ function saveRequirements() {
         });
     });
 
-    var numFreeElectives = $('#num-free-electives button').text();
-    var numElectives = $('#num-electives button').text();
-    var numApplicationElectives = $('#num-application-electives button').text();
-    if (numFreeElectives.length != 0) {
-        data['requirements'].push({
-            course_name: '',
-            course_numbers: '',
-            type: 'free-elective',
-            number: isNaN(numFreeElectives) ? -1 : numFreeElectives
-        });
-    }
-    if (numApplicationElectives.length != 0) {
-        data['requirements'].push({
-            course_name: '',
-            course_numbers: '',
-            type: 'application-elective',
-            number: isNaN(numApplicationElectives) ? -1 : numApplicationElectives
-        });
-    }
-    if (numElectives.length != 0) {
-        data['requirements'].push({
-            course_name: '',
-            course_numbers: '',
-            type: 'elective',
-            number: isNaN(numElectives) ? -1 : numElectives
-        });
-    }
+    /* An array of 'number of courses' and 'type' tuples */
+    var numsData = [
+        [ $('#num-free-electives button').text(), 'free-elective' ],
+        [ $('#num-electives button').text(), 'elective' ],
+        [ $('#num-application-electives button').text(), 'application-elective' ]
+    ];
+    numsData.forEach(function (e, i) {
+        if (e[0].length != 0) {
+            data['requirements'].push({
+                course_name: '',
+                course_numbers: '',
+                type: e[1],
+                number: isNaN(e[0]) ? -1 : e[0]
+            });
+        }
+    });
+
+    var gradeReqsData = [
+        [ $('#core-grade-req button').text(), 'core' ],
+        [ $('#elect-grade-req button').text(), 'elective' ],
+        [ $('#free-elect-grade-req button').text(), 'free-elective' ],
+        [ $('#application-elect-grade-req button').text(), 'application-elective' ],
+        [ $('#prereq-grade-req button').text(), 'prerequisite' ]
+    ];
+    gradeReqsData.forEach(function (e, i) {
+        if (e[0].length != 0) {
+            data['requirements'].push({
+                course_name: '',
+                course_numbers: '',
+                type: e[1],
+                grade_requirement: (e[0] == 'No requirement') ? 'd' : getKey(grade2Text, e[0])
+            });
+        }
+    });
 
     var saveButton = $('#save-profile button');
     $.post(baseUrl + "/admin/update-program", data).done(function (ret) {
@@ -359,20 +358,35 @@ function loadRequirements(semester, year) {
 	$('body').data('requirements').forEach(function (e, i) {
 		if (e['semester'] == semester && e['year'] == year) {
 			/* Found the course to add */
-            var numElectives = (e['number'] == -1 || e['number'] == null) ? "No requirement" : e['number']
 
-            if (e['type'] == 'elective') {
-                $('#num-electives button').text(numElectives);
+            /* Determine if it is a 'Min grade requirement' row.
+             * This check has to happen before checking number of courses below
+             */
+            var gradeReq = e['grade_requirement'];
+            if (gradeReq != null && gradeReq.length > 0) {
+                /* TODO Fill in button */
                 return;
             }
-            else if (e['type'] == 'application-elective') {
-                $('#num-application-electives button').text(numElectives);
-                return;
-            }
-            else if (e['type'] == 'free-elective') {
-                $('#num-free-electives button').text(numElectives);
-                return;
-            }
+
+            /* Determine if it is a 'Number of courses needed' row */
+            var numElectives = (e['number'] == -1 || e['number'] == null) ? "No requirement" : e['number'];
+            /* For every element in the array: e[0] is type of the course numElectives is for,
+             * e[1] is the reference string of the button whose text is to be changed
+             */
+            var typesAndButtons = [
+                [ 'elective', '#num-electives button' ],
+                [ 'application-elective', '#num-application-electives button' ],
+                [ 'free-elective', '#num-free-electives button' ]
+            ];
+            var isReturning = false;
+            $.each(typesAndButtons, function (typesI, typesE) {
+                if (typesE[0] == e['type']) {
+                    $(typesE[1]).text(numElectives);
+                    isReturning = true;
+                    return false;
+                }
+            });
+            if (isReturning) return;
 
             var parentTable;
             var index;

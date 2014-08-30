@@ -36,7 +36,8 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
 	            'course_name' => $course['course_name'],
 	            'course_numbers' => $course['course_numbers'],
 	            'type' => $course['type'],
-                'number' => $course['number']
+                'number' => $course['number'],
+                'grade_requirement' => $course['grade_requirement']
         	);
 
             $this->insert($data);

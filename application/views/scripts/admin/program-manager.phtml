@@ -171,23 +171,21 @@
                     </tbody>
                 </table>
 
-                <tr>
-                    <td style='line-height: 35px'>Grade requirement: </td>
-                    <td id='elect-grade-req'>
-                        <span class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                            <ul class="dropdown-menu" role="menu">
-                                <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
-                            </ul>
-                        </span>
-                        <span>or above</span>
-                    </td>
-                </tr>
+                <div id='prereq-grade-req'>
+                    Grade requirement:
+                    <span class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+                        <ul class="dropdown-menu" role="menu">
+                            <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                        </ul>
+                    </span>
+                    <span>or above</span>
+                </div>
 
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
                     <table id='table-electives' class='table' style='width: 0'>
                         <tr>
-                            <td style='line-height: 35px'>Number of<?= ($this->program == "bhci" ? " Restricted Application Electives" : "electives") ?> needed: </td>
+                            <td style='line-height: 35px'>Number of <?= ($this->program == "bhci" ? "Restricted Application Electives" : "electives") ?> needed: </td>
                             <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
@@ -198,8 +196,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style='line-height: 35px'><?= ($this->program == "bhci" ? " Restricted Application Electives" : "Electives") ?> grade requirement: </td>
-                            <td id='<?= ($this->program == "bhci" ? "restricted-elect-grade-req" : "elect-grade-req") ?>-grade-requirement'>
+                            <td style='line-height: 35px'><?= ($this->program == "bhci" ? "Restricted Application Electives g" : "G") ?>rade requirement: </td>
+                            <td id='<?= ($this->program == "bhci" ? "application-elect" : "elect") ?>-grade-req'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
                                     <ul class="dropdown-menu" role="menu">
