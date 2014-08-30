@@ -1,3 +1,15 @@
+/* 
+ * Types of courses that have "Number of xxx courses" buttons
+ * Will look for buttons with reference "#num-{type}s button"
+ * E.g. "#num-free-electives button"
+ */
+numButtonTypes = [ 'elective', 'application-elective', 'free-elective' ];
+/*
+ * Same as above
+ * Will look for buttons with reference "#{type}-grade-req button"
+ */
+gradeButtonTypes = [ 'core', 'prerequisite', 'elective', 'application-elective', 'free-elective' ];
+
 function populateYearSelector(requirements) {
     /* Fill in year options. By default, current year - 4 to current year + 4.
      * Extend if years of current requirements are outside of this range.
@@ -96,8 +108,8 @@ $(function () {
 
     /* Add number of electives click handler */
     $('#num-electives li, #num-free-electives li, #num-application-electives li,\
-        #core-grade-req li, #elect-grade-req li, #prereq-grade-req li,\
-        #free-elect-grade-req li, #application-elect-grade-req li')
+        #core-grade-req li, #elective-grade-req li, #prerequisite-grade-req li,\
+        #free-elective-grade-req li, #application-elective-grade-req li')
         .click(function () {
             var newValue = $(this).find('a').text();
             $(this).parent().parent().find('button').text(newValue);
@@ -288,20 +300,14 @@ function saveRequirements() {
         }
     });
 
-    var gradeReqsData = [
-        [ $('#core-grade-req button').text(), 'core' ],
-        [ $('#elect-grade-req button').text(), 'elective' ],
-        [ $('#free-elect-grade-req button').text(), 'free-elective' ],
-        [ $('#application-elect-grade-req button').text(), 'application-elective' ],
-        [ $('#prereq-grade-req button').text(), 'prerequisite' ]
-    ];
-    gradeReqsData.forEach(function (e, i) {
-        if (e[0].length != 0) {
+    gradeButtonTypes.forEach(function (e, i) {
+        var grade = $('#' + e + '-grade-req button').text();
+        if (grade.length != 0) {
             data['requirements'].push({
                 course_name: '',
                 course_numbers: '',
-                type: e[1],
-                grade_requirement: (e[0] == 'No requirement') ? 'd' : getKey(grade2Text, e[0])
+                type: e,
+                grade_requirement: (grade == 'No requirement') ? 'd' : getKey(grade2Text, grade)
             });
         }
     });
@@ -363,30 +369,20 @@ function loadRequirements(semester, year) {
              * This check has to happen before checking number of courses below
              */
             var gradeReq = e['grade_requirement'];
-            if (gradeReq != null && gradeReq.length > 0) {
-                /* TODO Fill in button */
+            if (gradeReq != null && gradeReq.length > 0 &&
+                gradeButtonTypes.indexOf(e['type']) != -1) {
+                var gradeReqToShow = gradeReq == 'd' ? 'No requirement' : grade2Text[gradeReq];
+                $('#' + e['type'] + '-grade-req button').text(gradeReqToShow);
                 return;
             }
 
             /* Determine if it is a 'Number of courses needed' row */
             var numElectives = (e['number'] == -1 || e['number'] == null) ? "No requirement" : e['number'];
-            /* For every element in the array: e[0] is type of the course numElectives is for,
-             * e[1] is the reference string of the button whose text is to be changed
-             */
-            var typesAndButtons = [
-                [ 'elective', '#num-electives button' ],
-                [ 'application-elective', '#num-application-electives button' ],
-                [ 'free-elective', '#num-free-electives button' ]
-            ];
-            var isReturning = false;
-            $.each(typesAndButtons, function (typesI, typesE) {
-                if (typesE[0] == e['type']) {
-                    $(typesE[1]).text(numElectives);
-                    isReturning = true;
-                    return false;
-                }
-            });
-            if (isReturning) return;
+            if (numButtonTypes.indexOf(e['type']) != -1) {
+                /* If course type found, set corresponding button text */
+                $('#num-' + e['type'] + 's button').text(numElectives);
+                return;
+            }
 
             var parentTable;
             var index;

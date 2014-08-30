@@ -171,7 +171,7 @@
                     </tbody>
                 </table>
 
-                <div id='prereq-grade-req'>
+                <div id='prerequisite-grade-req'>
                     Grade requirement:
                     <span class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
@@ -197,7 +197,7 @@
                         </tr>
                         <tr>
                             <td style='line-height: 35px'><?= ($this->program == "bhci" ? "Restricted Application Electives g" : "G") ?>rade requirement: </td>
-                            <td id='<?= ($this->program == "bhci" ? "application-elect" : "elect") ?>-grade-req'>
+                            <td id='<?= ($this->program == "bhci" ? "application-elective" : "elective") ?>-grade-req'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
                                     <ul class="dropdown-menu" role="menu">
@@ -221,7 +221,7 @@
                         </tr>
                         <tr>
                             <td style='line-height: 35px'>Free Electives grade requirement: </td>
-                            <td id='free-elect-grade-req'>
+                            <td id='free-elective-grade-req'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
                                     <ul class="dropdown-menu" role="menu">
@@ -261,7 +261,7 @@
                         <!-- Grade requirement defaults to B or above, if not specified -->
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
                         <ul class="dropdown-menu" role="menu">
-                            <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
+                            <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
                         </ul>
                     </span>
                     <span>or above</span>
@@ -298,7 +298,7 @@
                     </tr>
                     <tr>
                         <td style='line-height: 35px'>Grade requirement: </td>
-                        <td id='elect-grade-req'>
+                        <td id='elective-grade-req'>
                             <span class="btn-group">
                                 <!-- Grade requirement defaults to B or above, if not specified -->
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
