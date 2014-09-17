@@ -47,15 +47,31 @@ var grade2Text = {
     na: 'N/A'
 };
 
+var gradesOrdering = {
+    ap: 0,
+    a: 1,
+    am: 2,
+    bp: 3,
+    b: 4,
+    bm: 5,
+    cp: 6,
+    c: 7,
+    cm: 8,
+    dp: 9,
+    d: 10,
+};
+
 /* For BHCI and undergrad minor, there are only letter grades */
 var letterGrades = ['A', 'B', 'C', 'D', 'R', 'S', 'P', 'N', 'W', 'I', 'N/A'];
 
-function isBAbove(grade) {
-    return grade == 'b' || grade == 'bp' || grade == 'am' || grade == 'a' || grade == 'ap';
-}
-
-function isCAbove(grade) {
-    return isBAbove(grade) || grade == 'c' || grade == 'cp' || grade == 'bm';
+/**
+ * Is the given grade >= grade requirement
+ * E.g. doesGradeSatisfyReq('ap', 'a')
+ * If a pass-fail grade given, return true if 'p'
+ */
+function doesGradeSatisfyReq(grade, req) {
+    if (grade == 'p') return true;
+    return gradesOrdering[grade] <= gradesOrdering[req];
 }
 
 function replaceAll(find, replace, str) {

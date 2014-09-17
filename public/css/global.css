@@ -183,3 +183,9 @@ table#users-table tbody {
 #users-table tbody tr td:nth-child(5) {
     width: 50% !important;
 }
+
+/* User manager page small grade requirement text */
+.grade-req {
+    float: right;
+    color: gray;
+}

@@ -782,8 +782,18 @@ function clearUserInfoFields() {
     }
 }
 
+function findGradeRequirements(year, semester, program) {
+    var ret = {};
+    $('body').data('requirements').forEach(function (e) {
+        if (e['grade_requirement'] != null && e['grade_requirement'].length > 0
+            && e['year'] == year && e['semester'] == semester) {
+            ret[e['type']] = e['grade_requirement'];
+        }
+    });
+    return ret;
+}
+
 function fillInfoCoursesWithAndrewId(andrewId) {
-    /* TODO: add color when selected ? */
     $('body').data('users-info').forEach(function (e) {
         if (e['andrew_id'] == andrewId) {
             /* Update the inputs using e */
@@ -857,8 +867,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                         if (sortingMethod == 'order-by-time') {
                             /* Sort by time */
                             return parseInt(b['id']) - parseInt(a['id']);
-                        }
-                        else {
+                        } else {
                             /* Otherwise, sort by status */
                             /* If a or b is 'submitted' (awaiting approval), always put that in front of the other */
                             if (a['status'] == 'submitted' && b['status'] == 'submitted') {
@@ -886,8 +895,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                         $('#row-electives-placeouts #no-courses').setVisible();
                         $('#row-electives-placeouts #table-courses').setGone();
                         $('#row-electives-placeouts #div-ordering').setGone();
-                    }
-                    else {
+                    } else {
                         $('#row-electives-placeouts #no-courses').setGone();
                         $('#row-electives-placeouts #table-courses').setVisible();
                         $('#row-electives-placeouts #div-ordering').setVisible();
@@ -936,12 +944,59 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     var numElectivesNeeded, numFreeElectivesNeeded, numApplicationElectivesNeeded;
                     var coresFound = false, placeOutsFound = false, prereqsFound = false;
                     var coresIdx = 1, placeOutsIdx = 1, prereqsIdx = 1;
+
+                    /* Set grade requirements display */
+                    var gradeReqs = findGradeRequirements(enrollYear, enrollSemester, e['program']);
+                    ['core', 'prerequisite', 'elective']
+                        .forEach(function (e) {
+                            var reqDisplay = reqDisplay = $('#' + e + '-grade-req');
+                            if (reqDisplay.length > 0 && gradeReqs[e] != undefined &&
+                                gradeReqs[e] != 'd') {
+                                reqDisplay.text("(" + grade2Text[gradeReqs[e]] + " or above required)");
+                            } else {
+                                reqDisplay.text("");
+                            }
+                        });
+                    var electiveReqDisplay = $('#elective-grade-req');
+                    var appElectiveExists = (gradeReqs['application-elective'] != undefined) && (gradeReqs['application-elective'] != 'd');
+                    var freeElectiveExists = (gradeReqs['free-elective'] != undefined) && (gradeReqs['free-elective'] != 'd');
+                    var electiveExists = (gradeReqs['elective'] != undefined) && (gradeReqs['elective'] != 'd');
+                    /* Only fill in required grade using application elective and free elective
+                     * if requirement for Elective doesn't exist
+                     */
+                    if (electiveReqDisplay.length > 0 && !electiveExists) {
+                        if (appElectiveExists && !freeElectiveExists) {
+                            electiveReqDisplay.text("(" + grade2Text[gradeReqs['application-elective']] +
+                                " or above required for restricted application electives)");
+                        } else if (!appElectiveExists && freeElectiveExists) {
+                            electiveReqDisplay.text("(" + grade2Text[gradeReqs['free-elective']] +
+                                " or above required for free electives)");
+                        } else if (appElectiveExists && freeElectiveExists) {
+                            if (gradeReqs['application-elective'] == gradeReqs['free-elective']) {
+                                electiveReqDisplay.text("(" + grade2Text[gradeReqs['free-elective']] +
+                                    " or above required)");
+                            } else {
+                                electiveReqDisplay.text("(" + grade2Text[gradeReqs['application-elective']] +
+                                    " required for application electives, " +
+                                    grade2Text[gradeReqs['free-elective']] +
+                                    " required for free electives)");
+                            }
+                        } else {
+                            electiveReqDisplay.text("");
+                        }
+                    }
+
                     reqs.forEach(function (e, i, arr) {
                         if (e['program'] == $('input[name="type"]').val() &&
                             e['semester'] == enrollSemester &&
                             e['year'] == enrollYear) {
                             /* Found the requirement */
                             var type = e['type'];
+
+                            /* If grade_requirement column exists, then it's grade req */
+                            if (e['grade_requirement'] != null && e['grade_requirement'].length > 0) {
+                                return;
+                            }
 
                             /* If it is the electives requirements */
                             if (type == 'elective') {
@@ -980,7 +1035,11 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                         return;
                                     }
                                     if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
-                                        if ((type == 'core' && (isBAbove(eC['grade']) || eC['grade'] == 'na')) ||
+                                        var gradeReq = gradeReqs[type];
+                                        if (gradeReq == null || gradeReq.length == 0) {
+                                            gradeReq = 'd';
+                                        }
+                                        if ((type == 'core' && (doesGradeSatisfyReq(eC['grade'], gradeReq) || eC['grade'] == 'na')) ||
                                             (type == 'prerequisite')) {
                                             reqs = replaceAll(courseNum, ' true ', reqs);
                                         }
@@ -995,17 +1054,14 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 
                                 if (type == 'core') {
                                     isSatisfied = eval(reqs);
-                                }
-                                else {
+                                } else {
                                     var forcedValue = getPrerequisiteForcedStatus(e['course_name']);
                                     var status = forcedValue['value'];
                                     if (status == 'infer') {
                                         isSatisfied = eval(reqs);
-                                    }
-                                    else if (status == 'satisfied') {
+                                    } else if (status == 'satisfied') {
                                         isSatisfied = true;
-                                    }
-                                    else {
+                                    } else {
                                         isSatisfied = false;
                                         isTaking = false;
                                     }
@@ -1064,8 +1120,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                         $('#panel-cores .no-courses').setVisible();
                         $('#panel-cores .no-courses').text(emptyNotice);
                         $('#panel-electives').setGone();
-                    }
-                    else {
+                    } else {
                         $('#table-cores').setVisible();
                         $('#panel-cores .no-courses').setGone();
 
@@ -1076,7 +1131,18 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                         courses.forEach(function (eC) {
                             var takingAs = eC['taking_as'];
-                            if (isCAbove(eC['grade']) || eC['grade'] == 'na') {
+                            /* Only counting electives in here */
+                            if (takingAs != 'elective' &&
+                                takingAs != 'application-elective' &&
+                                takingAs != 'free-elective')
+                                return;
+
+                            var gradeReq = gradeReqs[takingAs];
+
+                            if (gradeReq == null || gradeReq.length == 0) {
+                                gradeReq = 'd';
+                            }
+                            if (doesGradeSatisfyReq(eC['grade'], gradeReq) || eC['grade'] == 'na') {
                                 if (eC['status'] == 'taken') {
                                     if (takingAs == 'elective') {
                                         numElectivesCompleted++;

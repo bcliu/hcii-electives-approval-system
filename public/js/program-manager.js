@@ -3,12 +3,12 @@
  * Will look for buttons with reference "#num-{type}s button"
  * E.g. "#num-free-electives button"
  */
-numButtonTypes = [ 'elective', 'application-elective', 'free-elective' ];
+var numButtonTypes = [ 'elective', 'application-elective', 'free-elective' ];
 /*
  * Same as above
  * Will look for buttons with reference "#{type}-grade-req button"
  */
-gradeButtonTypes = [ 'core', 'prerequisite', 'elective', 'application-elective', 'free-elective' ];
+var gradeButtonTypes = [ 'core', 'prerequisite', 'elective', 'application-elective', 'free-elective' ];
 
 function populateYearSelector(requirements) {
     /* Fill in year options. By default, current year - 4 to current year + 4.
@@ -354,12 +354,18 @@ function beforeCreateTokenEvent(e) {
 
 function loadRequirements(semester, year) {
 	$('.tr-course').remove();
+    var NO_REQ = 'No requirement';
 	var coreIndex = 1;
     var prereqIndex = 1;
     var placeoutIndex = 1;
-    $('#num-electives button').text('No requirement');
-    $('#num-free-electives button').text('No requirement');
-    $('#num-application-electives button').text('No requirement');
+    $('#num-electives button').text(NO_REQ);
+    $('#num-free-electives button').text(NO_REQ);
+    $('#num-application-electives button').text(NO_REQ);
+    $('#core-grade-req button').text(NO_REQ);
+    $('#prerequisite-grade-req button').text(NO_REQ);
+    $('#application-elective-grade-req button').text(NO_REQ);
+    $('#free-elective-grade-req button').text(NO_REQ);
+    $('#elective-grade-req button').text(NO_REQ);
 
 	$('body').data('requirements').forEach(function (e, i) {
 		if (e['semester'] == semester && e['year'] == year) {
