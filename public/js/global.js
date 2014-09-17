@@ -11,7 +11,7 @@ var displayDefault = {
 var status2Text = {
     "need-clarification": "Clarification needed",
     submitted: "Awaiting approval",
-    approved: "Approved but not taken",
+    approved: "Approved",
     rejected: "Rejected",
     taking: "In progress",
     taken: "Taken"
