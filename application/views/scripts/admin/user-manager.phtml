@@ -232,7 +232,7 @@
             <div id="courses-pane" class="tab-pane">
 
                 <div class="panel panel-default" id='panel-cores' style='margin-top: 20px'>
-                    <div class="panel-heading bold" style='font-size: 15px'>Core requirements<h6 style='float: right; color: gray'>(B or above required)</h6></div>
+                    <div class="panel-heading bold" style='font-size: 15px'>Core requirements<h6 id='core-grade-req' class='grade-req'></h6></div>
                     <div class="row main-row">
                         <div class="col-sm-12">
                             <h5 class='no-courses' style='display: none'></h5>
@@ -252,8 +252,13 @@
                 </div>
 
                 <div class="panel panel-default" id='panel-<?= ($this->type == "mhci" || $this->type == "metals") ? "place-outs" : "prereqs" ?>'>
-                    <div class="panel-heading bold" style='font-size: 15px'><?= 
-                        ($this->type == "mhci" || $this->type == "metals") ? "Place-out courses" : "Prerequisites"
+                    <div class="panel-heading bold" style='font-size: 15px'><?php 
+                        if ($this->type == "mhci" || $this->type == "metals") {
+                            echo "Place-out courses";
+                        } else {
+                            echo "Prerequisites";
+                        ?><h6 id='prerequisite-grade-req' class='grade-req'></h6><?php
+                        }
                     ?></div>
                     <div class="row main-row">
                         <div class="col-sm-12">
@@ -275,7 +280,7 @@
                 </div>
 
                 <div id='panel-electives' class="panel panel-default" style='margin-top: 20px'>
-                    <div class="panel-heading bold" style='font-size: 15px'>Electives<h6 style='float: right; color: gray'>(C or above required)</h6></div>
+                    <div class="panel-heading bold" style='font-size: 15px'>Electives<h6 id='elective-grade-req' class='grade-req'></h6></div>
                     <div class="panel-body">
                         <div class="row main-row">
                             <div id='summary-electives' class="col-sm-12">
