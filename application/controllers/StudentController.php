@@ -129,9 +129,59 @@ class StudentController extends Zend_Controller_Action {
      */
     public function coursesAction() {
         $this->view->title = 'EASy - My Courses';
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-courses.js');
         $db = new Application_Model_DbTable_Courses();
         $andrewId = $this->session_user->andrewId;
         $this->view->all_courses = $db->getAllCoursesOfUser($andrewId);
+    }
+
+    /**
+     * A REST API to submit student message to the advisors
+     * @return Void
+     */
+    public function sendMessageAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $courseId = $this->getRequest()->getPost('course_id');
+            $message = $this->getRequest()->getPost('message');
+
+            /* Verify if this course ID is this current user's course */
+            $dbCourses = new Application_Model_DbTable_Courses();
+            $courseAndrewId = $dbCourses->getCourseById($courseId)->student_andrew_id;
+            $data = array();
+            if ($courseAndrewId != $this->session_user->andrewId) {
+                /* If they don't match, likely that someone is trying to breach */
+                $data['error'] = 1;
+                $data['message'] = "LOL go for it if you want to break the system :)";
+            } else {
+                $db = new Application_Model_DbTable_Chats();
+                if ($db->addMessage($courseId, $message, "student") == -1) {
+                    $data['error'] = 1;
+                }
+            }
+            echo Zend_Json::encode($data);
+        }
+    }
+
+    /**
+     * Get all messages from a thread
+     * @return Void
+     */
+    public function getMessagesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        $courseId = $this->getRequest()->getParam('course_id');
+        /* Verify if this course ID is this current user's course */
+        $dbCourses = new Application_Model_DbTable_Courses();
+        $courseAndrewId = $dbCourses->getCourseById($courseId)->student_andrew_id;
+        if ($courseAndrewId == $this->session_user->andrewId) {
+            $db = new Application_Model_DbTable_Chats();
+            echo Zend_Json::encode($db->getMessages($courseId));
+        } else {
+            echo Zend_Json::encode(array('error' => 1));
+        }
     }
     
     /**

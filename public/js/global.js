@@ -155,3 +155,24 @@ function getSemesterFromMonth(month) {
         return "Fall";
     }
 }
+
+angular.module('timeFilters', []).filter('formattime', function() {
+    /* Assume time string is YYYY-MM-dd HH:mm:ss */
+    return function(input) {
+        return moment(input, "YYYY-MM-DD HH:mm:ss").format("ddd, MMM Do YYYY, h:mm:ss a");
+    };
+});
+
+/* Initialize AngularJS module */
+var app = angular.module('hcii-easy', [ 'timeFilters' ])
+    /* Resolve $http.post not sending data issue */
+    .config(function ($httpProvider) {
+        $httpProvider.defaults.transformRequest = function (data) {
+            if (data === undefined) {
+                return data;
+            }
+            return $.param(data);
+        };
+        $httpProvider.defaults.headers.post['Content-Type'] =
+            'application/x-www-form-urlencoded; charset=UTF-8';
+    });
