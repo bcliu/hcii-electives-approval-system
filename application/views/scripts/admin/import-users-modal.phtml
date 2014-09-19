@@ -1,0 +1,52 @@
+<div class="modal" id="modal-import-users" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modalTitle">Import users</h4>
+            </div>
+            <form id='frm-file-upload' onsubmit='javascript: formSubmitted = 1;' target='iframe-import' method='post' action="<?= $this->baseUrl(); ?>/users/import" enctype="multipart/form-data">
+                <div class="modal-body" style='padding-bottom: 0px'>
+                    <div class="well">
+                        The Excel file (*.xls, *.xlsx) should contain columns with the following headers (columns do not have to be in order):<br /><br />
+                        <b>Program</b> (m = MHCI, metals = METALS, b = BHCI, minor = Undergraduate minor)<br />
+                        <b>Andrew ID</b></br>
+                        <b>Status</b> (e = Enrolled, g = Graduated, i = Inactive) (will default to Enrolled if no value specified)<br />
+                        <b>FT/PT</b> (f = Full-time, p = Part-time) (will default to Full-time if no value specified)<br />
+                        <b>Entered program</b> (format: MM/YYYY)<br />
+                        <b>Expected graduation</b> (format: MM/YYYY)<br />
+                        <br />
+                        Optional columns:<br />
+                        <b>Name</b></br>
+                        <b>Primary major</b></br>
+                        If these column is not present or the values are empty, EASy will attempt to retrieve data from CMU Directory. Retrieval failure may occur if CMU website is modified or updated.
+                    </div>
+
+                    <span class="input-group" style='<!-- width: 75%; display: inline-table -->'>
+                        <span class="input-group-addon">File</span>
+                        <input type="file" id='file' name='file' class="form-control" />
+                    </span>
+
+                    <script type="text/javascript">
+                        formSubmitted = 0;
+                        function checkImportResult() {
+                            if (formSubmitted == 1) {
+                                console.log($('iframe').contents().find('body').text());
+                                var ret = $.parseJSON($('iframe').contents().find('body').text());
+                                alert(ret['message']);
+                                if (ret['success'] == 1) {
+                                    location.reload();
+                                }
+                            }
+                        }
+                    </script>
+                    <iframe style='display: none;' name="iframe-import" onload='checkImportResult()'></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id='btn-upload-file' type="submit" class="btn btn-primary">Upload file</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

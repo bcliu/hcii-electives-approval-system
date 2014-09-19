@@ -24,7 +24,7 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
             'message' => $message,
             'course_id' => $course_id,
             'origin' => $origin,
-            'read_by_admin' => $origin == 'student' ? 0 : 1,
+            'read_by_advisor' => $origin == 'student' ? 0 : 1,
             'read_by_student' => $origin == 'student' ? 1 : 0,
             'time' => $date->toString("YYYY-MM-dd HH:mm:ss")
         );
@@ -34,12 +34,46 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
         return 0;
     }
 
-    public function getMessages($course_id) {
+    public function getMessages($course_id, $viewer) {
+        if ($viewer != 'student' && $viewer != 'advisor') {
+            throw new Exception("Unrecognized viewer in getMessages", 1);
+        }
         $rows = $this->fetchAll($this->select()
                     ->where("course_id = '$course_id'")
-                    ->order('time ASC')
-                );
+                    ->order('time ASC'));
+        $this->markAsRead($rows->toArray(), $viewer);
         return $rows;
+    }
+
+    public function hasUnreadMessages($courseId, $origin) {
+        if ($origin != 'student' && $origin != 'advisor') {
+            throw new Exception("Unrecognized origin", 1);
+        }
+
+        $readBy = $origin == 'student' ? 'advisor' : 'student';
+        $rows = $this->fetchAll($this->select()
+                    ->where("course_id = '$courseId' AND origin = '$origin' AND read_by_$readBy = 0"));
+
+        return count($rows) != 0;
+    }
+
+    public function markAsRead($messages, $viewer) {
+        if ($viewer != 'student' && $viewer != 'advisor') {
+            throw new Exception("Unrecognized viewer in markAsRead", 1);
+        }
+        foreach ($messages as $message) {
+            if ($viewer == 'student') {
+                if ($message['read_by_student'] == 1)
+                    continue;
+                $message['read_by_student'] = 1;
+            } else {
+                if ($message['read_by_advisor'] == 1)
+                    continue;
+                $message['read_by_advisor'] = 1;
+            }
+            $id = $message['chat_id'];
+            $this->update($message, "chat_id = $id");
+        }
     }
 
 }

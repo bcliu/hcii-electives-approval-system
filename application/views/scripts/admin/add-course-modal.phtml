@@ -1,0 +1,92 @@
+<div class="modal" id="modal-add-course" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modalTitle">Add Course</h4>
+            </div>
+            <div class="modal-body" style='padding-bottom: 0px'>
+                <table class='table'>
+                    <tr>
+                        <td class='bold'>Course name</td>
+                        <td id='modal-add-course-name'>
+                            <input class='form-control' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Course number</td>
+                        <td id='modal-add-course-number'>
+                            <input class='form-control' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Units</td>
+                        <td id='modal-add-course-units'>
+                            <input class='form-control' />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Taking as</td>
+                        <td id='modal-add-course-type'>
+                            <span class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Core</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?php if ($this->type == "ugminor") { ?>
+                                        <?= $this->produceList(['Elective', 'Prerequisite', 'Core']) ?>
+                                    <?php } else if ($this->type == "bhci") { ?>
+                                        <?= $this->produceList(['Restricted application elective', 'Free elective', 'Core', 'Prerequisite']) ?>
+                                    <?php } else if ($this->type == "mhci" || $this->type == 'metals') { ?>
+                                        <?= $this->produceList(['Elective', 'Core']) ?>
+                                    <?php } ?>
+                                </ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Status</td>
+                        <td id='modal-add-course-status'>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">In progress</button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id='tr-add-course-semester'>
+                        <td class='bold'>Semester</td>
+                        <td>
+                            <span id='modal-add-course-semester' class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?= $this->produceList(['Spring', 'Fall', 'Summer', 'N/A']) ?>
+                                </ul>
+                            </span>
+                            <span id='modal-add-course-year' class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">2014</button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr id='tr-add-course-grade'>
+                        <td class='bold'>Grade</td>
+                        <td id='modal-add-course-grade'>
+                            <span class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">N/A</button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Comment</td>
+                        <td id='modal-add-course-comment'>
+                            <textarea style='resize: vertical' class='form-control' rows='3'></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id='btn-add-course' type="button" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>

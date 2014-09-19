@@ -1,0 +1,30 @@
+<div class="modal" id="prerequisite-details" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+            <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="modalTitle">Prerequisite details</h4>
+        </div>
+            <div class="modal-body" style='padding-bottom: 0px'>
+        <div id='prerequisite-name' style='display: none'></div>
+                <div class="input-group">
+                    <span class="input-group-addon">Status</span>
+                    <span class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default active" style="border-top-left-radius: 0; border-bottom-left-radius: 0">
+                            <input type="radio" name="prerequisite-status" value="satisfied">Set to "Satisfied"
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="prerequisite-status" value="not-satisfied">Set to "Not satisfied"
+                        </label>
+                        <label class="btn btn-default">
+                            <input type="radio" name="prerequisite-status" value="infer">Infer from courses
+                        </label>
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id='prerequisite-update-status' type="button" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>

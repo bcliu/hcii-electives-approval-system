@@ -76,8 +76,33 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         return $row;
     }
 
-    public function getAllCoursesOfUser($andrewId) {
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId'");
+    /**
+     * Get all courses taken/submitted by user
+     * @param  String $andrewId Andrew ID of student
+     * @param  String $viewer Who will use the courses data. If advisor, will also return if
+     *                        there are messages unread by advisor. Similarly for students.
+     * @return Array           All courses taken/submitted by student with specified Andrew ID.
+     *                         For each course, a has_unread_msg flag is set to 1 if there are
+     *                         unread messages for this student from the course.
+     *                         The flag is set to 0 if all messages of this course has been read.
+     */
+    public function getAllCoursesOfUser($andrewId, $viewer) {
+        if ($viewer != 'advisor' && $viewer != 'student') {
+            throw new Exception("Unrecognized viewer", 1);
+        }
+
+        $rows = $this->fetchAll("student_andrew_id = '$andrewId'")->toArray();
+        $dbChats = new Application_Model_DbTable_Chats();
+        $count = count($rows);
+        for ($i = 0; $i < $count; $i++) {
+            if ($dbChats->hasUnreadMessages($rows[$i]['id'],
+                /* Second parameter is origin of message */
+                $viewer == 'student' ? 'advisor' : 'student')) {
+                $rows[$i]['has_unread_msg'] = 1;
+            } else {
+                $rows[$i]['has_unread_msg'] = 0;
+            }
+        }
         return $rows;
     }
 

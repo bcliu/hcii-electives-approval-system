@@ -1,0 +1,33 @@
+<div class="modal" ng-controller="MessageCtrl" id="messages" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modalTitle">Messages</h4>
+            </div>
+            <div class="modal-body" style='padding-bottom: 0px'>
+                <input type='text' ng-model='courseId' style='display: none'>
+
+                <div style='overflow-y: scroll; overflow-x: hidden; max-height: 500px'>
+                    <div ng-repeat='msg in messages' ng-class="{ student: 'text-info', advisor: 'text-success' } [msg.origin]">
+                        <!-- Header: showing name and time -->
+                        <div style='margin-top: 10px'>
+                            <span ng-if='isInStudentsView()' style='font-weight: bold'>{{ msg.origin == "student" ? "You" : "Advisor" }}:</span>
+                            <span ng-if='!isInStudentsView()' style='font-weight: bold'>{{ msg.origin == "student" ? "Student" : "You" }}:</span>
+                            <span style='float: right'>{{ msg.time | formattime }}</span>
+                        </div>
+                        <!-- Content area -->
+                        {{ msg.message }}
+                    </div>
+                </div>
+                <div ng-if='messages.length == 0'>No messages to show.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" ng-click='send()' class="btn btn-primary" style='float: right'>Send</button>
+                <div style="overflow: hidden; padding-right: 1em">
+                    <input type="text" ng-model='currentMessage' placeholder='Enter questions or clarifications' class="form-control" style='width: 100%'>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 <div class="row main-row" style='width: auto; min-width: 1024px; max-width: 90%; min-height: 95%' ng-controller='MessageCtrl'>
     <div class="col-sm-12">
+        <div class="alert alert-success" role="alert"><b>New!</b> You can now use Messages to communicate with advisors and submit clarifications.</div>
         <table class='table'>
             <thead>
                 <tr>
@@ -21,12 +22,12 @@
                 foreach ($this->all_courses as $course) { ?>
                 <tr>
                     <td><?= $index ?></td>
-                    <td><?= $course->course_name ?></td>
-                    <td><?php if ($course->taking_as != 'place-out') echo $course->course_number; ?></td>
-                    <td><?php if ($course->taking_as != 'place-out') echo $course->units; ?></td>
-                    <td><?= $course->course_description ?></td>
+                    <td><?= $course['course_name'] ?></td>
+                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['course_number']; ?></td>
+                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['units']; ?></td>
+                    <td><?= $course['course_description'] ?></td>
                     <td><?php
-                        switch ($course->taking_as) {
+                        switch ($course['taking_as']) {
                             case "free-elective":
                             echo "Free elective";
                             break;
@@ -38,9 +39,9 @@
                             default:
                             echo ucfirst($course->taking_as);
                         } ?></td>
-                    <td><?php if ($course->taking_as != 'place-out') echo $course->submission_time; ?></td>
+                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['submission_time']; ?></td>
                     <td><?php
-                        switch ($course->status) {
+                        switch ($course['status']) {
                             case 'taking':
                             echo "<span>In progress</span>";
                             break;
@@ -75,8 +76,8 @@
                         }
 
                          ?></td>
-                    <td><?php if ($course->taking_as != 'place-out') echo $course->comment; ?></td>
-                    <td><a class='view-msg' ng-click='showMessages(<?= $course->id ?>)' href='javascript: ;'>View</a></td>
+                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['comment']; ?></td>
+                    <td><a class='view-msg <?= $course['has_unread_msg'] ? "text-danger" : "" ?>' ng-click='showMessages(<?= $course['id'] ?>)' href='javascript: ;'><?= $course['has_unread_msg'] ? "Unread messages" : "View" ?></a></td>
                 </tr>
                 <?php $index++; } ?>
             </tbody>
@@ -84,33 +85,4 @@
     </div>
 </div>
 
-<div class="modal" ng-controller="MessageCtrl" id="messages" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="modalTitle">Messages</h4>
-            </div>
-            <div class="modal-body" style='padding-bottom: 0px'>
-                <input type='text' ng-model='courseId' style='display: none'>
-
-                <div ng-repeat='msg in messages' ng-class="{ student: 'text-info', advisor: 'text-success' } [msg.origin]">
-                    <!-- Header: showing name and time -->
-                    <div style='margin-top: 10px'>
-                        <span style='font-weight: bold'>{{ msg.origin == "student" ? "You" : "Advisor" }}:</span>
-                        <span style='float: right'>{{ msg.time | formattime }}</span>
-                    </div>
-                    <!-- Content area -->
-                    {{ msg.message }}
-                </div>
-                <div ng-if='messages.length == 0'>No messages to show.</div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" ng-click='send()' class="btn btn-primary" style='float: right'>Send</button>
-                <div style="overflow: hidden; padding-right: 1em">
-                    <input type="text" ng-model='currentMessage' placeholder='Enter questions or clarifications' class="form-control" style='width: 100%'>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<?php require_once(APPLICATION_PATH . "/../application/views/scripts/commons/messages.phtml"); ?>

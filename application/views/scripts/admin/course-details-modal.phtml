@@ -1,0 +1,91 @@
+<div class="modal" id="course-details" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modalTitle">Course details</h4>
+            </div>
+            <div class="modal-body" style='padding-bottom: 0px'>
+                <div id='dialog-course-id' style='display: none'></div>
+                <table class='table'>
+                    <tr>
+                        <td class='bold' style='width: 200px'>Student name</td>
+                        <td id='dialog-student-name'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Andrew ID</td>
+                        <td id='dialog-andrew-id'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Course name</td>
+                        <td id='dialog-course-name'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Course number</td>
+                        <td id='dialog-course-number'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Units</td>
+                        <td id='dialog-units'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Description</td>
+                        <td id='dialog-description'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Taking as</td>
+                        <td id='dialog-taking-as'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Submission time</td>
+                        <td id='dialog-submission-time'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Status</td>
+                        <td id='dialog-status'>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Awaiting Approval</button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id='tr-semester'>
+                        <td class='bold'>Semester</td>
+                        <td id='dialog-semester'>
+                            <span id='dialog-semester-semester' class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?= $this->produceList(['Spring', 'Fall', 'Summer', 'N/A']) ?>
+                                </ul>
+                            </span>
+                            <span id='dialog-semester-year' class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">2014</button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr id='tr-grade'>
+                        <td class='bold'>Grade</td>
+                        <td id='dialog-grade'>
+                            <span class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"></button>
+                                <ul class="dropdown-menu" role="menu"></ul>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+            <td class='bold'>Comment<br />(visible to student)</td>
+                        <td id='dialog-comment'>
+                            <textarea style='resize: vertical' class='form-control' rows='3'></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button id='delete-course' type='button' class='btn btn-danger' style='float: left'>Delete Course</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button id='update-status' type="button" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>

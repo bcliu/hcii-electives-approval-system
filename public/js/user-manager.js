@@ -901,6 +901,12 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                         $('#row-electives-placeouts #div-ordering').setVisible();
 
 
+                        /* Temporary compatibility solution; this kind of mixing AngularJS with regular
+                         * JS code is not good!
+                         */
+                        var msgElement = document.querySelector('[id="messages"]');
+                        $messagesScope = angular.element(msgElement).scope()
+
                         for (var i = 0; i < courses.length; i++) {
                             var course = courses[i];
                             /* Don't add place-out courses in here */
@@ -913,9 +919,26 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                  + course['course_number'] + "</td><td>"
                                  + takingAs2Text[course['taking_as']] + "</td><td>"
                                  + grade2Text[course['grade']] + "</td><td>"
-                                 + getColoredStatusText(course['status']) + "</td></tr>";
+                                 + getColoredStatusText(course['status']) + "</td>";
+
+                            /* If there are unread messages under this course */
+                            if (course['has_unread_msg']) {
+                                str += "<td><a class='show-messages text-danger' courseid='" + course['id'] + "' href='javascript: ;'>Unread</a></td>";
+                            } else {
+                                str += "<td><a class='show-messages' courseid='" + course['id'] + "' href='javascript: ;'>View</a></td>"
+                            }
+
+                            str += "</tr>";
+                                 
                             $('#row-electives-placeouts tbody').append(str);
-                            $('#row-electives-placeouts tbody tr:last').data('course-data', course);
+                            var lastRow = $('#row-electives-placeouts tbody tr:last');
+                            lastRow.data('course-data', course);
+                            lastRow.find('.show-messages').click(function () {
+                                var id = $(this).attr('courseid');
+                                $messagesScope.$apply(function () {
+                                    $messagesScope.showMessages(id);
+                                });
+                            });
                         }
 
                         /* Set name in course details dialog */
@@ -1352,8 +1375,10 @@ function attachPlaceoutHandler() {
 }
 
 function addCourseSelectedHandler() {
-    $('#table-courses tbody tr').click(function () {
-        var dialogCourseData = $(this).data('course-data');
+    /* Exclude clicking on the last td, which is reserved for Messages */
+    $('#table-courses tbody tr td:not(:last-child)').click(function () {
+        var thisRow = $(this).parent();
+        var dialogCourseData = thisRow.data('course-data');
         var detailsGradeButton = $('#dialog-grade button');
         var detailsStatusButton = $('#dialog-status button');
         $('#dialog-course-name').text(dialogCourseData['course_name']);

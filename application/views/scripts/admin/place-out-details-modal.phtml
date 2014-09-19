@@ -1,0 +1,51 @@
+<div class="modal" id="place-out-details" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="modalTitle">Course details</h4>
+            </div>
+            <div class="modal-body" style='padding-bottom: 0px'>
+                <div id='place-out-id' style='display: none'></div>
+                <table class='table'>
+                    <tr>
+                        <td class='bold' style='width: 200px'>Student name</td>
+                        <td id='modal-place-out-student-name'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Andrew ID</td>
+                        <td id='modal-place-out-andrew-id'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Course name</td>
+                        <td id='modal-place-out-name'></td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Taking as</td>
+                        <td>Place-out</td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Status</td>
+                        <td id='modal-place-out-status'>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Not satisfied</button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <?= $this->produceList(['Satisfied', 'Not satisfied']) ?>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='bold'>Notes</td>
+                        <td id='modal-place-out-comment'>
+                            <textarea style='resize: vertical' class='form-control' rows='3'></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button id='place-out-update-status' type="button" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>

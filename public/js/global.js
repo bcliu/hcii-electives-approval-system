@@ -176,3 +176,55 @@ var app = angular.module('hcii-easy', [ 'timeFilters' ])
         $httpProvider.defaults.headers.post['Content-Type'] =
             'application/x-www-form-urlencoded; charset=UTF-8';
     });
+
+app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
+
+    /* Weirdly, have to put them in rootScope for them to be reflected in inputs elements */
+    $rootScope.messages = [];
+    $rootScope.courseId = 0;
+    /* Currently editing message */
+    $scope.currentMessage = '';
+
+    $scope.send = function () {
+        var data = {
+            course_id: $rootScope.courseId,
+            message: $scope.currentMessage
+        };
+        var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
+        $http.post(baseUrl + "/" + prefix + "/send-message", data)
+            .success(function (data) {
+                if (data != null && data.error != null &&
+                    data.error == 1) {
+                    alert("Sending message failed. Try again later.");
+                } else {
+                    $scope.currentMessage = '';
+                    $scope.loadMessages();
+                }
+            })
+            .error(function () {
+                alert("Sending message failed. Try again later.");
+            });
+    };
+
+    $scope.isInStudentsView = function () {
+        return $("#modal-add-course").length == 0;
+    }
+
+    $scope.showMessages = function (id) {
+        $rootScope.courseId = id;
+        console.log($rootScope.courseId);
+        $scope.loadMessages();
+        /* Show Messages modal dialog */
+        $('#messages').modal('show');
+    };
+
+    $scope.loadMessages = function () {
+        var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
+        $http.get(baseUrl + "/" + prefix + "/get-messages/course_id/" +
+                $rootScope.courseId)
+            .success(function (data) {
+                $rootScope.messages = angular.fromJson(data);
+            }
+        );
+    };
+}]);

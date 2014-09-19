@@ -132,7 +132,7 @@ class StudentController extends Zend_Controller_Action {
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-courses.js');
         $db = new Application_Model_DbTable_Courses();
         $andrewId = $this->session_user->andrewId;
-        $this->view->all_courses = $db->getAllCoursesOfUser($andrewId);
+        $this->view->all_courses = $db->getAllCoursesOfUser($andrewId, 'student');
     }
 
     /**
@@ -178,7 +178,7 @@ class StudentController extends Zend_Controller_Action {
         $courseAndrewId = $dbCourses->getCourseById($courseId)->student_andrew_id;
         if ($courseAndrewId == $this->session_user->andrewId) {
             $db = new Application_Model_DbTable_Chats();
-            echo Zend_Json::encode($db->getMessages($courseId));
+            echo Zend_Json::encode($db->getMessages($courseId, 'student'));
         } else {
             echo Zend_Json::encode(array('error' => 1));
         }
