@@ -175,6 +175,7 @@ class AdminController extends Zend_Controller_Action {
             $message = $this->getRequest()->getPost('message');
 
             $db = new Application_Model_DbTable_Chats();
+            $data = array();
             if ($db->addMessage($courseId, $message, "advisor") == -1) {
                 $data['error'] = 1;
             }

@@ -129,7 +129,6 @@ class StudentController extends Zend_Controller_Action {
      */
     public function coursesAction() {
         $this->view->title = 'EASy - My Courses';
-        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-courses.js');
         $db = new Application_Model_DbTable_Courses();
         $andrewId = $this->session_user->andrewId;
         $this->view->all_courses = $db->getAllCoursesOfUser($andrewId, 'student');
