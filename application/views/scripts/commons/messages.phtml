@@ -25,7 +25,8 @@
             <div class="modal-footer">
                 <button type="button" ng-click='send()' class="btn btn-primary" style='float: right'>Send</button>
                 <div style="overflow: hidden; padding-right: 1em">
-                    <input type="text" ng-model='currentMessage' placeholder='Enter questions or clarifications' class="form-control" style='width: 100%'>
+                    <input ng-if='isInStudentsView()' type="text" ng-model='currentMessage' placeholder='Enter questions or clarifications' class="form-control" style='width: 100%'>
+                    <input ng-if='!isInStudentsView()' type="text" ng-model='currentMessage' class="form-control" style='width: 100%'>
                 </div>
             </div>
         </div>

@@ -106,11 +106,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
         table.html('');
 
         json.sort(lastNameSorter);
-        $.each(json, function (i, e) {
-            table.append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>" + e['name'] +
-                "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
-                "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
-        });
+        /* No need to append users now; searchStudents() will be called automatically */
 
         $('#loading-users').setGone();
 
@@ -119,8 +115,6 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
             adjustTableStyle();
             return;
         }
-
-        adjustTableStyle();
 
         /* Attach events handlers */
         $('#users-table tbody tr').each(function () {
@@ -264,6 +258,7 @@ function searchStudents() {
                                        "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
         i++;
     }
+    adjustTableStyle();
     attachUserClickHandler();
 }
 
