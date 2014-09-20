@@ -189,3 +189,14 @@ table#users-table tbody {
     float: right;
     color: gray;
 }
+
+/* Elements with this class will have its content forced in one line */
+.nowrap-line {
+    white-space: nowrap;
+    overflow: hidden
+}
+
+/* Has unread message icon: set margin-left to the numbers badge */
+.has_unread_msg {
+    margin-left: 5px;
+}

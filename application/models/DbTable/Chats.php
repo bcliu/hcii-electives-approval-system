@@ -20,10 +20,16 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
         }
 
         $date = new Zend_Date();
+        $dbCourses = new Application_Model_DbTable_Courses();
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentAndrew = $dbCourses->getCourseById($course_id)->student_andrew_id;
+        $studentId = $dbUsers->getUserByAndrewId($studentAndrew)->id;
+        
         $data = array(
             'message' => $message,
             'course_id' => $course_id,
             'origin' => $origin,
+            'student_id' => $studentId,
             'read_by_advisor' => $origin == 'student' ? 0 : 1,
             'read_by_student' => $origin == 'student' ? 1 : 0,
             'time' => $date->toString("YYYY-MM-dd HH:mm:ss")
@@ -74,6 +80,17 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
             $id = $message['chat_id'];
             $this->update($message, "chat_id = $id");
         }
+    }
+
+    /**
+     * Get array of students with unread messages by advisors
+     * @return Array Students with unread messages
+     */
+    public function getStudentsWithUnread() {
+        $rows = $this->fetchAll($this->select("student_id")
+            ->distinct()
+            ->where("read_by_advisor = 0"));
+        return $rows->toArray();
     }
 
 }

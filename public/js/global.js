@@ -190,6 +190,7 @@ app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scop
             course_id: $rootScope.courseId,
             message: $scope.currentMessage
         };
+        console.log(data);
         var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
         $http.post(baseUrl + "/" + prefix + "/send-message", data)
             .success(function (data) {

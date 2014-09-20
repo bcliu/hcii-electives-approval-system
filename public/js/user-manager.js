@@ -228,8 +228,8 @@ function searchStudents() {
         else if ((e['andrew_id'].toLowerCase().indexOf(text) != -1 ||
              e['name'].toLowerCase().indexOf(text) != -1)) {
             otherMatches.push(i);
-                    /* If it's the same one as previously spotted, don't animate again */
-                    /*              (typeof previousLocated == 'undefined' || previousLocated != e['andrew_id'])) {
+            /* If it's the same one as previously spotted, don't animate again */
+            /*  (typeof previousLocated == 'undefined' || previousLocated != e['andrew_id'])) {
                 search = $('tr[andrewid="' + e['andrew_id'] + '"]');                                                                                                         
                 $('#users-table td').css('background-color', '');             
                 previousLocated = e['andrew_id'];                                                                                                                            
@@ -244,18 +244,26 @@ function searchStudents() {
     var numLastNameMatches = lastNameMatches.length;
     var numOtherMatches = otherMatches.length;
 
+    var getUserRowString = function (e) {
+        return '<tr andrewid="' + e['andrew_id'] +
+        '"><td id="td-andrew-id">' + e['andrew_id'] +
+        "</td><td>" + e['name'] +
+        "</td><td class='td-enroll-date'>" + e['enroll_date'] +
+        "</td><td>" + e['graduation_date'] +
+        "</td><td class='nowrap-line'>" +
+        "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") +
+        "</span>" + (e['has_unread_msg'] == 1 ? "<span class='glyphicon glyphicon-envelope has_unread_msg'></span>" : "") +
+        "</td></tr>";
+    }
+
     for (; i < numLastNameMatches; i++) {
         var e = $('body').data('users-info')[lastNameMatches[i]];
-        $('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
-                                       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
-                                       "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
+        $('#users-table tbody').append(getUserRowString(e));
     }
 
     for (var p = 0; p < numOtherMatches; p++) {
         var e = $('body').data('users-info')[otherMatches[p]];
-        $('#users-table tbody').append('<tr andrewid="' + e['andrew_id'] + '"><td id="td-andrew-id">' + e['andrew_id'] + "</td><td>"
-                                       + e['name'] + "</td><td class='td-enroll-date'>" + e['enroll_date'] + "</td><td>" + e['graduation_date'] + "</td><td>" +
-                                       "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") + "</span></td></tr>");
+        $('#users-table tbody').append(getUserRowString(e));
         i++;
     }
     adjustTableStyle();

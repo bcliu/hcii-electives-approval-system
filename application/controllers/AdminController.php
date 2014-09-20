@@ -140,7 +140,25 @@ class AdminController extends Zend_Controller_Action {
             return;
         }
 
-        echo Zend_Json::encode($this->getStudents($program, $includeGraduated, $includeEnrolled, $startYear, $endYear));
+        $students = $this->getStudents($program, $includeGraduated, $includeEnrolled, $startYear, $endYear);
+
+        /* Find list of students that have unread messages, attach to above array */
+        $dbChats = new Application_Model_DbTable_Chats();
+        $arrWithUnread = array();
+        foreach ($dbChats->getStudentsWithUnread() as $student) {
+            array_push($arrWithUnread, $student['student_id']);
+        }
+
+        $count = count($students);
+        for ($i = 0; $i < $count; $i++) {
+            if (in_array($students[$i]['id'], $arrWithUnread)) {
+                $students[$i]['has_unread_msg'] = 1;
+            } else {
+                $students[$i]['has_unread_msg'] = 0;
+            }
+        }
+
+        echo Zend_Json::encode($students);
     }
 
     public function getAdministratorsAction() {
