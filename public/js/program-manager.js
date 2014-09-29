@@ -343,6 +343,7 @@ function afterCreateTokenEvent(e) {
     if (!pattern.test(e.token.value)) {
         $(e.relatedTarget).addClass('invalid'); /* TODO relatedTarget? */
     }
+    pattern.lastIndex = 0;
 }
 
 function beforeCreateTokenEvent(e) {

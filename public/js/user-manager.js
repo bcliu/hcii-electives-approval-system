@@ -1060,6 +1060,12 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                     if (!reg.test(courseNum)) {
                                         return;
                                     }
+                                    /* Reset next index to search for reg, otherwise it
+                                     * will give the wrong result (always false) !
+                                     * http://stackoverflow.com/questions/1520800/why-regexp-with-global-flag-in-javascript-give-wrong-results
+                                     */
+                                    reg.lastIndex = 0;
+
                                     if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
                                         var gradeReq = gradeReqs[type];
                                         if (gradeReq == null || gradeReq.length == 0) {
