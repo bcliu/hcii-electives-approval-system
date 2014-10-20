@@ -295,6 +295,10 @@ $(function () {
         searchStudents();
     });
 
+    $('#filter-options').on('click', function (e) {
+        e.stopPropagation();
+    });
+
     currentProgram = $('input[name="type"]').val();
 
     $('#new-user-email-notice').popover({
@@ -318,17 +322,10 @@ $(function () {
         placement: 'top'
     });
 
-    var panelFilter = $('#panel-filter');
-    if (panelFilter.attr('id') != undefined) {
-        /* This whole thing is to avoid that when mouse is over
-         * datepicker, the Filter panel is dimmed again
-         */
+
+    var isManagingStudents = ($('#enroll-date').attr('id') != undefined);
+    if (isManagingStudents) {
         datePickerHidden = false;
-        panelFilter.mouseover(function () {
-            if (datePickerHidden) {
-                panelFilter.css("opacity", "");
-            }
-        });
 
         var selectors = $('#filter-year-lower-bound, #filter-year-upper-bound');
         selectors.datepicker({
@@ -346,8 +343,6 @@ $(function () {
             }
             $(this).datepicker('setValue', newDate);
             loadStudents();
-        }).on('show', function () {
-            panelFilter.css("opacity", 1);
         }).on('hide', function () {
             datePickerHidden = true;
         });
@@ -357,7 +352,7 @@ $(function () {
         });
     }
 
-    if ($('#enroll-date').attr('id') != undefined) {
+    if (isManagingStudents) {
         
         /* Set enroll date datepicker */
         $('#enroll-date').datepicker({

@@ -32,6 +32,42 @@
                 <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
                 <span id='search-student-clear' style='position: absolute; top: 10px; right: 10px; cursor: pointer' class="glyphicon glyphicon-remove"></span>
             </div>
+
+            <div class="btn-group">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options<span class="caret"></span>
+                </button>
+                <ul id='filter-options' class="dropdown-menu" role="menu">
+                    <li>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" checked id='show-enrolled'> Show enrolled students
+                            </label>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id='show-graduated'> Show graduated and inactive students
+                            </label>
+                        </div>
+                    </li>
+                    <li>
+                        Show students entered program between
+                        <span style='display: inline-block; width: 100px'>
+                            <input id='filter-year-lower-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
+                        </span>
+                         and 
+                        <span style='display: inline-block; width: 100px'>
+                            <input id='filter-year-upper-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
+                        </span>
+                    </li>
+                    <li>
+                        <div style='margin-top: 10px'>
+                            <button type="button" id='btn-clear-filter' class="btn btn-default" onclick='clearFilter()'>Clear Filter</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
             <?php } ?>
 
             <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
@@ -61,36 +97,6 @@
         <h4 id='loading-users' style='display: none; text-align: center'>Loading users list...</h4>
 
         <?php if ($this->type != "admin") { ?>
-            <div class="panel panel-default" id='panel-filter' style='margin-top: 20px'>
-                <div class="panel-heading bold" style='font-size: 15px'>Filter</div>
-                <div class="row main-row" style='padding-bottom: 20px; padding-top: 10px'>
-                    <div class="col-sm-12">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" checked id='show-enrolled'> Show enrolled students
-                            </label>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" id='show-graduated'> Show graduated and inactive students
-                            </label>
-                        </div>
-                        Show students entered program between
-                        <span style='display: inline-block; width: 100px'>
-                            <input id='filter-year-lower-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
-                        </span>
-                         and 
-                        <span style='display: inline-block; width: 100px'>
-                            <input id='filter-year-upper-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
-                        </span>
-
-                        <div style='margin-top: 10px'>
-                            <button type="button" id='btn-clear-filter' class="btn btn-default" onclick='clearFilter()'>Clear Filter</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="panel panel-default" id='panel-import' style='margin-top: 20px'>
                 <div class="panel-heading bold" style='font-size: 15px'>Import</div>
                 <div class="row main-row" style='padding-bottom: 20px; padding-top: 20px'>
