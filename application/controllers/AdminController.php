@@ -59,11 +59,12 @@ class AdminController extends Zend_Controller_Action {
      * 
      * @param  bool $includeGraduated Whether to include graduated and inactive students
      * @param  bool $includeEnrolled  Whether to include enrolled students
+     * @param  bool $outstandingOnly  Whether should only show those with outstanding requests
      * @param  int  $startYear        Lower bound of students' enrollment year
      * @param  int  $endYear          Upper bound of students' enrollment year
      * @return array                  Students with all database fields and number of awaiting approval courses
      */
-    function getStudents($program, $includeGraduated, $includeEnrolled, $startYear, $endYear) {
+    function getStudents($program, $includeGraduated, $includeEnrolled, $outstandingOnly, $startYear, $endYear) {
         if ($includeGraduated == 0 && $includeEnrolled == 0) {
             return array();
         }
@@ -72,14 +73,16 @@ class AdminController extends Zend_Controller_Action {
         $dbCourses = new Application_Model_DbTable_Courses();
         $filter = $includeGraduated == 1 && $includeEnrolled == 1 ? "" :
                     ($includeEnrolled == 1 ? "AND status = 'enrolled'" : "AND (status = 'graduated' OR status = 'inactive')");
+        if ($outstandingOnly) {
+            $filter .= " AND number_awaiting_approval > 0";
+        }
 
         $allUsers = array();
 
         if ($startYear == NULL && $endYear == NULL) {
             $rows = $db->fetchAll("role = 'student' AND `program` = '$program' $filter");
             $allUsers = $rows->toArray();
-        }
-        else {
+        } else {
             $startYear = intval($startYear);
             $endYear = intval($endYear);
 
@@ -134,6 +137,7 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
         $includeGraduated = $this->getRequest()->getParam('include-graduated');
         $includeEnrolled = $this->getRequest()->getParam('include-enrolled');
+        $outstandingOnly = $this->getRequest()->getParam('outstanding-only');
         $startYear = $this->getRequest()->getParam('start-year');
         $endYear = $this->getRequest()->getParam('end-year');
         $program = $this->getRequest()->getParam('program');
@@ -150,7 +154,7 @@ class AdminController extends Zend_Controller_Action {
             return;
         }
 
-        $students = $this->getStudents($program, $includeGraduated, $includeEnrolled, $startYear, $endYear);
+        $students = $this->getStudents($program, $includeGraduated, $includeEnrolled, $outstandingOnly, $startYear, $endYear);
 
         /* Find list of students that have unread messages, attach to above array */
         $dbChats = new Application_Model_DbTable_Chats();

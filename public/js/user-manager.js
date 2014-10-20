@@ -58,6 +58,7 @@ function clearFilter() {
     $('#filter-year-lower-bound').val('');
     $('#filter-year-upper-bound').val('');
     $('#show-enrolled').prop('checked', true);
+    $('#show-outstanding-only').prop('checked', false);
 
     loadStudents();
 }
@@ -79,6 +80,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
     $('#no-users').setGone();
     var showGraduated = $('#show-graduated').is(":checked") ? 1 : 0;
     var showEnrolled = $('#show-enrolled').is(":checked") ? 1 : 0;
+    var showOutstandingOnly = $('#show-outstanding-only').is(":checked") ? 1 : 0;
     var startYear = $('#filter-year-lower-bound').val();
     var startYear = startYear.substr(startYear.length - 4);
     var endYear = $('#filter-year-upper-bound').val();
@@ -91,6 +93,7 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
 
     var url = baseUrl + "/admin/get-students/program/" + currentProgram +
         "/include-graduated/" + showGraduated +
+        "/outstanding-only/" + showOutstandingOnly +
         "/include-enrolled/" + showEnrolled + period;
     $.get(url, function(result) {
         try {
@@ -282,7 +285,7 @@ function searchStudents() {
 var currentProgram;
 
 $(function () {
-    $('#show-graduated, #show-enrolled').click(loadStudents);
+    $('#show-graduated, #show-enrolled, #show-outstanding-only').click(loadStudents);
     adjustTableStyle();
 
     filterInput = $('#search-student');
