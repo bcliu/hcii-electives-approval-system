@@ -920,6 +920,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                             var str = "<tr><td>" + (i + 1) + "</td><td>"
                                  + course['course_name'] + "</td><td>"
                                  + course['course_number'] + "</td><td>"
+                                 + (course['units'] == 0 ? "N/A" : course['units']) + "</td><td>"
                                  + takingAs2Text[course['taking_as']] + "</td><td>"
                                  + grade2Text[course['grade']] + "</td><td>"
                                  + getColoredStatusText(course['status']) + "</td>";
