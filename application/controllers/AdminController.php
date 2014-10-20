@@ -16,6 +16,16 @@ class AdminController extends Zend_Controller_Action {
         $this->view->andrewId = $this->session_user->andrewId;
         $this->view->name = $db->getNameByAndrewId($this->session_user->andrewId);
         $this->_helper->layout->setLayout('admin-layout');
+
+        $this->config = array(
+            'auth' => 'login',
+            'username' => 'cmu.hcii.easy@gmail.com',
+            'password' => Zend_Registry::get('AndrewPassword'),
+            'ssl' => 'tls',
+            'port' => 587
+        );
+
+        $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
     }
 
     /**
@@ -197,6 +207,30 @@ class AdminController extends Zend_Controller_Action {
             if ($db->addMessage($courseId, $message, "advisor") == -1) {
                 $data['error'] = 1;
             }
+
+            /* Send an email notifying the student */
+            if (!Zend_Registry::get('EmailEnabled')) {
+                return;
+            }
+
+            $coursesDb = new Application_Model_DbTable_Courses();
+            $course = $coursesDb->getCourseById($courseId);
+            $studentAndrewId = $course->student_andrew_id;
+            $courseName = $course->course_name;
+
+            $mail = new Zend_Mail();
+            $mail->setBodyHtml("<html><body><p>An advisor sent a new message regarding the course \"$courseName\" in EASy:</p>
+                <p>$message</p>
+                <div>&nbsp;</div>
+                <div>Best,</div>
+                <div>EASy Robot</div>
+                </body></html>");
+            $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
+            $mail->addTo($studentAndrewId . "@andrew.cmu.edu");
+
+            $mail->setSubject("New message from advisor");
+            $mail->send($this->transport);
+
             echo Zend_Json::encode($data);
         }
     }
