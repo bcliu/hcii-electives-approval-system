@@ -57,9 +57,9 @@ class AdminController extends Zend_Controller_Action {
      * Return array of students based on specified filter.
      * If specified startYear is later than endYear, return empty array.
      * 
-     * @param  bool $includeGraduated Whether to include graduated and inactive students
-     * @param  bool $includeEnrolled  Whether to include enrolled students
-     * @param  bool $outstandingOnly  Whether should only show those with outstanding requests
+     * @param  int $includeGraduated Whether to include graduated and inactive students
+     * @param  int $includeEnrolled  Whether to include enrolled students
+     * @param  int $outstandingOnly  Whether should only show those with outstanding requests
      * @param  int  $startYear        Lower bound of students' enrollment year
      * @param  int  $endYear          Upper bound of students' enrollment year
      * @return array                  Students with all database fields and number of awaiting approval courses

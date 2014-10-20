@@ -1,5 +1,33 @@
 var sortingMethod = 'order-by-time';
 
+function openModal(modalSelector, loadingImgUrl, dataUrl, failTitle, failBody) {
+    var $modal = $(modalSelector),
+        $modalTitle = $modal.find(".modal-title"),
+        $modalBody = $modal.find(".modal-body");
+        
+    if ($modal.size() > 0) {
+        $modalTitle.html('Please Wait');
+        $modalBody.html('<div style="width: 100%; margin: 0 auto;"><img style="display: block; margin: 0 auto;" alt="Loading..." src="' + loadingImgUrl + '" /></div>');
+        $modal.modal();
+        
+        $.get(dataUrl)
+            .done(function(data) {
+                var $divWithData = $(data).find('div.with-data'),
+                    mainTitle = $divWithData.attr('data-maintitle'),
+                    subTitle = $divWithData.attr('data-subtitle');
+                
+                $modalTitle.html('<div><small>' + subTitle + '</small></div><div>' + mainTitle + '</div>');
+                $modalBody.html(data);
+                
+                $modal.animate({ scrollTop: 0 }, 'fast');
+            })
+            .fail(function() {
+                $modalTitle.html('<h4>' + failTitle + '</h4>');
+                $modalBody.html('<p class="text-left">' + failBody + '</p>');
+            }); 
+    }
+};
+
 /**
  * Scroll users list to some student.
  * Originally used to locate some student. Not used after changing to only showing matched students.
