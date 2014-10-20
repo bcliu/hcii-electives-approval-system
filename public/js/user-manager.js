@@ -1,30 +1,54 @@
 var sortingMethod = 'order-by-time';
 
-function openModal(modalSelector, loadingImgUrl, dataUrl, failTitle, failBody) {
-    var $modal = $(modalSelector),
+/**
+ * Courtesy of CMU Schedule of Classes website
+ */
+function showSOCCourseDescription() {
+    var $modal = $('#soc-course-description-modal'),
         $modalTitle = $modal.find(".modal-title"),
         $modalBody = $modal.find(".modal-body");
-        
+
+    var courseNumber = $('#dialog-course-number').text();
+    var semester = $('#dialog-semester-semester button').text();
+    var year = $('#dialog-semester-year button').text();
+
+    var status = $('#dialog-status button').data('status');
+
+    /* If status != taking or taken, semester and year are meaningless */
+    if (status != 'taking' && status != 'taken') {
+        /* Then just use this year and semester to query */
+        var d = new Date();
+        var semester = getSemesterFromMonth(d.getMonth() + 1);
+        var year = d.getFullYear();
+    }
+
     if ($modal.size() > 0) {
-        $modalTitle.html('Please Wait');
-        $modalBody.html('<div style="width: 100%; margin: 0 auto;"><img style="display: block; margin: 0 auto;" alt="Loading..." src="' + loadingImgUrl + '" /></div>');
+        $modalTitle.html('Loading course description...');
+        $modalBody.html('');
         $modal.modal();
+
+        var showError = function () {
+            $modalTitle.html('<h4>An error has occurred</h4>');
+            $modalBody.html('<p class="text-left">Requesting data failed, or the given combination of course number, year and semester is not/no longer stored on CMU Schedule of Classes website.</p>');
+        }
         
-        $.get(dataUrl)
-            .done(function(data) {
-                var $divWithData = $(data).find('div.with-data'),
-                    mainTitle = $divWithData.attr('data-maintitle'),
-                    subTitle = $divWithData.attr('data-subtitle');
+        $.get(baseUrl + "/admin/get-soc-description/course-number/" + courseNumber + "/year/" + year + "/semester/" + semester)
+            .done(function (data) {
+                var divWithData = $(data).find('div.with-data'),
+                    mainTitle = divWithData.attr('data-maintitle'),
+                    subTitle = divWithData.attr('data-subtitle');
+
+                if (divWithData.length == 0) {
+                    showError();
+                    return;
+                }
                 
                 $modalTitle.html('<div><small>' + subTitle + '</small></div><div>' + mainTitle + '</div>');
                 $modalBody.html(data);
                 
                 $modal.animate({ scrollTop: 0 }, 'fast');
             })
-            .fail(function() {
-                $modalTitle.html('<h4>' + failTitle + '</h4>');
-                $modalBody.html('<p class="text-left">' + failBody + '</p>');
-            }); 
+            .fail(showError); 
     }
 };
 

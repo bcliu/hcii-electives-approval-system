@@ -223,7 +223,7 @@ class AdminController extends Zend_Controller_Action {
             $courseName = $course->course_name;
 
             $mail = new Zend_Mail();
-            $mail->setBodyHtml("<html><body><p>An advisor sent a new message regarding the course \"$courseName\" in EASy:</p>
+            $mail->setBodyHtml("<html><body><p>An advisor sent you a new message regarding the course \"$courseName\":</p>
                 <p>$message</p>
                 <div>&nbsp;</div>
                 <div>Best,</div>
@@ -237,6 +237,57 @@ class AdminController extends Zend_Controller_Action {
 
             echo Zend_Json::encode($data);
         }
+    }
+
+    public function getSocDescriptionAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+
+        $rawCourseNumber = $this->getRequest()->getParam('course-number');
+        $rawYear = $this->getRequest()->getParam('year');
+        $rawSemester = $this->getRequest()->getParam('semester');
+
+        if ($rawCourseNumber == NULL || $rawYear == NULL || $rawSemester == NULL) {
+            return;
+        }
+
+        $courseNumber = trim(str_replace("-", "", $rawCourseNumber));
+        $semester = substr($rawSemester, 0, 1);
+        if ($rawSemester == 'Summer')
+            $semester = 'M';
+        $year = substr($rawYear, 2, 2);
+
+        $prefix = "https://enr-apps.as.cmu.edu/open/SOC/SOCServlet/courseDetails?";
+
+        $ch = curl_init();
+        $suffix = "COURSE=$courseNumber&SEMESTER=$semester$year";
+
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_URL => $prefix . $suffix
+        ));
+        $result = curl_exec($ch);
+        error_log(strpos($result, "with-data"));
+        if (curl_errno($ch) || strpos($result, "with-data") === false) {
+            error_log("attempting to query again");
+            /* Attempt to query again by changing to the current year */
+            $currentYear = date("Y");
+            $currentYearSuffix = substr($currentYear, 2, 2);
+            $suffix = "COURSE=$courseNumber&SEMESTER=$semester$currentYearSuffix";
+            error_log($suffix);
+            curl_setopt_array($ch, array(
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_URL => $prefix . $suffix
+            ));
+            $result = curl_exec($ch);
+
+            if (!curl_errno($ch)) {
+                echo $result;
+            }
+        } else {
+            echo $result;
+        }
+        curl_close($ch);
     }
     
     public function userManagerAction() {
