@@ -213,10 +213,19 @@ function lastNameSorter(a, b) {
     return lastNameA.localeCompare(lastNameB);
 }
 
+var filterClearButton;
+var filterInput;
+
 function searchStudents() {
     $('#users-table tbody').html('');
-    var text = $('#search-student').val().toLowerCase();
+    var text = filterInput.val().toLowerCase();
     var search;
+
+    if (text.length > 0) {
+        filterClearButton.setVisible();
+    } else {
+        filterClearButton.setGone();
+    }
 
     var lastNameMatches = [];
     var otherMatches = [];
@@ -276,7 +285,15 @@ $(function () {
     $('#show-graduated, #show-enrolled').click(loadStudents);
     adjustTableStyle();
 
-    $('#search-student').on('input', searchStudents);
+    filterInput = $('#search-student');
+    filterInput.on('input', searchStudents);
+
+    filterClearButton = $('#search-student-clear');
+    filterClearButton.setGone();
+    filterClearButton.on('click', function () {
+        filterInput.val('');
+        searchStudents();
+    });
 
     currentProgram = $('input[name="type"]').val();
 

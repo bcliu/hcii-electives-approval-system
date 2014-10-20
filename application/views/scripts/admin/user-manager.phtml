@@ -28,7 +28,10 @@
         <div style='overflow: auto; max-height:80%'>
 
             <?php if ($this->type != "admin") { ?>
-            <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
+            <div style='position: relative'>
+                <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
+                <span id='search-student-clear' style='position: absolute; top: 10px; right: 10px; cursor: pointer' class="glyphicon glyphicon-remove"></span>
+            </div>
             <?php } ?>
 
             <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
