@@ -295,7 +295,7 @@ $(function () {
         searchStudents();
     });
 
-    $('#filter-options').on('click', function (e) {
+    $('#filter-options .checkbox, #filter-options input').on('click', function (e) {
         e.stopPropagation();
     });
 

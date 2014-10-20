@@ -25,33 +25,40 @@
             </li>
         </ul>
         
-        <div style='overflow: auto; max-height:80%'>
+        <div style='max-height:80%'>
 
             <?php if ($this->type != "admin") { ?>
-            <div style='position: relative'>
-                <input id='search-student' style='margin-top: 20px' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
+            <span style='position: relative' style='display: inline'>
+                <input id='search-student' style='display: inline; margin-top: 20px; width: calc(100% - 130px)' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
                 <span id='search-student-clear' style='position: absolute; top: 10px; right: 10px; cursor: pointer' class="glyphicon glyphicon-remove"></span>
-            </div>
+            </span>
 
-            <div class="btn-group">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options<span class="caret"></span>
+            <span class="btn-group" style='display: inline; margin-top: 20px; float: right'>
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options <span class="caret"></span>
                 </button>
                 <ul id='filter-options' class="dropdown-menu" role="menu">
-                    <li>
+                    <li><a>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" checked id='show-enrolled'> Show enrolled students
+                                <input type="checkbox" id='show-outstanding-only'>Show outstanding requests and messages only
                             </label>
                         </div>
-                    </li>
-                    <li>
+                    </a><li>
+                    <li><a>
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" id='show-graduated'> Show graduated and inactive students
+                                <input type="checkbox" checked id='show-enrolled'>Show enrolled students
                             </label>
                         </div>
-                    </li>
-                    <li>
+                    </a></li>
+                    <li><a>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id='show-graduated'>Show graduated and inactive students
+                            </label>
+                        </div>
+                    </a></li>
+                    <li><a>
                         Show students entered program between
                         <span style='display: inline-block; width: 100px'>
                             <input id='filter-year-lower-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
@@ -60,14 +67,11 @@
                         <span style='display: inline-block; width: 100px'>
                             <input id='filter-year-upper-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
                         </span>
-                    </li>
-                    <li>
-                        <div style='margin-top: 10px'>
-                            <button type="button" id='btn-clear-filter' class="btn btn-default" onclick='clearFilter()'>Clear Filter</button>
-                        </div>
-                    </li>
+                    </a></li>
+                    <li class='divider'></li>
+                    <li><a href='javascript: ;' onclick='clearFilter()' style='padding-top: 10px; padding-bottom: 10px'>Clear Filter</a></li>
                 </ul>
-            </div>
+            </span>
             <?php } ?>
 
             <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
