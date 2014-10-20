@@ -1,3 +1,5 @@
 library/
 tmp/
 *~
+application/configs
+application/Bootstrap.php
