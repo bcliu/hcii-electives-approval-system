@@ -128,11 +128,6 @@ button {
     padding-top: 12px;
 }
 
-.electives-progress {
-    font-size: 14px !important;
-    float:right !important
-}
-
 .user-selected td {
     background-color: #d9edf7 !important;
 }
@@ -199,4 +194,19 @@ table#users-table tbody {
 /* Has unread message icon: set margin-left to the numbers badge */
 .has_unread_msg {
     margin-left: 5px;
+}
+
+.color-block {
+    height: 15px;
+    width: 15px;
+    margin-right: 10px
+}
+
+.courses-remaining {
+    background-color: rgba(0, 0, 0, 0);
+    color: gray;
+    float: left;
+    text-align: center;
+    line-height: 20px;
+    font-size: 13px
 }

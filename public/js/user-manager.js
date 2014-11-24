@@ -1277,7 +1277,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                     (numFreeElectivesCompleted / numFreeElectivesNeeded * 100) + '%;"></div></div>');
                             }
                             else {
-                                summaryElectives.append(numFreeElectivesCompleted + " free electives are completed.");
+                                summaryElectives.append(numFreeElectivesCompleted + " free electives are completed.<br />");
                             }
                         }
 
@@ -1397,7 +1397,7 @@ function attachPlaceoutHandler() {
         /* Search in courses array to see if comment exists */
         $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
             var courses = $.parseJSON(result);
-            courses.forEach(function (eC) {
+            courses['courses'].forEach(function (eC) {
                 if (eC['course_name'] == courseName) {
                     if (eC['status'] == 'satisfied') {
                         statusButton.text('Satisfied');

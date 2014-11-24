@@ -106,12 +106,49 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         return $rows;
     }
 
-    public function getNumberSatisfiedByType($andrewId, $type) {
-        $grade = "grade = 'b' OR grade = 'bp' OR grade = 'am' OR grade = 'a' OR grade = 'ap' OR grade = 'na'";
-        if ($type != 'core') {
-            $grade .= " OR grade = 'c' OR grade = 'cp' OR grade = 'bm'";
+    /**
+     * Generate SQL query statement that finds grades >= minGrade
+     * @param  String $minGrade Minimum grade requirement
+     */
+    public function generateGradesAbove($minGrade) {
+        $allGrades = array(
+            "ap", "a", "am", "bp", "b", "bm", "cp", "c", "cm", "dp", "d"
+        );
+
+        $query = "grade = 'na' OR ";
+
+        foreach ($allGrades as $grade) {
+            if ($grade != $minGrade)
+                $query .= "grade = '$grade' OR ";
+            else {
+                $query .= "grade = '$grade'";
+                break;
+            }
         }
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'taken' AND taking_as = '$type' AND ($grade)");
+
+        error_log("Generated query grade string: $query");
+
+        return $query;
+    }
+
+    /**
+     * @param  String $andrewId Andrew ID of student
+     * @param  String $type     Core, prerequisite etc.
+     * @param  String $minGrade Minimum grade required
+     */
+    public function getNumberSatisfiedByType($andrewId, $type, $minGrade) {
+        $grades = $this->generateGradesAbove($minGrade);
+        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'taken' AND taking_as = '$type' AND ($grades)");
+        return count($rows);
+    }
+
+    public function getNumberTakingByType($andrewId, $type) {
+        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'taking' AND taking_as = '$type'");
+        return count($rows);
+    }
+
+    public function getNumSatisfiedPlaceOuts($andrewId) {
+        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'satisfied' and taking_as = 'place-out'");
         return count($rows);
     }
 

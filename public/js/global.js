@@ -229,3 +229,10 @@ app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scop
         );
     };
 }]);
+
+function waitForAnimationComplete(waitForId, func) {
+    $(waitForId).bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(event) { 
+        func();
+        $(this).unbind(event);
+    });
+}

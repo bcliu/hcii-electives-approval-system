@@ -43,6 +43,7 @@ class StudentController extends Zend_Controller_Action {
         $db = new Application_Model_DbTable_Courses();
         $andrewId = $this->session_user->andrewId;
 
+        $forcedValues = new Application_Model_DbTable_ForcedValues();
         $programs = new Application_Model_DbTable_Programs();
         $program = $this->view->type;
         $enrollDate = $this->dbUsers->getUserByAndrewId($andrewId)->enroll_date;
@@ -60,23 +61,58 @@ class StudentController extends Zend_Controller_Action {
             $enrollSemester = "Fall";
         }
 
-        $this->view->totalCores = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'core');
-        $this->view->coresTaken = $db->getNumberSatisfiedByType($andrewId, "core");
+        $this->view->coresTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'core');
+        $coreMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
+        $this->view->coresTaken = $db->getNumberSatisfiedByType($andrewId, "core", $coreMinGrade);
+        $this->view->coresTaking = $db->getNumberTakingByType($andrewId, "core");
+
+        /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
+        if ($program == 'bhci' || $program == 'ugminor') {
+            $this->view->prerequisitesTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'prerequisite');
+            $prereqMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
+            /* TODO How to check forced values?? */
+            $this->view->prerequisitesTaken = $db->getNumberSatisfiedByType($andrewId, "prerequisite", $prereqMinGrade);
+            $this->view->prerequisitesTaking = $db->getNumberTakingByType($andrewId, "prerequisite");
+        } else {
+            $this->view->placeOutsTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'place-out');
+            $this->view->placeOutsTaken = $db->getNumSatisfiedPlaceOuts($andrewId);
+        }
 
         if ($program == 'bhci') {
-            if ($program == 'bhci') {
-                $this->view->totalFreeElectives = $programs->getNumberOfElectivesByProgram(
-                    $enrollYear, $enrollSemester, $program, "free-elective");
-                $this->view->freeElectivesTaken = $db->getNumberSatisfiedByType($andrewId, "free-elective");
-            }
-            $this->view->totalApplicationElectives = $programs->getNumberOfElectivesByProgram(
+            $numApplicationElectives = $programs->getNumberOfElectivesByProgram(
                 $enrollYear, $enrollSemester, $program, "application-elective");
-            $this->view->applicationElectivesTaken = $db->getNumberSatisfiedByType($andrewId, "application-elective");
-        }
-        else if ($program == 'mhci' || $program == 'ugminor' || $program == 'metals') {
-            $this->view->totalElectives = $programs->getNumberOfElectivesByProgram(
+            $numFreeElectives = $programs->getNumberOfElectivesByProgram(
+                $enrollYear, $enrollSemester, $program, "free-elective");
+
+            error_log("Num app elec: $numApplicationElectives, num free: $numFreeElectives");
+
+            /* Since I'm using -1 to denote "No requirement", need to exclude those */
+            $this->view->electivesTotal = ($numApplicationElectives > 0 ? $numApplicationElectives : 0) +
+                ($numFreeElectives > 0 ? $numFreeElectives : 0);
+
+            $freeElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'free-elective');
+            $appElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'application-elective');
+            $this->view->electivesTaken =
+                ($numFreeElectives > 0 ? $db->getNumberSatisfiedByType($andrewId, "free-elective", $freeElectMinGrade) : 0) +
+                ($numApplicationElectives > 0 ? $db->getNumberSatisfiedByType($andrewId, "application-elective", $appElectMinGrade) : 0);
+
+            $this->view->electivesTaking =
+                ($numFreeElectives > 0 ? $db->getNumberTakingByType($andrewId, "free-elective") : 0) +
+                ($numApplicationElectives > 0 ? $db->getNumberTakingByType($andrewId, "application-elective") : 0);
+        } else if ($program == 'mhci' || $program == 'ugminor' || $program == 'metals') {
+            $numElectives = $programs->getNumberOfElectivesByProgram(
                 $enrollYear, $enrollSemester, $program, "elective");
-            $this->view->electivesTaken = $db->getNumberSatisfiedByType($andrewId, "elective");
+            if ($numElectives > 0) {
+                $electMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'elective');
+                $this->view->electivesTotal = $numElectives;
+                $this->view->electivesTaken = $db->getNumberSatisfiedByType($andrewId, "elective", $electMinGrade);
+                $this->view->electivesTaking = $db->getNumberTakingByType($andrewId, "elective");
+            } else {
+                /* There is no requirements on electives */
+                $this->view->electivesTotal = 0;
+                $this->view->electivesTaken = 0;
+                $this->view->electivesTaking = 0;
+            }
         }
 
         $this->view->coursesSubmitted = count($db->getCoursesByStatus($andrewId, "submitted"));

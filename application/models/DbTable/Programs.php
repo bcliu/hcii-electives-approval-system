@@ -21,6 +21,12 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
         return $rows;
     }
 
+    public function getMinGrade($program, $semester, $year, $type) {
+        $row = $this->fetchRow($this->select()
+            ->where("program = '$program' AND semester = '$semester' AND year = '$year' AND type = '$type' AND grade_requirement IS NOT NULL"));
+        return $row->grade_requirement;
+    }
+
     /**
      * Remove all courses of program, semester and year specified, 
      * then add the new courses.
@@ -49,12 +55,20 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
     }
 
     public function getNumberByType($year, $semester, $program, $type) {
-        $cores = $this->fetchAll("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type'");
+        $cores = $this->fetchAll("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND grade_requirement IS NULL AND number IS NULL");
         return count($cores->toArray());
     }
 
+    /**
+     * [getNumberOfElectivesByProgram description]
+     * @param  [type] $year     [description]
+     * @param  [type] $semester [description]
+     * @param  [type] $program  [description]
+     * @param  [type] $type     'elective' or 'free-elective' or 'application-elective'
+     * @return [type]           [description]
+     */
     public function getNumberOfElectivesByProgram($year, $semester, $program, $type) {
-        $number = $this->fetchRow("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type'");
+        $number = $this->fetchRow("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND number IS NOT NULL");
 
         if (!$number) {
             return -1;
