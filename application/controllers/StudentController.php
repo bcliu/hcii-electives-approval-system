@@ -72,6 +72,8 @@ class StudentController extends Zend_Controller_Action {
         $this->view->coresReqs = Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
         $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
 
+        $this->view->forcedValues = Zend_Json::encode($forcedValues->getValuesOfUser($andrewId));
+
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
         if ($this->view->bhciOrMinor) {
             $this->view->prerequisitesTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'prerequisite');

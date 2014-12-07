@@ -109,8 +109,6 @@ function computeCoresTakenTaking() {
             coresLeftList.push(e['name']);
     });
 
-    console.log(cores);
-
     coresTaken = coresTakenList.length;
     coresTaking = coresTakingList.length;
 }
@@ -121,7 +119,22 @@ function computePrerequisitesTakenTaking() {
     /* Prereq requirements */
     var prereqReqs = jQuery.parseJSON($('#prerequisites-reqs').text());
     var prereqGradeReq = $('#prerequisites-grade-req').text();
-    var forcedValues = $('#forced-values').text();
+    var forcedValues = $('#forced-values').text().trim();
+    if (forcedValues.length == 0)
+        forcedValues = [];
+    else
+        forcedValues = jQuery.parseJSON(forcedValues);
+
+    var getForcedValue = function (reqName) {
+        var ret = null;
+        $.each(forcedValues, function (i, v) {
+            if (v['key'] == reqName) {
+                ret = v['value'];
+                return false;
+            }
+        });
+        return ret;
+    };
 
     $.each(prereqReqs, function (i, val) {
         prerequisites.push(generateProcessedCourse(val));
@@ -150,6 +163,15 @@ function computePrerequisitesTakenTaking() {
     });
 
     $.each(prerequisites, function (i) {
+        var forcedVal = getForcedValue(prerequisites[i]['name']);
+        if (forcedVal == 'satisfied') {
+            prerequisites[i]['satisfied'] = true;
+            return;
+        } else if (forcedVal == 'not-satisfied') {
+            prerequisites[i]['satisfied'] = false;
+            return;
+        }
+
         $.each(validTakenList, function (takenI, takenE) {
             prerequisites[i]['numbersForSatisfied'] =
                 replaceAll(takenE, ' true ', prerequisites[i]['numbersForSatisfied']);
@@ -186,9 +208,10 @@ $(function () {
 
     var reqsPopOver = function (elemId, prompt) {
         $(elemId).popover({
-            content: prompt,
+            content: "<div>" + prompt + "</div>",
             trigger: 'hover',
-            placement: 'top'
+            placement: 'top',
+            html: true
         });
     };
 
@@ -212,8 +235,15 @@ $(function () {
         $('#cores-left-bar').html(coresLeft + ' remaining');
     }
 
-    reqsPopOver('#cores-taken-bar', coresTaken + " core " + getPlural(coresTaken, 'requirement') + " satisfied");
-    reqsPopOver('#cores-taking-bar', coresTaking + ' core ' + getPlural(coresTaking, 'course') + ' in progress');
+    reqsPopOver('#cores-taken-bar', coresTaken + " core " +
+        getPlural(coresTaken, 'requirement') + " satisfied:<ul><li>" +
+        coresTakenList.join("</li><li>") + '</li></ul>');
+    reqsPopOver('#cores-taking-bar', coresTaking + ' core ' +
+        getPlural(coresTaking, 'course') + ' in progress:<ul><li>' +
+        coresTakingList.join("</li><li>") + '</li></ul>');
+    reqsPopOver('#cores-left-bar', coresLeft + ' core ' +
+        getPlural(coresLeft, 'course') + ' left:<ul><li>' +
+        coresLeftList.join("</li><li>") + '</li></ul>');
 
     var electivesTaken = parseInt($('#electives-taken').text());
     var electivesTotal = parseInt($('#electives-total').text());
@@ -230,8 +260,10 @@ $(function () {
             $('#electives-left-bar').html(electivesLeft + ' remaining');
         }
 
-        reqsPopOver('#electives-taken-bar', electivesTaken + ' ' + getPlural(electivesTaken, 'elective') + ' taken');
-        reqsPopOver('#electives-taking-bar', electivesTaking + ' ' + getPlural(electivesTaking, 'elective') + ' in progress');
+        reqsPopOver('#electives-taken-bar', electivesTaken + ' ' +
+            getPlural(electivesTaken, 'elective') + ' taken');
+        reqsPopOver('#electives-taking-bar', electivesTaking + ' ' +
+            getPlural(electivesTaking, 'elective') + ' in progress');
     }
 
     if ($('#placeouts-taken').length > 0) {
@@ -244,7 +276,8 @@ $(function () {
             $('#placeouts-left-bar').html(placeOutsLeft + ' remaining');
         }
 
-        reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out ' + getPlural(placeOutsTaken, 'course') + ' taken');
+        reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out ' +
+            getPlural(placeOutsTaken, 'course') + ' taken');
     } else {
         computePrerequisitesTakenTaking();
         prerequisitesTotal = parseInt($('#prerequisites-total').text());
@@ -258,13 +291,21 @@ $(function () {
             $('#prerequisites-left-bar').html(prerequisitesLeft + ' remaining');
         }
 
-        reqsPopOver('#prerequisites-taking-bar', prerequisitesTaking + ' prerequisite ' + getPlural(prerequisitesTaking, 'course') + ' in progress');
-        reqsPopOver('#prerequisites-taken-bar', prerequisitesTaken + ' prerequisite ' + getPlural(prerequisitesTaken, 'requirement') + ' satisfied');
+        reqsPopOver('#prerequisites-taking-bar', prerequisitesTaking +
+            ' prerequisite ' + getPlural(prerequisitesTaking, 'course') +
+            ' in progress:<ul><li>' + prerequisitesTakingList.join("</li><li>") + '</li></ul>');
+        reqsPopOver('#prerequisites-taken-bar', prerequisitesTaken +
+            ' prerequisite ' + getPlural(prerequisitesTaken, 'requirement') +
+            ' satisfied:<ul><li>' + prerequisitesTakenList.join("</li><li>") + '</li></ul>');
+        reqsPopOver('#prerequisites-left-bar', prerequisitesLeft +
+            ' prerequisite ' + getPlural(prerequisitesLeft, 'requirement') +
+            ' left:<ul><li>' + prerequisitesLeftList.join("</li><li>") + '</li></ul>');
     }    
 
     $('#link-problem').popover({
         html: true,
-        content: "<h5>If any of the above information is<br />incorrect, you can write to the advisor<br />here and request a correction.</h5>",
+        content: "<h5>If any of the above information is<br />incorrect, \
+        you can write to the advisor<br />here and request a correction.</h5>",
         trigger: 'hover',
         placement: 'right'
     });
@@ -280,9 +321,11 @@ $(function () {
         $.post(baseUrl + "/student/correction", {
             content: $('#div-request-correction textarea').val()
         }).done(function () {
-            $('#div-student-info').append("<div class='alert alert-block alert-info'><a class='close' data-dismiss='alert' href='#'>X</a>Request sent successfully.</div>");
+            $('#div-student-info').append("<div class='alert alert-block alert-info'>\
+                <a class='close' data-dismiss='alert' href='#'>X</a>Request sent successfully.</div>");
         }).fail(function () {
-            $('#div-student-info').append("<div class='alert alert-block alert-danger'><a class='close' data-dismiss='alert' href='#'>X</a>Failed to send request. Please try again later.</div>");
+            $('#div-student-info').append("<div class='alert alert-block alert-danger'>\
+                <a class='close' data-dismiss='alert' href='#'>X</a>Failed to send request. Please try again later.</div>");
         });
         
         $('#div-request-correction').setGone();

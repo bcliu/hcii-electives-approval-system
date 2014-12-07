@@ -20,6 +20,7 @@ html, body {
 
 html,
 body,
+.popover-content,
 h1, h2, h3, h4, h5, h6 {
     font-family: carto, Arial, Helvetica, sans-serif
 }
@@ -209,4 +210,14 @@ table#users-table tbody {
     text-align: center;
     line-height: 20px;
     font-size: 13px
+}
+
+.popover-content, .popover-content .body {
+    width: 100%;
+}
+
+.popover-content div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space:pre-wrap;
 }

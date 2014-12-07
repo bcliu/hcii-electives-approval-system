@@ -10,6 +10,10 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
         return $row;
     }
 
+    public function getValuesOfUser($andrew_id) {
+        return $this->fetchAll("user_andrew_id = '$andrew_id'");
+    }
+
     public function updateValue($andrew_id, $type, $key, $value, $notes) {
         $this->removeEntry($andrew_id, $type, $key);
 
