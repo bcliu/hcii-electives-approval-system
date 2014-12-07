@@ -1126,6 +1126,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                                     /* Return if course number is malformed */
                                     if (!reg.test(courseNum)) {
+                                        //console.log("Course number " + courseNum + " didn't pass regex test");
                                         return;
                                     }
                                     /* Reset next index to search for reg, otherwise it

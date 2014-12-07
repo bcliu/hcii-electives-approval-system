@@ -1,6 +1,6 @@
 <div class="row main-row" style='width: auto; min-width: 1024px; max-width: 90%; min-height: 95%' ng-controller='MessageCtrl'>
     <div class="col-sm-12">
-        <div class="alert alert-success" role="alert"><b>New!</b> You can now use Messages to communicate with advisors and submit clarifications.</div>
+        <div style='display: none' class="alert alert-success" role="alert"><b>New!</b> You can now use Messages to communicate with advisors and submit clarifications.</div>
         <table class='table'>
             <thead>
                 <tr>
@@ -37,7 +37,7 @@
                             break;
 
                             default:
-                            echo ucfirst($course->taking_as);
+                            echo ucfirst($course['taking_as']);
                         } ?></td>
                     <td><?php if ($course['taking_as'] != 'place-out') echo $course['submission_time']; ?></td>
                     <td><?php

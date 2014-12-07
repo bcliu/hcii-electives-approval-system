@@ -51,6 +51,8 @@ class StudentController extends Zend_Controller_Action {
         $enrollYear = substr($enrollDate, 3, 4);
         $enrollSemester;
 
+        $this->view->bhciOrMinor = ($program == 'bhci' || $program == 'ugminor');
+
         if (1 <= $enrollMonth && $enrollMonth <= 4) {
             $enrollSemester = "Spring";
         }
@@ -66,13 +68,22 @@ class StudentController extends Zend_Controller_Action {
         $this->view->coresTaken = $db->getNumberSatisfiedByType($andrewId, "core", $coreMinGrade);
         $this->view->coresTaking = $db->getNumberTakingByType($andrewId, "core");
 
+        $this->view->coursesList = Zend_Json::encode($db->getAllCoursesOfUser($andrewId, "student"));
+        $this->view->coresReqs = Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
+        $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
+
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
-        if ($program == 'bhci' || $program == 'ugminor') {
+        if ($this->view->bhciOrMinor) {
             $this->view->prerequisitesTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'prerequisite');
             $prereqMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
             /* TODO How to check forced values?? */
             $this->view->prerequisitesTaken = $db->getNumberSatisfiedByType($andrewId, "prerequisite", $prereqMinGrade);
             $this->view->prerequisitesTaking = $db->getNumberTakingByType($andrewId, "prerequisite");
+
+            /* Print out prerequisites requirements */
+            $this->view->prerequisitesReqs = Zend_Json::encode(
+                $programs->getReqsByType($enrollYear, $enrollSemester, $program, 'prerequisite'));
+            $this->view->prerequisitesGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
         } else {
             $this->view->placeOutsTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'place-out');
             $this->view->placeOutsTaken = $db->getNumSatisfiedPlaceOuts($andrewId);

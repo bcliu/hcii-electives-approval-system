@@ -54,9 +54,12 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
         $this->delete("semester = '$semester' AND year = '$year'");
     }
 
+    public function getReqsByType($year, $semester, $program, $type) {
+        return $this->fetchAll("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND grade_requirement IS NULL AND number IS NULL");
+    }
+
     public function getNumberByType($year, $semester, $program, $type) {
-        $cores = $this->fetchAll("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND grade_requirement IS NULL AND number IS NULL");
-        return count($cores->toArray());
+        return count($this->getReqsByType($year, $semester, $program, $type));
     }
 
     /**

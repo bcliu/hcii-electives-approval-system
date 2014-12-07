@@ -236,3 +236,10 @@ function waitForAnimationComplete(waitForId, func) {
         $(this).unbind(event);
     });
 }
+
+function getPlural(number, word) {
+    if (number > 1) {
+        return word + 's';
+    }
+    return word;
+}

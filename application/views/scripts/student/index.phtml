@@ -61,8 +61,8 @@
 
         <h5>&nbsp;</h5>
         <?php if ($this->info->program == 'bhci' || $this->info->program == 'ugminor') { ?>
-            <h4 style='display: none'>Prerequisites</h4>
-            <div style='display: none' id='prerequisites-progress' class="progress">
+            <h4>Prerequisites</h4>
+            <div id='prerequisites-progress' class="progress">
                 <div id='prerequisites-taken-bar' class="progress-bar progress-bar-success"></div>
                 <div id='prerequisites-taking-bar' class="progress-bar progress-bar-info progress-bar-striped active"></div>
                 <div id='prerequisites-left-bar' class='courses-remaining'></div>
@@ -97,21 +97,32 @@
 
         <div id='data' style='display: none'>
             Cores total: <label id='cores-total'><?= $this->coresTotal ?></label>
-            Taken: <label id='cores-taken'><?= $this->coresTaken ?></label>
-            Taking: <label id='cores-taking'><?= $this->coresTaking ?></label>
             <br />
             Electives total: <label id='electives-total'><?= $this->electivesTotal ?></label>
-            Taken: <label id='electives-taken'><?= $this->electivesTaken ?></label>
-            Taking: <label id='electives-taking'><?= $this->electivesTaking ?></label>
+            Electives taken: <label id='electives-taken'><?= $this->electivesTaken ?></label>
+            Electives taking: <label id='electives-taking'><?= $this->electivesTaking ?></label>
             <br />
-            <?php if ($this->info->program == 'bhci' || $this->info->program == 'ugminor') { ?>
+            <?php if ($this->bhciOrMinor) { ?>
             Prerequisites total: <label id='prerequisites-total'><?= $this->prerequisitesTotal ?></label>
-            Taken: <label id='prerequisites-taken'><?= $this->prerequisitesTaken ?></label>
-            Taking: <label id='prerequisites-taking'><?= $this->prerequisitesTaking ?></label>
             <?php } else { ?>
             Place-out total: <label id='placeouts-total'><?= $this->placeOutsTotal ?></label>
             Taken: <label id='placeouts-taken'><?= $this->placeOutsTaken ?></label>
             <?php } ?>
+
+            <!-- Load all courses here since hard to compute on server side -->
+            <!-- Load all but place-out and electives, since they don't require conflict-resolving -->
+            <!-- All courses of this student -->
+            All courses: <label id='courses-list'><?= $this->coursesList ?></label>
+            Forced values: <label id='forced-values'><?= $this->forcedValues ?></label>
+
+            Core requirements: <label id='cores-reqs'><?= $this->coresReqs ?></label>
+            Core grade requirement: <label id='cores-grade-req'><?= $this->coresGradeReq ?></label>
+
+            <?php if ($this->bhciOrMinor) { ?>
+            Prerequisites requirements: <label id='prerequisites-reqs'><?= $this->prerequisitesReqs ?></label>
+            Prerequisites grade requirement: <label id='prerequisites-grade-req'><?= $this->prerequisitesGradeReq ?></label>
+            <?php } ?>
+
         </div>
     </div>
 </div>

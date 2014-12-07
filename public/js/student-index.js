@@ -1,3 +1,187 @@
+var coresTaken = 0;
+var coresTotal = 0;
+var coresTaking = 0;
+var coresLeft = 0;
+
+var coresTakenList = [];
+var coresTakingList = [];
+var coresLeftList = [];
+
+var prerequisitesTaken = 0;
+var prerequisitesTotal = 0;
+var prerequisitesTaking = 0;
+var prerequisitesLeft = 0;
+
+var prerequisitesTakenList = [];
+var prerequisitesTakingList = [];
+var prerequisitesLeftList = [];
+
+var courses = null;
+
+var courseReg = /\d{2}-\d{3}/g;
+
+function loadCoursesList() {
+    /* Load all courses of this student */
+    if (courses == null)
+        courses = jQuery.parseJSON($('#courses-list').text());
+}
+
+function processCourseNumbers(numbers) {
+    var reqs = '(' + numbers + ')';
+    reqs = replaceAll(',', ') || (', reqs);
+    reqs = replaceAll('&', ' && ', reqs);
+    return reqs;
+}
+
+function generateProcessedCourse(rawCourse) {
+    var processedNumbers = processCourseNumbers(rawCourse['course_numbers']);
+    return {
+        name: rawCourse['course_name'],
+        numbersForSatisfied: processedNumbers,
+        numbersForTaking: processedNumbers,
+        satisfied: false,
+        taking: false
+    };
+}
+
+/* TODO Two functions below are extremely repetitive -- try to simplify */
+function computeCoresTakenTaking() {
+    loadCoursesList();
+    var cores = [];
+    /* Core requirements */
+    var coreReqs = jQuery.parseJSON($('#cores-reqs').text());
+    var coreGradeReq = $('#cores-grade-req').text();
+    if (coreGradeReq.length == 0)
+        coreGradeReq = 'd';
+
+    $.each(coreReqs, function (i, val) {
+        cores.push(generateProcessedCourse(val));
+    });
+
+    var validTakenList = [];
+    var validTakingList = [];
+
+    $.each(courses, function (courseI, courseVal) {
+        var courseType = courseVal['taking_as'],
+            courseStatus = courseVal['status'],
+            courseNumber = courseVal['course_number'].trim(),
+            courseGrade = courseVal['grade'];
+
+        if (!courseReg.test(courseNumber)) {
+            return;
+        }
+        courseReg.lastIndex = 0;
+
+        if (courseStatus == 'taken') {
+            if (doesGradeSatisfyReq(courseGrade, coreGradeReq) || courseGrade == 'na')
+                validTakenList.push(courseNumber);
+        } else if (courseStatus == 'taking') {
+            validTakingList.push(courseNumber);
+        }
+    });
+
+    $.each(cores, function (i) {
+        $.each(validTakenList, function (takenI, takenE) {
+            cores[i]['numbersForSatisfied'] =
+                replaceAll(takenE, ' true ', cores[i]['numbersForSatisfied']);
+        });
+        $.each(validTakingList, function (takingI, takingE) {
+            /* Only search if it's currently false */
+            if (cores[i]['taking'] == false) {
+                /* If one course is taking, whole expression is "Taking" */
+                if (cores[i]['numbersForTaking'].search(takingE) != -1)
+                    cores[i]['taking'] = true;
+            }
+        });
+        var satExp = cores[i]['numbersForSatisfied'].replace(courseReg, " false ");
+        cores[i]['satisfied'] = eval(satExp);
+
+        if (cores[i]['satisfied'])
+            cores[i]['taking'] = false;
+    });
+
+    $.each(cores, function (i, e) {
+        if (e['satisfied'])
+            coresTakenList.push(e['name']);
+        else if (e['taking'])
+            coresTakingList.push(e['name']);
+        else
+            coresLeftList.push(e['name']);
+    });
+
+    console.log(cores);
+
+    coresTaken = coresTakenList.length;
+    coresTaking = coresTakingList.length;
+}
+
+function computePrerequisitesTakenTaking() {
+    loadCoursesList();
+    var prerequisites = [];
+    /* Prereq requirements */
+    var prereqReqs = jQuery.parseJSON($('#prerequisites-reqs').text());
+    var prereqGradeReq = $('#prerequisites-grade-req').text();
+    var forcedValues = $('#forced-values').text();
+
+    $.each(prereqReqs, function (i, val) {
+        prerequisites.push(generateProcessedCourse(val));
+    });
+
+    var validTakenList = [];
+    var validTakingList = [];
+
+    $.each(courses, function (courseI, courseVal) {
+        var courseType = courseVal['taking_as'],
+            courseStatus = courseVal['status'],
+            courseNumber = courseVal['course_number'],
+            courseGrade = courseVal['grade'];
+
+        if (!courseReg.test(courseNumber))
+            return;
+
+        courseReg.lastIndex = 0;
+
+        if (courseStatus == 'taken') {
+            if (doesGradeSatisfyReq(courseGrade, prereqGradeReq) || courseGrade == 'na')
+                validTakenList.push(courseNumber);
+        } else if (courseStatus == 'taking') {
+            validTakingList.push(courseNumber);
+        }
+    });
+
+    $.each(prerequisites, function (i) {
+        $.each(validTakenList, function (takenI, takenE) {
+            prerequisites[i]['numbersForSatisfied'] =
+                replaceAll(takenE, ' true ', prerequisites[i]['numbersForSatisfied']);
+        });
+        $.each(validTakingList, function (takingI, takingE) {
+            /* Only search if it's currently false */
+            if (prerequisites[i]['taking'] == false) {
+                /* If one course is taking, whole expression is "Taking" */
+                if (prerequisites[i]['numbersForTaking'].search(takingE) != -1)
+                    prerequisites[i]['taking'] = true;
+            }
+        });
+        var satExp = prerequisites[i]['numbersForSatisfied'].replace(courseReg, " false ");
+        prerequisites[i]['satisfied'] = eval(satExp);
+
+        if (prerequisites[i]['satisfied'])
+            prerequisites[i]['taking'] = false;
+    });
+
+    $.each(prerequisites, function (i, e) {
+        if (e['satisfied'])
+            prerequisitesTakenList.push(e['name']);
+        else if (e['taking'])
+            prerequisitesTakingList.push(e['name']);
+        else
+            prerequisitesLeftList.push(e['name']);
+    })
+
+    prerequisitesTaken = prerequisitesTakenList.length;
+    prerequisitesTaking = prerequisitesTakingList.length;
+}
+
 $(function () {
 
     var reqsPopOver = function (elemId, prompt) {
@@ -15,10 +199,9 @@ $(function () {
     };
 
     /* Cores and electives progress bar */
-    var coresTaken = parseInt($('#cores-taken').text());
-    var coresTotal = parseInt($('#cores-total').text());
-    var coresTaking = parseInt($('#cores-taking').text());
-    var coresLeft = coresTotal - coresTaking - coresTaken;
+    computeCoresTakenTaking();
+    coresTotal = parseInt($('#cores-total').text());
+    coresLeft = coresTotal - coresTaking - coresTaken;
 
     waitForAnimationComplete('#cores-taken-bar', function () {
         setBarCss('#cores-taking-bar', coresTaking, coresTotal);
@@ -29,8 +212,8 @@ $(function () {
         $('#cores-left-bar').html(coresLeft + ' remaining');
     }
 
-    reqsPopOver('#cores-taken-bar', coresTaken + " core requirement(s) satisfied");
-    reqsPopOver('#cores-taking-bar', coresTaking + ' core course(s) in progress');
+    reqsPopOver('#cores-taken-bar', coresTaken + " core " + getPlural(coresTaken, 'requirement') + " satisfied");
+    reqsPopOver('#cores-taking-bar', coresTaking + ' core ' + getPlural(coresTaking, 'course') + ' in progress');
 
     var electivesTaken = parseInt($('#electives-taken').text());
     var electivesTotal = parseInt($('#electives-total').text());
@@ -47,8 +230,8 @@ $(function () {
             $('#electives-left-bar').html(electivesLeft + ' remaining');
         }
 
-        reqsPopOver('#electives-taken-bar', electivesTaken + ' elective(s) taken');
-        reqsPopOver('#electives-taking-bar', electivesTaking + ' elective(s) in progress');
+        reqsPopOver('#electives-taken-bar', electivesTaken + ' ' + getPlural(electivesTaken, 'elective') + ' taken');
+        reqsPopOver('#electives-taking-bar', electivesTaking + ' ' + getPlural(electivesTaking, 'elective') + ' in progress');
     }
 
     if ($('#placeouts-taken').length > 0) {
@@ -61,12 +244,11 @@ $(function () {
             $('#placeouts-left-bar').html(placeOutsLeft + ' remaining');
         }
 
-        reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out course(s) taken');
+        reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out ' + getPlural(placeOutsTaken, 'course') + ' taken');
     } else {
-        var prerequisitesTaken = parseInt($('#prerequisites-taken').text());
-        var prerequisitesTotal = parseInt($('#prerequisites-total').text());
-        var prerequisitesTaking = parseInt($('#prerequisites-taking').text());
-        var prerequisitesLeft = prerequisitesTotal - prerequisitesTaken - prerequisitesTaking;
+        computePrerequisitesTakenTaking();
+        prerequisitesTotal = parseInt($('#prerequisites-total').text());
+        prerequisitesLeft = prerequisitesTotal - prerequisitesTaken - prerequisitesTaking;
         waitForAnimationComplete('#prerequisites-taken-bar', function () {
             setBarCss('#prerequisites-taking-bar', prerequisitesTaking, prerequisitesTotal);
         });
@@ -76,8 +258,8 @@ $(function () {
             $('#prerequisites-left-bar').html(prerequisitesLeft + ' remaining');
         }
 
-        reqsPopOver('#prerequisites-taking-bar', prerequisitesTaking + ' prerequisite course(s) in progress');
-        reqsPopOver('#prerequisites-taken-bar', prerequisitesTaken + ' prerequisite requirement(s) satisfied');
+        reqsPopOver('#prerequisites-taking-bar', prerequisitesTaking + ' prerequisite ' + getPlural(prerequisitesTaking, 'course') + ' in progress');
+        reqsPopOver('#prerequisites-taken-bar', prerequisitesTaken + ' prerequisite ' + getPlural(prerequisitesTaken, 'requirement') + ' satisfied');
     }    
 
     $('#link-problem').popover({
