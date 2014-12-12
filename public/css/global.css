@@ -78,6 +78,7 @@ button {
 
 #users-table tbody tr,
 #table-courses tbody tr,
+#panel-cores tbody tr,
 #panel-place-outs tbody tr,
 #panel-prereqs tbody tr {
     cursor: pointer;

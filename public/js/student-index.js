@@ -17,13 +17,29 @@ var prerequisitesTakingList = [];
 var prerequisitesLeftList = [];
 
 var courses = null;
+var forcedValues = [];
 
 var courseReg = /\d{2}-\d{3}/g;
+
+function getForcedValue(reqName, type) {
+    var ret = null;
+    $.each(forcedValues, function (i, v) {
+        if (v['key'] == reqName && v['type'] == type) {
+            ret = v['value'];
+            return false;
+        }
+    });
+    return ret;
+}
 
 function loadCoursesList() {
     /* Load all courses of this student */
     if (courses == null)
         courses = jQuery.parseJSON($('#courses-list').text());
+
+    var forcedText = $('#forced-values').text().trim();
+    if (forcedText.length != 0)
+        forcedValues = jQuery.parseJSON(forcedValues);
 }
 
 function processCourseNumbers(numbers) {
@@ -81,6 +97,15 @@ function computeCoresTakenTaking() {
     });
 
     $.each(cores, function (i) {
+        var forcedVal = getForcedValue(cores[i]['name'], 'core');
+        if (forcedVal == 'satisfied') {
+            cores[i]['satisfied'] = true;
+            return;
+        } else if (forcedVal == 'not-satisfied') {
+            cores[i]['satisfied'] = false;
+            return;
+        }
+        
         $.each(validTakenList, function (takenI, takenE) {
             cores[i]['numbersForSatisfied'] =
                 replaceAll(takenE, ' true ', cores[i]['numbersForSatisfied']);
@@ -119,22 +144,8 @@ function computePrerequisitesTakenTaking() {
     /* Prereq requirements */
     var prereqReqs = jQuery.parseJSON($('#prerequisites-reqs').text());
     var prereqGradeReq = $('#prerequisites-grade-req').text();
-    var forcedValues = $('#forced-values').text().trim();
-    if (forcedValues.length == 0)
-        forcedValues = [];
-    else
-        forcedValues = jQuery.parseJSON(forcedValues);
-
-    var getForcedValue = function (reqName) {
-        var ret = null;
-        $.each(forcedValues, function (i, v) {
-            if (v['key'] == reqName) {
-                ret = v['value'];
-                return false;
-            }
-        });
-        return ret;
-    };
+    if (prereqGradeReq.length == 0)
+        prereqGradeReq = 'd';
 
     $.each(prereqReqs, function (i, val) {
         prerequisites.push(generateProcessedCourse(val));
@@ -163,7 +174,7 @@ function computePrerequisitesTakenTaking() {
     });
 
     $.each(prerequisites, function (i) {
-        var forcedVal = getForcedValue(prerequisites[i]['name']);
+        var forcedVal = getForcedValue(prerequisites[i]['name'], 'prerequisite');
         if (forcedVal == 'satisfied') {
             prerequisites[i]['satisfied'] = true;
             return;
@@ -242,7 +253,7 @@ $(function () {
         getPlural(coresTaking, 'course') + ' in progress:<ul><li>' +
         coresTakingList.join("</li><li>") + '</li></ul>');
     reqsPopOver('#cores-left-bar', coresLeft + ' core ' +
-        getPlural(coresLeft, 'course') + ' left:<ul><li>' +
+        getPlural(coresLeft, 'requirement') + ' left:<ul><li>' +
         coresLeftList.join("</li><li>") + '</li></ul>');
 
     var electivesTaken = parseInt($('#electives-taken').text());

@@ -1153,19 +1153,15 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 reqs = reqs.replace(reg, " false ");
                                 var isSatisfied;
                                 
-                                if (type == 'core') {
+                                var forcedValue = getForcedStatus(e['course_name'], type);
+                                var status = forcedValue['value'];
+                                if (status == 'infer') {
                                     isSatisfied = eval(reqs);
+                                } else if (status == 'satisfied') {
+                                    isSatisfied = true;
                                 } else {
-                                    var forcedValue = getPrerequisiteForcedStatus(e['course_name']);
-                                    var status = forcedValue['value'];
-                                    if (status == 'infer') {
-                                        isSatisfied = eval(reqs);
-                                    } else if (status == 'satisfied') {
-                                        isSatisfied = true;
-                                    } else {
-                                        isSatisfied = false;
-                                        isTaking = false;
-                                    }
+                                    isSatisfied = false;
+                                    isTaking = false;
                                 }
 
                                 var str = '<tr><td>' + (e['type'] == 'core' ? coresIdx : prereqsIdx) +
@@ -1319,16 +1315,18 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                     attachPlaceoutHandler();
                     attachPrerequisiteHandler();
+                    attachCoreClickHandler();
                 });
             }
         }
     });
 }
 
-function getPrerequisiteForcedStatus(prereqName) {
+function getForcedStatus(name, type) {
     var idx;
     for (idx = 0; idx < forcedValues.length; idx++) {
-        if (forcedValues[idx]['key'] == prereqName) {
+        if (forcedValues[idx]['key'] == name &&
+            forcedValues[idx]['type'] == type) {
             return forcedValues[idx];
         }
     }
@@ -1343,15 +1341,13 @@ function attachPrerequisiteHandler() {
     $('#panel-prereqs table tbody tr').click(function () {
         var prereqName = $(this).find('.column-course-name').text();
         modal.find('#prerequisite-name').text(prereqName);
-        var forcedValue = getPrerequisiteForcedStatus(prereqName);
+        var forcedValue = getForcedStatus(prereqName, 'prerequisite');
         var status = forcedValue['value'];
         if (status == 'infer') {
             $('input[value="infer"]').parent().button('toggle');
-        }
-        else if (status == 'satisfied') {
+        } else if (status == 'satisfied') {
             $('input[value="satisfied"]').parent().button('toggle');
-        }
-        else if (status == 'not-satisfied') {
+        } else if (status == 'not-satisfied') {
             $('input[value="not-satisfied"]').parent().button('toggle');
         }
         $('#prerequisite-details').modal('show');
@@ -1377,6 +1373,44 @@ function attachPrerequisiteHandler() {
     });
 }
 
+function attachCoreClickHandler() {
+    var andrewId = $('.user-selected #td-andrew-id').text();
+    var modal = $('#core-details');
+
+    $('#panel-cores table tbody tr').click(function () {
+        var coreName = $(this).find('.column-course-name').text();
+        modal.find('#core-name').text(coreName);
+        var forcedValue = getForcedStatus(coreName, 'core');
+        var status = forcedValue['value'];
+        if (status == 'infer') {
+            $('input[value="infer"]').parent().button('toggle');
+        } else if (status == 'satisfied') {
+            $('input[value="satisfied"]').parent().button('toggle');
+        } else if (status == 'not-satisfied') {
+            $('input[value="not-satisfied"]').parent().button('toggle');
+        }
+        $('#core-details').modal('show');
+    });
+
+    var updateButton = $('#core-update-status');
+    updateButton.click(function () {
+            var data = {
+                'andrew-id': andrewId,
+                type: 'core',
+                key: modal.find('#core-name').text(),
+                value: $('input[name="core-status"]:checked').val(),
+                notes: ''
+            };
+
+            $.post(baseUrl + "/admin/update-forced-value", data).done(function () {
+                modal.modal('hide');
+                fillInfoCoursesWithAndrewId(andrewId);
+            }).fail(function (ret) {
+                alert('Failed to update status. Try again later.');
+                console.log(ret);
+            });
+    });
+}
 
 function attachPlaceoutHandler() {
     var andrewId = $('.user-selected #td-andrew-id').text();
