@@ -24,7 +24,7 @@ var courseReg = /\d{2}-\d{3}/g;
 function getForcedValue(reqName, type) {
     var ret = null;
     $.each(forcedValues, function (i, v) {
-        if (v['key'] == reqName && v['type'] == type) {
+        if (v.key == reqName && v['type'] == type) {
             ret = v['value'];
             return false;
         }
@@ -39,7 +39,7 @@ function loadCoursesList() {
 
     var forcedText = $('#forced-values').text().trim();
     if (forcedText.length != 0)
-        forcedValues = jQuery.parseJSON(forcedValues);
+        forcedValues = jQuery.parseJSON(forcedText);
 }
 
 function processCourseNumbers(numbers) {
@@ -105,7 +105,7 @@ function computeCoresTakenTaking() {
             cores[i]['satisfied'] = false;
             return;
         }
-        
+
         $.each(validTakenList, function (takenI, takenE) {
             cores[i]['numbersForSatisfied'] =
                 replaceAll(takenE, ' true ', cores[i]['numbersForSatisfied']);

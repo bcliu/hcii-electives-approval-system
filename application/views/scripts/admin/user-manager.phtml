@@ -37,27 +37,21 @@
                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options <span class="caret"></span>
                 </button>
                 <ul id='filter-options' class="dropdown-menu" role="menu">
-                    <li><a>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" id='show-outstanding-only'>Show outstanding requests only
-                            </label>
-                        </div>
-                    </a><li>
-                    <li><a>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" checked id='show-enrolled'>Show enrolled students
-                            </label>
-                        </div>
-                    </a></li>
-                    <li><a>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" id='show-graduated'>Show graduated and inactive students
-                            </label>
-                        </div>
-                    </a></li>
+                    <li><a><div class="checkbox"><label>
+                        <input type="checkbox" id='show-outstanding-elective-requests'>Show outstanding elective requests only
+                    </label></div></a><li>
+                    <li><a><div class="checkbox"><label>
+                        <input type="checkbox" id='show-unread-messages'>Show unread messages only
+                    </label></div></a><li>
+                    <li><a><div class="checkbox"><label>
+                        <input type="checkbox" id='show-elective-requests-messages'>Show outstanding elective requests and unread messages only
+                    </label></div></a><li>
+                    <li><a><div class="checkbox"><label>
+                        <input type="checkbox" checked id='show-enrolled'>Show enrolled students
+                    </label></div></a></li>
+                    <li><a><div class="checkbox"><label>
+                        <input type="checkbox" id='show-graduated'>Show graduated and inactive students
+                    </label></div></a></li>
                     <li><a>
                         Show students entered program between
                         <span style='display: inline-block; width: 100px'>

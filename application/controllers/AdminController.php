@@ -64,36 +64,101 @@ class AdminController extends Zend_Controller_Action {
      * @param  int  $endYear          Upper bound of students' enrollment year
      * @return array                  Students with all database fields and number of awaiting approval courses
      */
-    function getStudents($program, $includeGraduated, $includeEnrolled, $outstandingOnly, $startYear, $endYear) {
+    function getStudents($program, $includeGraduated, $includeEnrolled,
+        $outstandingOnly, $messagesOnly, $outstandingAndMessagesOnly,
+        $startYear, $endYear) {
+
         if ($includeGraduated == 0 && $includeEnrolled == 0) {
             return array();
         }
 
-        $db = new Application_Model_DbTable_Users();
-        $dbCourses = new Application_Model_DbTable_Courses();
-        $filter = $includeGraduated == 1 && $includeEnrolled == 1 ? "" :
-                    ($includeEnrolled == 1 ? "AND status = 'enrolled'" : "AND (status = 'graduated' OR status = 'inactive')");
-        if ($outstandingOnly) {
-            $filter .= " AND number_awaiting_approval > 0";
+        $startYear = intval($startYear);
+        $endYear = intval($endYear);
+
+        if ($startYear > $endYear) {
+            return array();
         }
 
-        $allUsers = array();
-
-        if ($startYear == NULL && $endYear == NULL) {
-            $rows = $db->fetchAll("role = 'student' AND `program` = '$program' $filter");
-            $allUsers = $rows->toArray();
-        } else {
-            $startYear = intval($startYear);
-            $endYear = intval($endYear);
-
-            if ($startYear > $endYear) {
-                return array();
-            }
-
+        $enrollDateFilter = "And (";
+        if ($startYear != NULL && $endYear != NULL) {
             for ($year = $startYear; $year <= $endYear; $year++) {
-                $rows = $db->fetchAll("role = 'student' AND `program` = '$program' AND `enroll_date` LIKE '%$year%' $filter");
-                $rowsArr = $rows->toArray();
-                $allUsers = array_merge($allUsers, $rowsArr);
+                if ($year != $startYear)
+                    $enrollDateFilter .= " OR ";
+
+                $enrollDateFilter .= "`enroll_date` LIKE '%$year%'";
+            }
+            $enrollDateFilter .= ")";
+        } else
+            $enrollDateFilter = " "; /* Invalid dates, set filter to empty */
+
+        $db = new Application_Model_DbTable_Users();
+        $dbCourses = new Application_Model_DbTable_Courses();
+        $dbChats = new Application_Model_DbTable_Chats();
+        $allUsers = array();
+        $filter = $includeGraduated == 1 && $includeEnrolled == 1 ? "" :
+                    ($includeEnrolled == 1 ? "AND users.status = 'enrolled'" : "AND (users.status = 'graduated' OR users.status = 'inactive')");
+
+        if ($messagesOnly || $outstandingAndMessagesOnly) {
+            $allUsers = $db->fetchAll(
+                $db->select()
+                   ->distinct()
+                   ->from('users', array("users.*"))
+                   ->join('courses', 'users.andrew_id = courses.student_andrew_id', NULL)
+                   ->join('chats', 'chats.course_id = courses.id', NULL) /* Set to NULL so that columns from this table won't be returned */
+                   ->where("chats.read_by_advisor = 0 AND users.role = 'student' AND users.program = '$program' $enrollDateFilter $filter")
+                   ->setIntegrityCheck(false))
+                ->toArray();
+
+            // $count = count($allUsers);
+            // for ($i = 0; $i < $count; $i++)
+            //     $allUsers[$i]['has_unread_msg'] = 1;
+
+            if ($outstandingAndMessagesOnly) {
+                /* Find outstanding requests and add it too */
+                $filter .= " AND number_awaiting_approval > 0";
+                $outstandingOnes = $db->fetchAll(
+                    "role = 'student' AND program = '$program' $enrollDateFilter $filter")
+                    ->toArray();
+
+                /* Merge these two arrays; delete repetitions first */
+                $hasUnreadMsgUserIds = array();
+                $countMessages = count($allUsers);
+                for ($i = 0; $i < $countMessages; $i++) {
+                    array_push($hasUnreadMsgUserIds, $allUsers[$i]['id']);
+                }
+
+                $outstandingArrayObject = new ArrayObject($outstandingOnes);
+                for ($iterator = $outstandingArrayObject->getIterator();
+                     $iterator->valid();
+                     $iterator->next()) {
+                    if (in_array($iterator->current()['id'], $hasUnreadMsgUserIds)) {
+                        $iterator->offsetUnset($iterator->key());
+                    }
+                }
+
+                $outstandingOnes = $outstandingArrayObject->getArrayCopy();
+                $allUsers = array_merge($allUsers, $outstandingOnes);
+            }
+        } else {
+            if ($outstandingOnly)
+                $filter .= " AND number_awaiting_approval > 0";
+
+            $allUsers = $db->fetchAll("role = 'student' AND program = '$program' $enrollDateFilter $filter")
+                ->toArray();
+        }
+
+        /* Find list of students that have unread messages, attach to above array */
+        $arrWithUnread = array();
+        foreach ($dbChats->getStudentsWithUnread() as $student) {
+            array_push($arrWithUnread, $student['student_id']);
+        }
+
+        $count = count($allUsers);
+        for ($i = 0; $i < $count; $i++) {
+            if (in_array($allUsers[$i]['id'], $arrWithUnread)) {
+                $allUsers[$i]['has_unread_msg'] = 1;
+            } else {
+                $allUsers[$i]['has_unread_msg'] = 0;
             }
         }
 
@@ -138,6 +203,9 @@ class AdminController extends Zend_Controller_Action {
         $includeGraduated = $this->getRequest()->getParam('include-graduated');
         $includeEnrolled = $this->getRequest()->getParam('include-enrolled');
         $outstandingOnly = $this->getRequest()->getParam('outstanding-only');
+        $messagesOnly = $this->getRequest()->getParam('messages-only');
+        $outstandingAndMessagesOnly = $this->getRequest()->
+            getParam('outstanding-and-messages-only');
         $startYear = $this->getRequest()->getParam('start-year');
         $endYear = $this->getRequest()->getParam('end-year');
         $program = $this->getRequest()->getParam('program');
@@ -154,23 +222,9 @@ class AdminController extends Zend_Controller_Action {
             return;
         }
 
-        $students = $this->getStudents($program, $includeGraduated, $includeEnrolled, $outstandingOnly, $startYear, $endYear);
-
-        /* Find list of students that have unread messages, attach to above array */
-        $dbChats = new Application_Model_DbTable_Chats();
-        $arrWithUnread = array();
-        foreach ($dbChats->getStudentsWithUnread() as $student) {
-            array_push($arrWithUnread, $student['student_id']);
-        }
-
-        $count = count($students);
-        for ($i = 0; $i < $count; $i++) {
-            if (in_array($students[$i]['id'], $arrWithUnread)) {
-                $students[$i]['has_unread_msg'] = 1;
-            } else {
-                $students[$i]['has_unread_msg'] = 0;
-            }
-        }
+        $students = $this->getStudents($program, $includeGraduated, $includeEnrolled,
+            $outstandingOnly, $messagesOnly, $outstandingAndMessagesOnly,
+            $startYear, $endYear);
 
         echo Zend_Json::encode($students);
     }

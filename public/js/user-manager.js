@@ -110,7 +110,9 @@ function clearFilter() {
     $('#filter-year-lower-bound').val('');
     $('#filter-year-upper-bound').val('');
     $('#show-enrolled').prop('checked', true);
-    $('#show-outstanding-only').prop('checked', false);
+    showOutstandingOnlyOption.prop('checked', false);
+    showMessagesOnlyOption.prop('checked', false);
+    showOutstandingAndMessagesOnly.prop('checked', false);
 
     loadStudents();
 }
@@ -132,7 +134,10 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
     $('#no-users').setGone();
     var showGraduated = $('#show-graduated').is(":checked") ? 1 : 0;
     var showEnrolled = $('#show-enrolled').is(":checked") ? 1 : 0;
-    var showOutstandingOnly = $('#show-outstanding-only').is(":checked") ? 1 : 0;
+    var showOutstandingOnly = showOutstandingOnlyOption.is(":checked") ? 1 : 0;
+    var showUnreadMessagesOnly = showMessagesOnlyOption.is(':checked') ? 1 : 0;
+    var showOutstandingAndMessagesOnly =
+        showOutstandingAndMessagesOption.is(':checked') ? 1 : 0;
     var startYear = $('#filter-year-lower-bound').val();
     var startYear = startYear.substr(startYear.length - 4);
     var endYear = $('#filter-year-upper-bound').val();
@@ -146,10 +151,13 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
     var url = baseUrl + "/admin/get-students/program/" + currentProgram +
         "/include-graduated/" + showGraduated +
         "/outstanding-only/" + showOutstandingOnly +
+        "/messages-only/" + showUnreadMessagesOnly +
+        "/outstanding-and-messages-only/" + showOutstandingAndMessagesOnly +
         "/include-enrolled/" + showEnrolled + period;
     $.get(url, function(result) {
         try {
             var json = $.parseJSON(result);
+            console.log(json);
         } catch (e) {
             alert("Server error");
             return;
@@ -335,9 +343,34 @@ function searchStudents() {
 }
 
 var currentProgram;
+var showOutstandingOnlyOption;
+var showMessagesOnlyOption;
+var showOutstandingAndMessagesOption;
 
 $(function () {
-    $('#show-graduated, #show-enrolled, #show-outstanding-only').click(loadStudents);
+    $('#show-graduated, #show-enrolled').click(loadStudents);
+    showOutstandingOnlyOption = $('#show-outstanding-elective-requests');
+    showMessagesOnlyOption = $('#show-unread-messages');
+    showOutstandingAndMessagesOption = $('#show-elective-requests-messages');
+
+    showOutstandingOnlyOption.click(function () {
+        showMessagesOnlyOption.prop('checked', false);
+        showOutstandingAndMessagesOption.prop('checked', false);
+        loadStudents();
+    });
+
+    showMessagesOnlyOption.click(function () {
+        showOutstandingOnlyOption.prop('checked', false);
+        showOutstandingAndMessagesOption.prop('checked', false);
+        loadStudents();
+    });
+
+    showOutstandingAndMessagesOption.click(function () {
+        showOutstandingOnlyOption.prop('checked', false);
+        showMessagesOnlyOption.prop('checked', false);
+        loadStudents();
+    });
+
     adjustTableStyle();
 
     filterInput = $('#search-student');
