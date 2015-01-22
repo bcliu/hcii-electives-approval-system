@@ -90,9 +90,9 @@ function computeCoresTakenTaking() {
 
         if (courseStatus == 'taken') {
             if (doesGradeSatisfyReq(courseGrade, coreGradeReq) || courseGrade == 'na')
-                validTakenList.push(courseNumber);
+                validTakenList.push({ number: courseNumber, used: false });
         } else if (courseStatus == 'taking') {
-            validTakingList.push(courseNumber);
+            validTakingList.push({ number: courseNumber, used: false });
         }
     });
 
@@ -107,19 +107,36 @@ function computeCoresTakenTaking() {
         }
 
         $.each(validTakenList, function (takenI, takenE) {
-            cores[i]['numbersForSatisfied'] =
-                replaceAll(takenE, ' true ', cores[i]['numbersForSatisfied']);
+            var numbers = cores[i]['numbersForSatisfied'];
+            if (!takenE['used'] && numbers.indexOf(takenE['number']) >= 0) {
+                validTakenList[takenI]['used'] = true;
+                cores[i]['numbersForSatisfied'] =
+                    replaceAll(takenE['number'], ' true ', numbers);
+            }
         });
+
+        var satExp = cores[i]['numbersForSatisfied'].replace(courseReg, " false ");
+        cores[i]['satisfied'] = eval(satExp);
+
+        console.log(cores[i]);
+
         $.each(validTakingList, function (takingI, takingE) {
+            var numbers = cores[i]['numbersForTaking'];
             /* Only search if it's currently false */
-            if (cores[i]['taking'] == false) {
+            if (!cores[i]['taking'] &&
+                /* Don't try to make the requirement "Taking" with this course
+                 * if it is already marked as 'Taken'; use this course to
+                 * mark others as "Taking" instead
+                 */
+                !cores[i]['satisfied'] &&
+                !takingE['used'] &&
+                numbers.indexOf(takingE['number']) >= 0) {
+                validTakingList[takingI]['used'] = true;
                 /* If one course is taking, whole expression is "Taking" */
-                if (cores[i]['numbersForTaking'].search(takingE) != -1)
+                if (numbers.search(takingE) != -1)
                     cores[i]['taking'] = true;
             }
         });
-        var satExp = cores[i]['numbersForSatisfied'].replace(courseReg, " false ");
-        cores[i]['satisfied'] = eval(satExp);
 
         if (cores[i]['satisfied'])
             cores[i]['taking'] = false;
@@ -138,6 +155,7 @@ function computeCoresTakenTaking() {
     coresTaking = coresTakingList.length;
 }
 
+/* TODO One course should satisfy only one course in prereqs too */
 function computePrerequisitesTakenTaking() {
     loadCoursesList();
     var prerequisites = [];
@@ -289,7 +307,7 @@ $(function () {
 
         reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out ' +
             getPlural(placeOutsTaken, 'course') + ' taken');
-    } else {
+    } else if (prerequisitesTotal > 0) {
         computePrerequisitesTakenTaking();
         prerequisitesTotal = parseInt($('#prerequisites-total').text());
         prerequisitesLeft = prerequisitesTotal - prerequisitesTaken - prerequisitesTaking;
