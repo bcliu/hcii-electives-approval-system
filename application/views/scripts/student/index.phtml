@@ -20,7 +20,9 @@
             </tr>
             <tr>
                 <td><b>Program</b></td>
-                <td><?php if ($this->info->program == "ugminor") echo "Undergraduate Minor"; else echo strtoupper($this->info->program); ?></td>
+                <td><?php if ($this->info->program == "ugminor") echo "Undergraduate Minor";
+                          else if ($this->info->program == 'learning-media') echo 'Learning Media Minor';
+                          else echo strtoupper($this->info->program); ?></td>
             </tr>
             <tr>
                 <td><b>Entered Program</b></td>
@@ -67,7 +69,7 @@
                 <div id='prerequisites-taking-bar' class="progress-bar progress-bar-info progress-bar-striped active"></div>
                 <div id='prerequisites-left-bar' class='courses-remaining'></div>
             </div>
-        <?php } else { ?>
+        <?php } else if ($this->info->program != "learning-media") { ?>
             <h4>Place-out</h4>
             <div id='placeouts-progress' class="progress">
                 <div id='placeouts-taken-bar' class="progress-bar progress-bar-success"></div>
@@ -104,7 +106,7 @@
             <br />
             <?php if ($this->bhciOrMinor) { ?>
             Prerequisites total: <label id='prerequisites-total'><?= $this->prerequisitesTotal ?></label>
-            <?php } else { ?>
+            <?php } else if ($this->info->program != 'learning-media') { ?>
             Place-out total: <label id='placeouts-total'><?= $this->placeOutsTotal ?></label>
             Taken: <label id='placeouts-taken'><?= $this->placeOutsTaken ?></label>
             <?php } ?>

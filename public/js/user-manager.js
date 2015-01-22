@@ -157,7 +157,6 @@ function loadStudents(studentToShow, goToCoursesTab, selectStudent) {
     $.get(url, function(result) {
         try {
             var json = $.parseJSON(result);
-            console.log(json);
         } catch (e) {
             alert("Server error");
             return;
@@ -1143,7 +1142,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
 
                             var reg = /\d{2}-\d{3}/g;
                             if (type == 'core' || type == 'prerequisite') {
-                                /* Check if the specified course is taken, and grade >= B */
+                                /* Check if the specified course is taken, and grade >= .. */
 
                                 /* Rewrite the requirements into a boolean expression and evaluate it */
                                 var reqs = '(' + e['course_numbers'] + ')';
@@ -1152,7 +1151,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 
                                 var isTaking = false;
 
-                                courses.forEach(function (eC) {
+                                courses.forEach(function (eC, eI) {
                                     var courseType = eC['taking_as'],
                                         courseStatus = eC['status'],
                                         courseNum = eC['course_number'];
@@ -1175,11 +1174,23 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                         }
                                         if ((type == 'core' && (doesGradeSatisfyReq(eC['grade'], gradeReq) || eC['grade'] == 'na')) ||
                                             (type == 'prerequisite')) {
-                                            reqs = replaceAll(courseNum, ' true ', reqs);
+                                            if (courses[eI].usedToSatisfy != true) {
+                                                /* If one course has been used to satisfy one requirement, shouldn't be used again */
+                                                if (reqs.indexOf(courseNum) >= 0)
+                                                    courses[eI].usedToSatisfy = true;
+
+                                                reqs = replaceAll(courseNum, ' true ', reqs);
+                                            }
                                         }
                                     } else if (/*courseType == e['type'] &&*/ courseStatus == 'taking' &&
                                                e['course_numbers'].search(courseNum) != -1) {
-                                        isTaking = true;
+                                        if (courses[eI].usedToTaking != true) {
+                                            /* If one course has been used in one requirement to denote
+                                             * "taking", should not be used again in another requirement
+                                             */
+                                            courses[eI].usedToTaking = true;
+                                            isTaking = true;
+                                        }
                                     }
                                 });
 

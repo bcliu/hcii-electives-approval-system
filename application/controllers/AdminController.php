@@ -360,6 +360,8 @@ class AdminController extends Zend_Controller_Action {
         } else if ($type == 'ugminor') {
             /* Load core and prerequisite requirements for UGMinor, of all years */
             $reqs = $dbPrograms->getRequirementsByProgram('ugminor');
+        } else if ($type == 'learning-media') {
+            $reqs = $dbPrograms->getRequirementsByProgram('learning-media');
         } else if ($type == 'admin') {
             /* Show administrators */
             $this->view->users = $db->getAdministrators()->toArray();
@@ -399,7 +401,7 @@ class AdminController extends Zend_Controller_Action {
            let javascript further process and show them
          */
         if ($type != 'mhci' && $type != 'bhci' && $type != 'metals'
-             && $type != 'ugminor') {
+             && $type != 'ugminor' && $type != 'learning-media') {
             $type = 'mhci'; /* Default to MHCI */
         }
 
@@ -820,5 +822,11 @@ class AdminController extends Zend_Controller_Action {
         $this->session_user->loginType = "student";
         $this->session_user->andrewId = "minorstudent";
         $this->_redirect("/");
+    }
+
+    public function learningMediaViewAction() {
+        $this->session_user->loginType = 'student';
+        $this->session_user->andrewId = 'learningmediastudent';
+        $this->_redirect('/');
     }
 }

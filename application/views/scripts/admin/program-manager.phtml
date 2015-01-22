@@ -90,6 +90,10 @@
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/ugminor">Undergraduate Minor</a>
             </li>
 
+            <li id='learning-media-tab' class='<?= $this->program == "learning-media" ? "active" : "" ?>'>
+                <a class='dropdown-toggle' href="<?= $this->baseUrl(); ?>/admin/program-manager/type/learning-media">Learning Media Minor</a>
+            </li>
+
             <div id='profile-header' style='margin-top: 5px' class='pull-right'>
                 Enrolled in
                 <div id='year-semester' class="btn-group" style='margin-left: 10px'>
@@ -233,6 +237,40 @@
                         </tr>
                         <?php } ?>
                     </table>
+            </div>
+
+        <?php } else if ($this->program == 'learning-media') { ?>
+
+            <div id="learning-media-pane">
+                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
+                <table id='table-cores' class='table' type='core'>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Course name</th>
+                            <th style='width: 50%'>Course numbers</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class='tr-add-course'>
+                            <td>&nbsp;</td>
+                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div id='core-grade-req'>
+                    Grade requirement:
+                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
+                        <!-- Grade requirement defaults to B or above, if not specified -->
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+                        <ul class="dropdown-menu" role="menu">
+                            <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
+                        </ul>
+                    </span>
+                    <span>or above</span>
+                </div>
             </div>
 
         <?php } else { ?>

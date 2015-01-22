@@ -97,8 +97,6 @@ class StudentController extends Zend_Controller_Action {
             $numFreeElectives = $programs->getNumberOfElectivesByProgram(
                 $enrollYear, $enrollSemester, $program, "free-elective");
 
-            error_log("Num app elec: $numApplicationElectives, num free: $numFreeElectives");
-
             /* Since I'm using -1 to denote "No requirement", need to exclude those */
             $this->view->electivesTotal = ($numApplicationElectives > 0 ? $numApplicationElectives : 0) +
                 ($numFreeElectives > 0 ? $numFreeElectives : 0);

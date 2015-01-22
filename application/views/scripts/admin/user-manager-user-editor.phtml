@@ -114,6 +114,12 @@
                     </span>
                     <label class="form-control">Undergraduate Minor</label>
                 </span>
+                <span class="input-group">
+                    <span class="input-group-addon" id='receive-from-learning-media'>
+                        <input type="checkbox" name='receive-from-learning-media'>
+                    </span>
+                    <label class="form-control">Learning Media Minor</label>
+                </span>
             <?php } ?>
                 
             <textarea rows='3' name='notes' class="form-control" placeholder="Notes" style='margin-bottom: 20px'></textarea>
@@ -124,6 +130,7 @@
                                                 else if ($this->type == 'metals') echo('METALS');
                                                 else if ($this->type == 'bhci') echo("BHCI");
                                                 else if ($this->type == 'ugminor') echo("Undergraduate Minor");
+                                                else if ($this->type == 'learning-media') echo("Learning Media Minor");
                                                 else if ($this->type == 'admin') echo("Administrator") ?></b>
             <span id='new-user-email-notice' style='margin-left: 10px' class="glyphicon glyphicon-question-sign"></span></span>
             <button type="button" id='delete-user' class="btn btn-danger pull-right" style='display: none'>Delete</button>
@@ -151,44 +158,48 @@
                 </div>
             </div>
 
-            <div class="panel panel-default" id='panel-<?= ($this->type == "mhci" || $this->type == "metals") ? "place-outs" : "prereqs" ?>'>
-                <div class="panel-heading bold" style='font-size: 15px'><?php 
-                    if ($this->type == "mhci" || $this->type == "metals") {
-                        echo "Place-out courses";
-                    } else {
-                        echo "Prerequisites";
-                    ?><h6 id='prerequisite-grade-req' class='grade-req'></h6><?php
-                    }
-                ?></div>
-                <div class="row main-row">
-                    <div class="col-sm-12">
-                        <h5 class='no-courses' style='display: none'></h5>
-                        <table class='table table-hover'>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Course name</th>
-                                    <th>Status</th>
-                                    <?php if ($this->type == 'mhci' || $this->type == 'metals') { ?><th>Notes</th><?php } ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <!-- Learning media minor does not have prereqs/place-outs -->
+            <?php if ($this->type != 'learning-media') { ?>
 
-            <div id='panel-electives' class="panel panel-default" style='margin-top: 20px'>
-                <div class="panel-heading bold" style='font-size: 15px'>Electives<h6 id='elective-grade-req' class='grade-req'></h6></div>
-                <div class="panel-body">
+                <div class="panel panel-default" id='panel-<?= ($this->type == "mhci" || $this->type == "metals") ? "place-outs" : "prereqs" ?>'>
+                    <div class="panel-heading bold" style='font-size: 15px'><?php 
+                        if ($this->type == "mhci" || $this->type == "metals") {
+                            echo "Place-out courses";
+                        } else {
+                            echo "Prerequisites";
+                        ?><h6 id='prerequisite-grade-req' class='grade-req'></h6><?php
+                        }
+                    ?></div>
                     <div class="row main-row">
-                        <div id='summary-electives' class="col-sm-12">
-                            
+                        <div class="col-sm-12">
+                            <h5 class='no-courses' style='display: none'></h5>
+                            <table class='table table-hover'>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Course name</th>
+                                        <th>Status</th>
+                                        <?php if ($this->type == 'mhci' || $this->type == 'metals') { ?><th>Notes</th><?php } ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div id='panel-electives' class="panel panel-default" style='margin-top: 20px'>
+                    <div class="panel-heading bold" style='font-size: 15px'>Electives<h6 id='elective-grade-req' class='grade-req'></h6></div>
+                    <div class="panel-body">
+                        <div class="row main-row">
+                            <div id='summary-electives' class="col-sm-12">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
 
             <!-- Using MessageCtrl in AngularJS -->
             <div class="panel panel-default" style='margin-top: 20px' ng-controller='MessageCtrl'>
