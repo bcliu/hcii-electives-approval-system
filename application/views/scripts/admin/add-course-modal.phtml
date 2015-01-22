@@ -37,6 +37,8 @@
                                         <?= $this->produceList(['Restricted application elective', 'Free elective', 'Core', 'Prerequisite']) ?>
                                     <?php } else if ($this->type == "mhci" || $this->type == 'metals') { ?>
                                         <?= $this->produceList(['Elective', 'Core']) ?>
+                                    <?php } else if ($this->type == 'learning-media') { ?>
+                                        <?= $this->produceList(['Core']) ?>
                                     <?php } ?>
                                 </ul>
                             </span>

@@ -112,13 +112,16 @@ function computeCoresTakenTaking() {
                 validTakenList[takenI]['used'] = true;
                 cores[i]['numbersForSatisfied'] =
                     replaceAll(takenE['number'], ' true ', numbers);
+
+                var numbersCopy = cores[i]['numbersForSatisfied'];
+                var satExp = numbersCopy.replace(courseReg, " false ");
+                if (eval(satExp)) {
+                    cores[i]['satisfied'] = true;
+                    /* break .each() */
+                    return false;
+                }
             }
         });
-
-        var satExp = cores[i]['numbersForSatisfied'].replace(courseReg, " false ");
-        cores[i]['satisfied'] = eval(satExp);
-
-        console.log(cores[i]);
 
         $.each(validTakingList, function (takingI, takingE) {
             var numbers = cores[i]['numbersForTaking'];

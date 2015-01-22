@@ -209,6 +209,8 @@ class UsersController extends Zend_Controller_Action
                         $program = "bhci";
                     } else if ($program == "minor") {
                         $program = "ugminor";
+                    } else if ($program == 'learningmedia') {
+                        $program = "learning-media";
                     } else {
                         throw new Exception("Unrecognized program for user with Andrew ID $andrewId");
                     }
@@ -313,6 +315,7 @@ class UsersController extends Zend_Controller_Action
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-metals') ? "metals," : "";
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-bhci') ? "bhci," : "";
                 $receiveFrom .= $this->getRequest()->getPost('receive-from-ugminor') ? "ugminor" : "";
+                $receiveFrom .= $this->getRequest()->getPost('receive-from-learning-media') ? 'learning-media' : "";
             }
             
             $this->createUser($andrewId, $name, $role, $status, $program, $isFullTime, $enrollDate, $graduationDate, $major,

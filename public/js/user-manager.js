@@ -872,6 +872,7 @@ function clearUserInfoFields() {
         $('#receive-from-metals input').prop('checked', false);
         $('#receive-from-bhci input').prop('checked', false);
         $('#receive-from-ugminor input').prop('checked', false);
+        $('#receive-from-learning-media input').prop('checked', false);
     }
     
     if ($('input[name="major"]').attr('name') != undefined) {
@@ -938,6 +939,12 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     $('#receive-from-ugminor input').prop('checked', true);
                 } else {
                     $('#receive-from-ugminor input').prop('checked', false);
+                }
+
+                if (receiveFrom.indexOf('learning-media') != -1) {
+                    $('#receive-from-learning-media input').prop('checked', true);
+                } else {
+                    $('#receive-from-learning-media input').prop('checked', false);
                 }
             }
             
@@ -1150,59 +1157,89 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 reqs = replaceAll('&', ' && ', reqs);
                                 
                                 var isTaking = false;
+                                var isSatisfied = false;
 
-                                courses.forEach(function (eC, eI) {
-                                    var courseType = eC['taking_as'],
-                                        courseStatus = eC['status'],
-                                        courseNum = eC['course_number'];
+                                /* Evaluate if it is satisfied first.
+                                 * If it is, no need to test if it is "Taking" or satisfied
+                                 * since we had the problem that a course is used to count
+                                 * towards 'Taking' of a already 'Satisfied' course,
+                                 * thus we are not able to use it to count towards another requirement
+                                 */
+                                var forcedValue = getForcedStatus(e['course_name'], type);
+                                var status = forcedValue['value'];                                
+                                if (status == 'infer') {
 
-                                    /* Return if course number is malformed */
-                                    if (!reg.test(courseNum)) {
-                                        //console.log("Course number " + courseNum + " didn't pass regex test");
-                                        return;
-                                    }
-                                    /* Reset next index to search for reg, otherwise it
-                                     * will give the wrong result (always false) !
-                                     * http://stackoverflow.com/questions/1520800/why-regexp-with-global-flag-in-javascript-give-wrong-results
-                                     */
-                                    reg.lastIndex = 0;
+                                    courses.forEach(function (eC, eI) {
+                                        if (isSatisfied) return;
 
-                                    if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
-                                        var gradeReq = gradeReqs[type];
-                                        if (gradeReq == null || gradeReq.length == 0) {
-                                            gradeReq = 'd';
+                                        var courseType = eC['taking_as'],
+                                            courseStatus = eC['status'],
+                                            courseNum = eC['course_number'];
+
+                                        /* Return if course number is malformed */
+                                        if (!reg.test(courseNum)) {
+                                            //console.log("Course number " + courseNum + " didn't pass regex test");
+                                            return;
                                         }
-                                        if ((type == 'core' && (doesGradeSatisfyReq(eC['grade'], gradeReq) || eC['grade'] == 'na')) ||
-                                            (type == 'prerequisite')) {
-                                            if (courses[eI].usedToSatisfy != true) {
-                                                /* If one course has been used to satisfy one requirement, shouldn't be used again */
-                                                if (reqs.indexOf(courseNum) >= 0)
-                                                    courses[eI].usedToSatisfy = true;
+                                        /* Reset next index to search for reg, otherwise it
+                                         * will give the wrong result (always false) !
+                                         * http://stackoverflow.com/questions/1520800/why-regexp-with-global-flag-in-javascript-give-wrong-results
+                                         */
+                                        reg.lastIndex = 0;
 
-                                                reqs = replaceAll(courseNum, ' true ', reqs);
+                                        if (/*courseType == e['type'] &&*/ courseStatus == 'taken') {
+                                            var gradeReq = gradeReqs[type];
+                                            if (gradeReq == null || gradeReq.length == 0) {
+                                                gradeReq = 'd';
+                                            }
+                                            if ((type == 'core' && (doesGradeSatisfyReq(eC['grade'], gradeReq) || eC['grade'] == 'na')) ||
+                                                (type == 'prerequisite')) {
+                                                if (courses[eI].usedToSatisfy != true) {
+                                                    /* If one course has been used to satisfy one requirement, shouldn't be used again */
+                                                    if (reqs.indexOf(courseNum) >= 0)
+                                                        courses[eI].usedToSatisfy = true;
+
+                                                    reqs = replaceAll(courseNum, ' true ', reqs);
+
+                                                    /* Immediately try to evaluate; if already 'Satisfied', no need to waste another course
+                                                     * on it */
+                                                    var tempReqs = reqs;
+                                                    tempReqs = tempReqs.replace(reg, " false ");
+                                                    if (eval(tempReqs)) {
+                                                        isSatisfied = true;
+                                                    }
+                                                }
                                             }
                                         }
-                                    } else if (/*courseType == e['type'] &&*/ courseStatus == 'taking' &&
-                                               e['course_numbers'].search(courseNum) != -1) {
-                                        if (courses[eI].usedToTaking != true) {
-                                            /* If one course has been used in one requirement to denote
-                                             * "taking", should not be used again in another requirement
-                                             */
-                                            courses[eI].usedToTaking = true;
-                                            isTaking = true;
-                                        }
-                                    }
-                                });
+                                    });
 
-                                reqs = reqs.replace(reg, " false ");
-                                var isSatisfied;
-                                
-                                var forcedValue = getForcedStatus(e['course_name'], type);
-                                var status = forcedValue['value'];
-                                if (status == 'infer') {
-                                    isSatisfied = eval(reqs);
+                                    /* If not satisfied, continue to check if it is in progress */
+                                    if (!isSatisfied) {
+                                        /* Look for 'Taking' */
+                                        courses.forEach(function (eC, eI) {
+                                            var courseType = eC['taking_as'],
+                                                courseStatus = eC['status'],
+                                                courseNum = eC['course_number'];
+
+                                            if (!reg.test(courseNum)) return;
+                                            reg.lastIndex = 0;
+
+                                            if (/*courseType == e['type'] &&*/ courseStatus == 'taking' &&
+                                                       e['course_numbers'].search(courseNum) != -1) {
+                                                if (courses[eI].usedToTaking != true) {
+                                                    /* If one course has been used in one requirement to count towards
+                                                     * "taking", should not be used again in another requirement
+                                                     */
+                                                    courses[eI].usedToTaking = true;
+                                                    isTaking = true;
+                                                }
+                                            }
+                                        });
+                                    }
+
                                 } else if (status == 'satisfied') {
                                     isSatisfied = true;
+                                /* Forced to 'not satisfied' */
                                 } else {
                                     isSatisfied = false;
                                     isTaking = false;
