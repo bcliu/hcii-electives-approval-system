@@ -6,9 +6,12 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
     public function addCourse($andrewId, $courseNumber, $courseName, $units, $description,
                            $takingAs, $status) {
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
         $date = new Zend_Date();
         $data = array(
-            'student_andrew_id' => $andrewId,
+            'student_id' => $studentId,
             'course_number' => $courseNumber,
             'course_name' => $courseName,
             'course_description' => $description,
@@ -21,7 +24,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         );
 
         if ($status == 'submitted') {
-            $dbUsers = new Application_Model_DbTable_Users();
             $dbUsers->addAwaitingCount($andrewId, 1);
         }
 
@@ -29,7 +31,9 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
     }
 
     public function deleteByAndrewId($andrewId) {
-        $this->delete("student_andrew_id = '$andrewId'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+        $this->delete("student_id = '$studentId'");
     }
 
     /**
@@ -41,10 +45,13 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         if ($submissionTime == NULL) {
             $submissionTime = $date->toString("MM/dd/YYYY HH:mm:ss");
         }
+
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
         
         $currentYear = intval($date->toString("YYYY"));
         $data = array(
-            'student_andrew_id' => $andrewId,
+            'student_id' => $studentId,
             'course_number' => $courseNumber,
             'course_name' => $courseName,
             'course_description' => $description,
@@ -59,7 +66,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         );
 
         if ($status == 'submitted') {
-            $dbUsers = new Application_Model_DbTable_Users();
             $dbUsers->addAwaitingCount($andrewId, 1);
         }
 
@@ -67,7 +73,10 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
     }
     
     public function getCoursesByStatus($andrewId, $status) {
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = '$status'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
+        $rows = $this->fetchAll("student_id = '$studentId' AND status = '$status'");
         return $rows;
     }
 
@@ -91,7 +100,10 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             throw new Exception("Unrecognized viewer", 1);
         }
 
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId'")->toArray();
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
+        $rows = $this->fetchAll("student_id = '$studentId'")->toArray();
         $dbChats = new Application_Model_DbTable_Chats();
         $count = count($rows);
         for ($i = 0; $i < $count; $i++) {
@@ -131,7 +143,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             }
         }
 
-        error_log("Generated query grade string: $query");
+        //error_log("Generated query grade string: $query");
 
         return $query;
     }
@@ -143,17 +155,26 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
      */
     public function getNumberSatisfiedByType($andrewId, $type, $minGrade) {
         $grades = $this->generateGradesAbove($minGrade);
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'taken' AND taking_as = '$type' AND ($grades)");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
+        $rows = $this->fetchAll("student_id = '$studentId' AND status = 'taken' AND taking_as = '$type' AND ($grades)");
         return count($rows);
     }
 
     public function getNumberTakingByType($andrewId, $type) {
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'taking' AND taking_as = '$type'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
+        $rows = $this->fetchAll("student_id = '$studentId' AND status = 'taking' AND taking_as = '$type'");
         return count($rows);
     }
 
     public function getNumSatisfiedPlaceOuts($andrewId) {
-        $rows = $this->fetchAll("student_andrew_id = '$andrewId' AND status = 'satisfied' and taking_as = 'place-out'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrewId);
+
+        $rows = $this->fetchAll("student_id = '$studentId' AND status = 'satisfied' and taking_as = 'place-out'");
         return count($rows);
     }
 
@@ -171,15 +192,15 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         /* Get original status and update number of courses awaiting approval count if necessary */
         $dbUsers = new Application_Model_DbTable_Users();
         $course = $this->getCourseById($courseId);
-        $andrewId = $course->student_andrew_id;
+        $studentId = $course->student_id;
         $originalStatus = $course->status;
         if ($originalStatus == 'submitted' && $status != 'submitted') {
-            error_log("adding 1 to awaiting count");
-            $dbUsers->addAwaitingCount($andrewId, -1);
+            //error_log("adding 1 to awaiting count");
+            $dbUsers->addAwaitingCount($studentId, -1);
         }
         else if ($originalStatus != 'submitted' && $status == 'submitted') {
-            error_log("adding -1 to awaiting count");
-            $dbUsers->addAwaitingCount($andrewId, 1);
+            //error_log("adding -1 to awaiting count");
+            $dbUsers->addAwaitingCount($studentId, 1);
         }
 
         $this->update($data, "id = $courseId");
@@ -187,12 +208,12 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
     public function deleteCourse($courseId) {
         $course = $this->getCourseById($courseId);
-        $andrewId = $course->student_andrew_id;
+        $studentId = $course->student_id;
         $status = $course->status;
 
         if ($status == 'submitted') {
             $dbUsers = new Application_Model_DbTable_Users();
-            $dbUsers->addAwaitingCount($andrewId, -1);
+            $dbUsers->addAwaitingCount($studentId, -1);
         }
         
         $this->delete("id = '$courseId'");

@@ -195,7 +195,9 @@ class StudentController extends Zend_Controller_Action {
 
             /* Verify if this course ID is this current user's course */
             $dbCourses = new Application_Model_DbTable_Courses();
-            $courseAndrewId = $dbCourses->getCourseById($courseId)->student_andrew_id;
+            $dbUsers = new Application_Model_DbTable_Users();
+
+            $courseAndrewId = $dbUsers->getUserById($dbCourses->getCourseById($courseId)->student_id)->andrew_id;
             $data = array();
             if ($courseAndrewId != $this->session_user->andrewId) {
                 /* If they don't match, likely that someone is trying to breach */
@@ -221,7 +223,8 @@ class StudentController extends Zend_Controller_Action {
         $courseId = $this->getRequest()->getParam('course_id');
         /* Verify if this course ID is this current user's course */
         $dbCourses = new Application_Model_DbTable_Courses();
-        $courseAndrewId = $dbCourses->getCourseById($courseId)->student_andrew_id;
+        $dbUsers = new Application_Model_DbTable_Users();
+        $courseAndrewId = $dbUsers->getUserById($dbCourses->getCourseById($courseId)->student_id)->andrew_id;
         if ($courseAndrewId == $this->session_user->andrewId) {
             $db = new Application_Model_DbTable_Chats();
             echo Zend_Json::encode($db->getMessages($courseId, 'student'));

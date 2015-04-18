@@ -25,12 +25,12 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         return $rows;
     }
 
-    public function addAwaitingCount($andrewId, $amount) {
-        $currentVal = $this->getUserByAndrewId($andrewId)->number_awaiting_approval;
+    public function addAwaitingCount($studentId, $amount) {
+        $currentVal = $this->getUserById($studentId)->number_awaiting_approval;
         $data = array(
             'number_awaiting_approval' => $currentVal + $amount
         );
-        $this->update($data, "andrew_id = '$andrewId'");
+        $this->update($data, "id = '$studentId'");
     }
 
     public function getNameByAndrewId($andrewId) {
@@ -72,9 +72,23 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         }
     }
 
-    public function getUserByAndrewId($andrewId)
-    {
+    public function getIdByAndrewId($andrewId) {
         $row = $this->fetchRow("andrew_id = '$andrewId'");
+        if (!$row) {
+            throw new Exception("Andrew ID $andrewId not found");
+        }
+        return $row->id;
+    }
+
+    public function getUserByAndrewId($andrewId) {
+        $row = $this->fetchRow("andrew_id = '$andrewId'");
+        if (!$row)
+            throw new Exception("Andrew ID $andrewId not found");
+        return $row;
+    }
+
+    public function getUserById($id) {
+        $row = $this->fetchRow("id = $id");
         return $row;
     }
     

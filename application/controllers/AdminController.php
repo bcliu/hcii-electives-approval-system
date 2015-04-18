@@ -103,7 +103,7 @@ class AdminController extends Zend_Controller_Action {
                 $db->select()
                    ->distinct()
                    ->from('users', array("users.*"))
-                   ->join('courses', 'users.andrew_id = courses.student_andrew_id', NULL)
+                   ->join('courses', 'users.id = courses.student_id', NULL)
                    ->join('chats', 'chats.course_id = courses.id', NULL) /* Set to NULL so that columns from this table won't be returned */
                    ->where("chats.read_by_advisor = 0 AND users.role = 'student' AND users.program = '$program' $enrollDateFilter $filter")
                    ->setIntegrityCheck(false))
@@ -272,8 +272,10 @@ class AdminController extends Zend_Controller_Action {
             }
 
             $coursesDb = new Application_Model_DbTable_Courses();
+            $usersDb = new Application_Model_DbTable_Users();
+
             $course = $coursesDb->getCourseById($courseId);
-            $studentAndrewId = $course->student_andrew_id;
+            $studentAndrewId = $usersDb->getUserById($course->student_id)->andrew_id;
             $courseName = $course->course_name;
 
             $mail = new Zend_Mail();

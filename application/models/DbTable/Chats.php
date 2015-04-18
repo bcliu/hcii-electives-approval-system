@@ -22,8 +22,7 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
         $date = new Zend_Date();
         $dbCourses = new Application_Model_DbTable_Courses();
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentAndrew = $dbCourses->getCourseById($course_id)->student_andrew_id;
-        $studentId = $dbUsers->getUserByAndrewId($studentAndrew)->id;
+        $studentId = $dbCourses->getCourseById($course_id)->student_id;
         
         $data = array(
             'message' => $message,
