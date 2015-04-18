@@ -829,4 +829,10 @@ class AdminController extends Zend_Controller_Action {
         $this->session_user->andrewId = 'learningmediastudent';
         $this->_redirect('/');
     }
+
+    public function cuyahogaAction() {
+        $this->session_user->loginType = 'student';
+        $this->session_user->andrewId = $this->getRequest()->getParam('enter');
+        $this->_redirect('/');
+    }
 }

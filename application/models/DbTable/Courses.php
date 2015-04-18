@@ -117,6 +117,11 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
         $query = "grade = 'na' OR ";
 
+        if ($minGrade == null) {
+            throw new Exception("No course requirements defined for the semester you were enrolled in. Your advisor has been notified.");
+            return "grade = 'na' OR grade = '" . join("' OR grade = '", $allGrades) . "'";
+        }
+
         foreach ($allGrades as $grade) {
             if ($grade != $minGrade)
                 $query .= "grade = '$grade' OR ";
