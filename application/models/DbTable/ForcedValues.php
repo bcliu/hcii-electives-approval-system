@@ -6,19 +6,26 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
     protected $_name = 'forced_values';
     
     public function getValue($andrew_id, $type, $key) {
-        $row = $this->fetchRow("user_andrew_id = '$andrew_id' AND type = '$type' AND key = '$key'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
+        $row = $this->fetchRow("student_id = '$studentId' AND type = '$type' AND key = '$key'");
         return $row;
     }
 
     public function getValuesOfUser($andrew_id) {
-        return $this->fetchAll("user_andrew_id = '$andrew_id'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
+
+        return $this->fetchAll("student_id = '$student_id'");
     }
 
     public function updateValue($andrew_id, $type, $key, $value, $notes) {
         $this->removeEntry($andrew_id, $type, $key);
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
 
     	$data = array(
-		      'user_andrew_id' => $andrew_id,
+		      'student_id' => $studentId,
 		      'type' => $type,
 		      'key' => $key,
 		      'value' => $value,
@@ -29,15 +36,21 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
     }
 
     public function removeEntry($andrew_id, $type, $key) {
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
+
         $this->delete(array(
-			    "`user_andrew_id` = ?" => $andrew_id,
+			    "`student_id` = ?" => $studentId,
 			    "`type` = ?" => $type,
 			    "`key` = ?" => $key
         ));
     }
 
     public function getNumSatisfied($andrew_id, $type) {
-        $rows = $this->fetchAll("user_andrew_id = '$andrew_id' AND type = '$type' AND value = 'satisfied'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
+
+        $rows = $this->fetchAll("student_id = '$studentId' AND type = '$type' AND value = 'satisfied'");
         return count($rows);
     }
 

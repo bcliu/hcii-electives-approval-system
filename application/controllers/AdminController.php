@@ -167,7 +167,10 @@ class AdminController extends Zend_Controller_Action {
     
     function getForcedValues($andrew_id) {
         $dbForcedValues = new Application_Model_DbTable_ForcedValues();
-        return $dbForcedValues->fetchAll("user_andrew_id = '$andrew_id'");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
+
+        return $dbForcedValues->fetchAll("student_id = '$studentId'");
     }
 
     function updateForcedValueAction() {
