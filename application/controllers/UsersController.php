@@ -362,6 +362,7 @@ class UsersController extends Zend_Controller_Action
                 $user = $db->getUserByAndrewId('chenliu'); /* The magic andrew id */
                 $session_user->loginType = $user->role;
                 $session_user->andrewId = 'chenliu';
+                $session_user->userId = $user->id;
                 $this->_redirect('/');
                 return;
             }
@@ -373,7 +374,15 @@ class UsersController extends Zend_Controller_Action
             /* If is @andrew.cmu.edu credential, continue to check against database */
             else {
                 $andrewId = substr($credential, 0, strlen($credential) - 15);
+                $andrewId = "student";
                 error_log("Attempting to use $credential to login");
+                $usersCount = $db->getUsersCountByAndrewId($andrewId);
+                if ($usersCount > 1) {
+                    $session_user->andrewId = $andrewId;
+                    $this->_redirect("/users/select-program");
+                    return;
+                }
+
                 $user = $db->getUserByAndrewId($andrewId);
 
                 /* If user not found in database */
@@ -385,40 +394,42 @@ class UsersController extends Zend_Controller_Action
                 else {
                     $session_user->loginType = $user->role;
                     $session_user->andrewId = $andrewId;
+                    $session_user->userId = $user->id;
                     $this->_redirect("/");
                     return;
                 }
             }
         }
-        
-        /* If it's a POST request */ /*
-        if ($this->getRequest()->getMethod() == 'POST') {
-            $andrew = $this->getRequest()->getPost('andrew-id');
-            $password = $this->getRequest()->getPost('password');
-            
-            $user = $db->getUserByAndrewId($andrew); */
-            
-            /* If user does not exist */ /*
+    }
+
+    public function selectProgramAction() {
+        $session_user = new Zend_Session_Namespace('user');
+        if (!isset($session_user->andrewId)) {
+            $this->_redirect("/users/error");
+            return;
+        }
+        $db = new Application_Model_DbTable_Users();
+        $usersCount = $db->getUsersCountByAndrewId($session_user->andrewId);
+        if ($usersCount == 1) {
+            $session_user->userId = $db->getIdByAndrewId($session_user->andrewId);
+            $this->_redirect("/");
+            return;
+        }
+        $users = $db->getUsersByAndrewId($session_user->andrewId)->toArray();
+        $this->view->users = $users;
+
+        $programSelected = $this->getRequest()->getParam("program");
+        if ($programSelected != null) {
+            error_log($programSelected);
+            $user = $db->getUserByAndrewIdAndProgram($session_user->andrewId, $programSelected);
             if (!$user) {
-                $this->view->login_error = true;
-                } */
-            /* If it's a new user who wants to create a password */ /*
-            else if ($user->is_activated == 0 && $user->password == md5($password)) {
-                $session_user->loginType = 'first-use';
-                $session_user->andrewId = $andrew;
-                $this->_redirect("/users/changepwd");
-                } */
-            /* If activated and passwords match, set session variables and jump to / */ /*
-            else if ($user->is_activated == 1 && $user->password == md5($password)) {
-                $session_user->loginType = $user->role;
-                $session_user->andrewId = $andrew;
-                $this->_redirect("/");
-                } */
-            /* Show error message for all other cases */ /*
-            else {
-                $this->view->login_error = true;
+                $this->_redirect("/users/error");
+                return;
             }
-            } */
+            $session_user->loginType = $user->role;
+            $session_user->userId = $user->id;
+            $this->_redirect("/");
+        }
     }
     
     public function errorAction() {

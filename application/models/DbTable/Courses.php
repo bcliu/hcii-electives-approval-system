@@ -4,10 +4,9 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
     protected $_name = 'courses';
 
-    public function addCourse($andrewId, $courseNumber, $courseName, $units, $description,
+    public function addCourse($studentId, $courseNumber, $courseName, $units, $description,
                            $takingAs, $status) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
 
         $date = new Zend_Date();
         $data = array(
@@ -24,22 +23,21 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         );
 
         if ($status == 'submitted') {
-            $dbUsers->addAwaitingCount($andrewId, 1);
+            $dbUsers->addAwaitingCount($studentId, 1);
         }
 
         $this->insert($data);
     }
 
-    public function deleteByAndrewId($andrewId) {
+    public function deleteById($studentId) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
         $this->delete("student_id = '$studentId'");
     }
 
     /**
      * Adding course in admin view, which contains all information
      */
-    public function adminAddCourse($andrewId, $courseNumber, $courseName, $units, $description,
+    public function adminAddCourse($studentId, $courseNumber, $courseName, $units, $description,
                            $takingAs, $status, $semester, $year, $grade, $comment, $submissionTime = NULL) {
         $date = new Zend_Date();
         if ($submissionTime == NULL) {
@@ -47,7 +45,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         }
 
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
         
         $currentYear = intval($date->toString("YYYY"));
         $data = array(
@@ -66,16 +63,14 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         );
 
         if ($status == 'submitted') {
-            $dbUsers->addAwaitingCount($andrewId, 1);
+            $dbUsers->addAwaitingCount($studentId, 1);
         }
 
         $this->insert($data);
     }
     
-    public function getCoursesByStatus($andrewId, $status) {
+    public function getCoursesByStatus($studentId, $status) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
-
         $rows = $this->fetchAll("student_id = '$studentId' AND status = '$status'");
         return $rows;
     }
@@ -87,7 +82,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
     /**
      * Get all courses taken/submitted by user
-     * @param  String $andrewId Andrew ID of student
+     * @param  String $studentId studentId of student
      * @param  String $viewer Who will use the courses data. If advisor, will also return if
      *                        there are messages unread by advisor. Similarly for students.
      * @return Array           All courses taken/submitted by student with specified Andrew ID.
@@ -95,13 +90,12 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
      *                         unread messages for this student from the course.
      *                         The flag is set to 0 if all messages of this course has been read.
      */
-    public function getAllCoursesOfUser($andrewId, $viewer) {
+    public function getAllCoursesOfUser($studentId, $viewer) {
         if ($viewer != 'advisor' && $viewer != 'student') {
             throw new Exception("Unrecognized viewer", 1);
         }
 
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
 
         $rows = $this->fetchAll("student_id = '$studentId'")->toArray();
         $dbChats = new Application_Model_DbTable_Chats();
@@ -149,30 +143,27 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
     }
 
     /**
-     * @param  String $andrewId Andrew ID of student
+     * @param  String $id User ID of student
      * @param  String $type     Core, prerequisite etc.
      * @param  String $minGrade Minimum grade required
      */
-    public function getNumberSatisfiedByType($andrewId, $type, $minGrade) {
+    public function getNumberSatisfiedByType($studentId, $type, $minGrade) {
         $grades = $this->generateGradesAbove($minGrade);
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
 
         $rows = $this->fetchAll("student_id = '$studentId' AND status = 'taken' AND taking_as = '$type' AND ($grades)");
         return count($rows);
     }
 
-    public function getNumberTakingByType($andrewId, $type) {
+    public function getNumberTakingByType($studentId, $type) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
 
         $rows = $this->fetchAll("student_id = '$studentId' AND status = 'taking' AND taking_as = '$type'");
         return count($rows);
     }
 
-    public function getNumSatisfiedPlaceOuts($andrewId) {
+    public function getNumSatisfiedPlaceOuts($studentId) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrewId);
 
         $rows = $this->fetchAll("student_id = '$studentId' AND status = 'satisfied' and taking_as = 'place-out'");
         return count($rows);
@@ -217,6 +208,24 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         }
         
         $this->delete("id = '$courseId'");
+    }
+
+    public function getMostSubmittedElectives($program, $count) {
+        $q = $this->select()
+            ->from('courses', array('course_number', 'course_name', 'count(*) as freq'))
+            ->join(array('users' => 'users'), "users.id = courses.student_id AND users.program = '$program'", array())
+            ->where("courses.course_number != ''")
+            ->where('courses.taking_as = ?', 'elective')
+            ->where('courses.status != ?', 'rejected')
+            ->where('courses.status != ?', 'need-clarification')
+            ->group('courses.course_number')
+            ->order('freq desc')
+            ->limit($count)
+            ->setIntegrityCheck(false);
+
+        error_log($q->assemble());
+        $rows = $this->fetchAll($q);
+        return $rows;
     }
 
 }

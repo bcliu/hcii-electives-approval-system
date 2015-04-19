@@ -5,17 +5,14 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
 
     protected $_name = 'forced_values';
     
-    public function getValue($andrew_id, $type, $key) {
+    public function getValue($studentId, $type, $key) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
         $row = $this->fetchRow("student_id = '$studentId' AND type = '$type' AND key = '$key'");
         return $row;
     }
 
-    public function getValuesOfUser($andrew_id) {
+    public function getValuesOfUser($studentId) {
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
-
         return $this->fetchAll("student_id = '$student_id'");
     }
 

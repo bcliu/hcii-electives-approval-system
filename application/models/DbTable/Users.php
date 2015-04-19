@@ -41,6 +41,14 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         }
         return $row->name;
     }
+
+    public function getNameById($id) {
+        $row = $this->fetchRow("id = '$id'");
+        if (!$row) {
+            return null;
+        }
+        return $row->name;
+    }
     
     /**
      * Create or update a new user.
@@ -82,14 +90,28 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
 
     public function getUserByAndrewId($andrewId) {
         $row = $this->fetchRow("andrew_id = '$andrewId'");
-        if (!$row)
-            throw new Exception("Andrew ID $andrewId not found");
         return $row;
     }
 
     public function getUserById($id) {
         $row = $this->fetchRow("id = $id");
         return $row;
+    }
+
+    public function getUserByAndrewIdAndProgram($andrewId, $program) {
+        return $this->fetchRow($this->select()
+            ->where('andrew_id = ?', $andrewId)
+            ->where('program = ?', $program)
+        );
+    }
+
+    public function getUsersByAndrewId($andrewId) {
+        $rows = $this->fetchAll("andrew_id = '$andrewId'");
+        return $rows;
+    }
+
+    public function getUsersCountByAndrewId($andrew_id) {
+        return count($this->fetchAll("andrew_id = '$andrew_id'"));
     }
     
     public function getUsersByProgram($program) {
@@ -104,6 +126,10 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
     
     public function deleteByAndrewId($andrewId) {
         $this->delete("andrew_id = '$andrewId'");
+    }
+
+    public function deleteById($id) {
+        $this->delete("id = '$id'");
     }
 
     public function setPassword($andrew_id, $password) {

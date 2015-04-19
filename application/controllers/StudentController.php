@@ -20,8 +20,8 @@ class StudentController extends Zend_Controller_Action {
         
         $this->dbUsers = new Application_Model_DbTable_Users();
         $this->view->andrewId = $this->session_user->andrewId;
-        $this->view->name = $this->dbUsers->getNameByAndrewId($this->session_user->andrewId);
-        $this->view->type = $this->dbUsers->getUserByAndrewId($this->session_user->andrewId)->program;
+        $this->view->name = $this->dbUsers->getNameById($this->session_user->userId);
+        $this->view->type = $this->dbUsers->getUserById($this->session_user->userId)->program;
         $this->_helper->layout->setLayout('student-layout');
         
         $this->config = array(
@@ -36,9 +36,11 @@ class StudentController extends Zend_Controller_Action {
     }
 
     public function indexAction() {
+        $userId = $this->session_user->userId;
+
         $this->view->title = 'EASy';
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-index.js');
-        $this->view->info = $this->dbUsers->getUserByAndrewId($this->view->andrewId);
+        $this->view->info = $this->dbUsers->getUserById($userId);
         
         $db = new Application_Model_DbTable_Courses();
         $andrewId = $this->session_user->andrewId;
@@ -46,7 +48,7 @@ class StudentController extends Zend_Controller_Action {
         $forcedValues = new Application_Model_DbTable_ForcedValues();
         $programs = new Application_Model_DbTable_Programs();
         $program = $this->view->type;
-        $enrollDate = $this->dbUsers->getUserByAndrewId($andrewId)->enroll_date;
+        $enrollDate = $this->dbUsers->getUserById($userId)->enroll_date;
         $enrollMonth = substr($enrollDate, 0, 2);
         $enrollYear = substr($enrollDate, 3, 4);
         $enrollSemester;
@@ -65,22 +67,22 @@ class StudentController extends Zend_Controller_Action {
 
         $this->view->coresTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'core');
         $coreMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
-        $this->view->coresTaken = $db->getNumberSatisfiedByType($andrewId, "core", $coreMinGrade);
-        $this->view->coresTaking = $db->getNumberTakingByType($andrewId, "core");
+        $this->view->coresTaken = $db->getNumberSatisfiedByType($userId, "core", $coreMinGrade);
+        $this->view->coresTaking = $db->getNumberTakingByType($userId, "core");
 
-        $this->view->coursesList = Zend_Json::encode($db->getAllCoursesOfUser($andrewId, "student"));
+        $this->view->coursesList = Zend_Json::encode($db->getAllCoursesOfUser($userId, "student"));
         $this->view->coresReqs = Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
         $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
 
-        $this->view->forcedValues = Zend_Json::encode($forcedValues->getValuesOfUser($andrewId));
+        $this->view->forcedValues = Zend_Json::encode($forcedValues->getValuesOfUser($userId));
 
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
         if ($this->view->bhciOrMinor) {
             $this->view->prerequisitesTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'prerequisite');
             $prereqMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
             /* TODO How to check forced values?? */
-            $this->view->prerequisitesTaken = $db->getNumberSatisfiedByType($andrewId, "prerequisite", $prereqMinGrade);
-            $this->view->prerequisitesTaking = $db->getNumberTakingByType($andrewId, "prerequisite");
+            $this->view->prerequisitesTaken = $db->getNumberSatisfiedByType($userId, "prerequisite", $prereqMinGrade);
+            $this->view->prerequisitesTaking = $db->getNumberTakingByType($userId, "prerequisite");
 
             /* Print out prerequisites requirements */
             $this->view->prerequisitesReqs = Zend_Json::encode(
@@ -88,7 +90,7 @@ class StudentController extends Zend_Controller_Action {
             $this->view->prerequisitesGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
         } else {
             $this->view->placeOutsTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'place-out');
-            $this->view->placeOutsTaken = $db->getNumSatisfiedPlaceOuts($andrewId);
+            $this->view->placeOutsTaken = $db->getNumSatisfiedPlaceOuts($userId);
         }
 
         if ($program == 'bhci') {
@@ -104,20 +106,20 @@ class StudentController extends Zend_Controller_Action {
             $freeElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'free-elective');
             $appElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'application-elective');
             $this->view->electivesTaken =
-                ($numFreeElectives > 0 ? $db->getNumberSatisfiedByType($andrewId, "free-elective", $freeElectMinGrade) : 0) +
-                ($numApplicationElectives > 0 ? $db->getNumberSatisfiedByType($andrewId, "application-elective", $appElectMinGrade) : 0);
+                ($numFreeElectives > 0 ? $db->getNumberSatisfiedByType($userId, "free-elective", $freeElectMinGrade) : 0) +
+                ($numApplicationElectives > 0 ? $db->getNumberSatisfiedByType($userId, "application-elective", $appElectMinGrade) : 0);
 
             $this->view->electivesTaking =
-                ($numFreeElectives > 0 ? $db->getNumberTakingByType($andrewId, "free-elective") : 0) +
-                ($numApplicationElectives > 0 ? $db->getNumberTakingByType($andrewId, "application-elective") : 0);
+                ($numFreeElectives > 0 ? $db->getNumberTakingByType($userId, "free-elective") : 0) +
+                ($numApplicationElectives > 0 ? $db->getNumberTakingByType($userId, "application-elective") : 0);
         } else if ($program == 'mhci' || $program == 'ugminor' || $program == 'metals') {
             $numElectives = $programs->getNumberOfElectivesByProgram(
                 $enrollYear, $enrollSemester, $program, "elective");
             if ($numElectives > 0) {
                 $electMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'elective');
                 $this->view->electivesTotal = $numElectives;
-                $this->view->electivesTaken = $db->getNumberSatisfiedByType($andrewId, "elective", $electMinGrade);
-                $this->view->electivesTaking = $db->getNumberTakingByType($andrewId, "elective");
+                $this->view->electivesTaken = $db->getNumberSatisfiedByType($userId, "elective", $electMinGrade);
+                $this->view->electivesTaking = $db->getNumberTakingByType($userId, "elective");
             } else {
                 /* There is no requirements on electives */
                 $this->view->electivesTotal = 0;
@@ -126,8 +128,8 @@ class StudentController extends Zend_Controller_Action {
             }
         }
 
-        $this->view->coursesSubmitted = count($db->getCoursesByStatus($andrewId, "submitted"));
-        $this->view->clarificationNeeded = count($db->getCoursesByStatus($andrewId, "need-clarification"));
+        $this->view->coursesSubmitted = count($db->getCoursesByStatus($userId, "submitted"));
+        $this->view->clarificationNeeded = count($db->getCoursesByStatus($userId, "need-clarification"));
     }
     
     public function correctionAction() {
@@ -177,8 +179,7 @@ class StudentController extends Zend_Controller_Action {
     public function coursesAction() {
         $this->view->title = 'EASy - My Courses';
         $db = new Application_Model_DbTable_Courses();
-        $andrewId = $this->session_user->andrewId;
-        $this->view->all_courses = $db->getAllCoursesOfUser($andrewId, 'student');
+        $this->view->all_courses = $db->getAllCoursesOfUser($this->session_user->userId, 'student');
     }
 
     /**
@@ -197,9 +198,8 @@ class StudentController extends Zend_Controller_Action {
             $dbCourses = new Application_Model_DbTable_Courses();
             $dbUsers = new Application_Model_DbTable_Users();
 
-            $courseAndrewId = $dbUsers->getUserById($dbCourses->getCourseById($courseId)->student_id)->andrew_id;
             $data = array();
-            if ($courseAndrewId != $this->session_user->andrewId) {
+            if ($dbCourses->getCourseById($courseId)->student_id != $this->session_user->userId) {
                 /* If they don't match, likely that someone is trying to breach */
                 $data['error'] = 1;
                 $data['message'] = "LOL go for it if you want to break the system :)";
@@ -224,8 +224,7 @@ class StudentController extends Zend_Controller_Action {
         /* Verify if this course ID is this current user's course */
         $dbCourses = new Application_Model_DbTable_Courses();
         $dbUsers = new Application_Model_DbTable_Users();
-        $courseAndrewId = $dbUsers->getUserById($dbCourses->getCourseById($courseId)->student_id)->andrew_id;
-        if ($courseAndrewId == $this->session_user->andrewId) {
+        if ($dbCourses->getCourseById($courseId)->student_id == $this->session_user->userId) {
             $db = new Application_Model_DbTable_Chats();
             echo Zend_Json::encode($db->getMessages($courseId, 'student'));
         } else {
@@ -254,7 +253,7 @@ class StudentController extends Zend_Controller_Action {
             if (preg_match('/^\d{2}-\d{3}$/', $courseNumber) == 1 &&
                 preg_match('/^[0-9]+$/', $units) == 1) {
                 $db = new Application_Model_DbTable_Courses();
-                $db->addCourse($this->session_user->andrewId, $courseNumber, $courseName, $units, $description,
+                $db->addCourse($this->session_user->userId, $courseNumber, $courseName, $units, $description,
                                $takingAs, "submitted");
                 $this->view->submitted = true;
 

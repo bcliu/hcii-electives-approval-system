@@ -1,0 +1,57 @@
+<div class="row" style='width: 90%; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
+    <div class="col-sm-6" style='height: 100%'>
+        View top <input id='count-input' class='form-control' style='width:60px; display:inline !important' value='<?= $this->count ?>' /> approved elective requests from <span class="dropdown">
+          <button class="btn btn-default dropdown-toggle" type="button" id="program-select" data-toggle="dropdown" aria-expanded="true">
+            <?= $this->program ?>
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="program-select" id='programs-list'>
+            <li role="presentation" id='bhci'><a role="menuitem" tabindex="-1" href="#">BHCI</a></li>
+            <li role="presentation" id='mhci'><a role="menuitem" tabindex="-1" href="#">MHCI</a></li>
+            <li role="presentation" id='ugminor'><a role="menuitem" tabindex="-1" href="#">Undergraduate Minor</a></li>
+            <li role="presentation" id='learning-media'><a role="menuitem" tabindex="-1" href="#">Learning Media Minor</a></li>
+            <li role="presentation" id='metals'><a role="menuitem" tabindex="-1" href="#">METALS</a></li>
+          </ul>
+        </span>
+        <button class="btn btn-primary dropdown-toggle pull-right" type="button" id="update-list" data-toggle="dropdown" aria-expanded="true">
+            Update List
+        </button>
+        <table class='table'>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Course name</th>
+                    <th>Course number</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php for ($i = 0; $i < count($this->mostSubmitted); $i++) { ?>
+                <tr>
+                    <td><?= ($i + 1) ?></td>
+                    <td><?= $this->mostSubmitted[$i]['course_number'] ?></td>
+                    <td><?= $this->mostSubmitted[$i]['course_name'] ?></td>
+                    <td><?= $this->mostSubmitted[$i]['freq'] ?></td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+
+var program = '<?= $this->programRaw ?>';
+
+$('#programs-list a').click(function () {
+    program = $(this).parent().attr('id');
+    $('#program-select').text($(this).text());
+});
+
+$('#update-list').click(function () {
+    var base = '<?= $this->baseUrl(); ?>';
+    var count = $('#count-input').val();
+    window.location.href = base + "/admin/stats/count/" + count + "/program/" + program;
+});
+
+</script>

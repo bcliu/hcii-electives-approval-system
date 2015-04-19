@@ -438,9 +438,45 @@ class AdminController extends Zend_Controller_Action {
             $andrewId = $this->getRequest()->getPost('andrew_id');
             $notes = $this->getRequest()->getPost('notes');
 
-            $dbCourses = new Application_Model_DbTable_Users();
-            $dbCourses->updateNotes($andrewId, $notes);
+            $db = new Application_Model_DbTable_Users();
+            $db->updateNotes($andrewId, $notes);
         }
+    }
+
+    public function statsAction() {
+        $db = new Application_Model_DbTable_Courses();
+
+        $count = $this->getRequest()->getParam('count');
+        $program = $this->getRequest()->getParam('program');
+        if ($count == null)
+            $count = 30;
+        if ($program == null)
+            $program = 'mhci';
+
+        $this->view->count = $count;
+        switch ($program) {
+            case 'bhci':
+                $this->view->program = 'BHCI';
+                break;
+            case 'mhci':
+                $this->view->program = 'MHCI';
+                break;
+            case 'ugminor':
+                $this->view->program = 'Undergraduate Minor';
+                break;
+            case 'metals':
+                $this->view->program = 'METALS';
+                break;
+            case 'learning-media':
+                $this->view->program = 'Learning Media Minor';
+                break;
+            default:
+                $this->view->program = $program;
+        }
+
+        $this->view->programRaw = $program;
+
+        $this->view->mostSubmitted = $db->getMostSubmittedElectives($program, $count)->toArray();
     }
 
     /**
@@ -497,7 +533,7 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
 
         if ($this->getRequest()->getMethod() == 'POST') {
-            $andrewId = $this->getRequest()->getPost('andrew_id');
+            $userId = $this->getRequest()->getPost('user_id');
             $courseNumber = $this->getRequest()->getPost('course_number');
             $courseName = $this->getRequest()->getPost('course_name');
             $units = $this->getRequest()->getPost('units');
@@ -509,7 +545,7 @@ class AdminController extends Zend_Controller_Action {
             $grade = $this->getRequest()->getPost('grade');
 
             $dbCourses = new Application_Model_DbTable_Courses();
-            $dbCourses->adminAddCourse($andrewId, $courseNumber, $courseName, $units, '',
+            $dbCourses->adminAddCourse($userId, $courseNumber, $courseName, $units, '',
                  $takingAs, $status, $semester, $year, $grade, $comment);
         }
     }
@@ -808,36 +844,36 @@ class AdminController extends Zend_Controller_Action {
     public function metalsViewAction() {
         $this->session_user->loginType = "student";
         $this->session_user->andrewId = "metalsstudent";
-        $this->_redirect("/");
+        $this->_redirect("/users/select-program");
     }
 
     public function mhciViewAction() {
         $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "mhcistudent";
-        $this->_redirect("/");
+        $this->session_user->andrewId = "student";
+        $this->_redirect("/users/select-program");
     }
 
     public function bhciViewAction() {
         $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "bhcistudent";
-        $this->_redirect("/");
+        $this->session_user->andrewId = "student";
+        $this->_redirect("/users/select-program");
     }
 
     public function ugminorViewAction() {
         $this->session_user->loginType = "student";
         $this->session_user->andrewId = "minorstudent";
-        $this->_redirect("/");
+        $this->_redirect("/users/select-program");
     }
 
     public function learningMediaViewAction() {
         $this->session_user->loginType = 'student';
         $this->session_user->andrewId = 'learningmediastudent';
-        $this->_redirect('/');
+        $this->_redirect("/users/select-program");
     }
 
     public function cuyahogaAction() {
         $this->session_user->loginType = 'student';
         $this->session_user->andrewId = $this->getRequest()->getParam('enter');
-        $this->_redirect('/');
+        $this->_redirect("/users/select-program");
     }
 }
