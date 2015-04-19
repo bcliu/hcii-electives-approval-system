@@ -505,24 +505,27 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
 
-        if ($this->getRequest()->getMethod() == 'POST') {
-            $action = $this->getRequest()->getPost('action');
+        $req = $this->getRequest();
+
+        if ($req->getMethod() == 'POST') {
+            $action = $req->getPost('action');
             $dbPrograms = new Application_Model_DbTable_Programs();
 
             if ($action == 'remove') {
                 /* Remove a semester */
-                $semester = $this->getRequest()->getPost('semester');
-                $year = $this->getRequest()->getPost('year');
+                $semester = $req->getPost('semester');
+                $year = $req->getPost('year');
+                $program = $req->getPost('program');
 
-                $dbPrograms->removeSemester($semester, $year);
+                $dbPrograms->removeSemester($semester, $year, $program);
             } else if ($action == 'duplicate') {
-                $program = $this->getRequest()->getPost('program');
-                $fromSemester = $this->getRequest()->getPost('fromSemester');
-                $fromYear = $this->getRequest()->getPost('fromYear');
-                $toSemester = $this->getRequest()->getPost('toSemester');
-                $toYear = $this->getRequest()->getPost('toYear');
+                $program = $req->getPost('program');
+                $fromSemester = $req->getPost('fromSemester');
+                $fromYear = $req->getPost('fromYear');
+                $toSemester = $req->getPost('toSemester');
+                $toYear = $req->getPost('toYear');
                 $toCopy = $dbPrograms->getReqsByProgramSemester($program, $fromSemester, $fromYear);
-                $dbPrograms->removeSemester($toSemester, $toYear);
+                $dbPrograms->removeSemester($toSemester, $toYear, $program);
                 $dbPrograms->updateReqsByProgramSemester($toYear, $toSemester, $program, $toCopy->toArray());
             }
         }

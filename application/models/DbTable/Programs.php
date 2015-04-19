@@ -50,8 +50,8 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
     	}
     }
 
-    public function removeSemester($semester, $year) {
-        $this->delete("semester = '$semester' AND year = '$year'");
+    public function removeSemester($semester, $year, $program) {
+        $this->delete("semester = '$semester' AND year = '$year' AND program = '$program'");
     }
 
     public function getReqsByType($year, $semester, $program, $type) {

@@ -129,6 +129,7 @@ $(function () {
     $('#btn-remove-semester').click(function () {
         var data = {
             action: 'remove',
+            program: $('#program-manager-page').attr('current-page'),
             semester: getCurrentSemester(),
             year: getCurrentYear()
         };
