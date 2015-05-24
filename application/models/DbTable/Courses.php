@@ -29,8 +29,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         $this->insert($data);
     }
 
-    public function deleteById($studentId) {
-        $dbUsers = new Application_Model_DbTable_Users();
+    public function deleteByStudentId($studentId) {
         $this->delete("student_id = '$studentId'");
     }
 

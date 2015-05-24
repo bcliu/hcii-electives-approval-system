@@ -63,12 +63,7 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
     }
 
     /**
-     * [getNumberOfElectivesByProgram description]
-     * @param  [type] $year     [description]
-     * @param  [type] $semester [description]
-     * @param  [type] $program  [description]
-     * @param  [type] $type     'elective' or 'free-elective' or 'application-elective'
-     * @return [type]           [description]
+     * @param  $type     'elective' or 'free-elective' or 'application-elective'
      */
     public function getNumberOfElectivesByProgram($year, $semester, $program, $type) {
         $number = $this->fetchRow("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND number IS NOT NULL");

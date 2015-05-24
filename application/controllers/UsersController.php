@@ -267,16 +267,14 @@ class UsersController extends Zend_Controller_Action
 
     private function createUser($andrewId, $name, $role, $status, $program, $isFullTime, $enrollDate,
                                 $graduationDate, $major, $notes, $receiveFrom) {
-        /* Use the last 10 digits of MD5 hash of current timestamp as password */ 
-        $password = substr(md5(time()), -10);
         $db = new Application_Model_DbTable_Users();
         /* Set updateFlag based on whether Andrew ID exists */
-        $updateFlag = $db->doesAndrewIdExist($andrewId) ? 1 : 0;
-        $db->newUser($andrewId, $name, md5($password), $role, $status,
+        $updateFlag = ($db->getUserByAndrewIdAndProgram($andrewId, $program) != null) ? 1 : 0;
+        $db->newUser($andrewId, $name, $role, $status,
                      $program, $isFullTime, $enrollDate, $graduationDate,
                      $major, $notes, $receiveFrom, $updateFlag);
         
-        if ($updateFlag == 0 && Zend_Registry::get('EmailEnabled')) {
+        if ($updateFlag == 0 && Zend_Registry::get('EmailEnabled') && getenv('APPLICATION_ENV') == 'development') {
             /* If new user, send a mail with temporary password */
             $mail = new Zend_Mail();
             $mail->setBodyHtml("<html><body><p>Dear $name,</p><p>Your HCII EASy account has just been created. Log in to http://easy.hcii.cs.cmu.edu/easy with your Andrew ID to manage your HCI courses, submit elective requests and track your graduation status.</p>&nbsp;<p></p><p>Best,</p><p>EASy Robot</p></body></html>");
@@ -327,17 +325,26 @@ class UsersController extends Zend_Controller_Action
      * Delete a user. Requires administrative privilege.
      */
     public function removeAction() {
-        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->layout()->disableLayout();
         $this->_helper->viewRenderer->setNoRender(true);
         
         $session_user = new Zend_Session_Namespace('user');
         if ($session_user->loginType == "administrator") {
             $andrewId = $this->getRequest()->getParam('andrewid');
-            $db = new Application_Model_DbTable_Users();
-            $db->deleteByAndrewId($andrewId);
+            $program = $this->getRequest()->getParam('program');
+
+            $dbUsers = new Application_Model_DbTable_Users();
+            $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+            $dbUsers->deleteById($studentId);
 
             $dbCourses = new Application_Model_DbTable_Courses();
-            $dbCourses->deleteByAndrewId($andrewId);
+            $dbCourses->deleteByStudentId($studentId);
+
+            $dbChats = new Application_Model_DbTable_Users();
+            $dbChats->deleteByStudentId($studentId);
+
+            $dbForcedValues = new Application_Model_DbTable_ForcedValues();
+            $dbForcedValues->deleteByStudentId($studentId);
         }
     }
     
@@ -374,7 +381,6 @@ class UsersController extends Zend_Controller_Action
             /* If is @andrew.cmu.edu credential, continue to check against database */
             else {
                 $andrewId = substr($credential, 0, strlen($credential) - 15);
-                $andrewId = "student";
                 error_log("Attempting to use $credential to login");
                 $usersCount = $db->getUsersCountByAndrewId($andrewId);
                 if ($usersCount > 1) {
@@ -411,7 +417,7 @@ class UsersController extends Zend_Controller_Action
         $db = new Application_Model_DbTable_Users();
         $usersCount = $db->getUsersCountByAndrewId($session_user->andrewId);
         if ($usersCount == 1) {
-            $session_user->userId = $db->getIdByAndrewId($session_user->andrewId);
+            $session_user->userId = $db->getUserByAndrewId($session_user->andrewId)->id;
             $this->_redirect("/");
             return;
         }
@@ -420,8 +426,8 @@ class UsersController extends Zend_Controller_Action
 
         $programSelected = $this->getRequest()->getParam("program");
         if ($programSelected != null) {
-            error_log($programSelected);
-            $user = $db->getUserByAndrewIdAndProgram($session_user->andrewId, $programSelected);
+            //error_log($programSelected);
+            $user = $db->getUserByAndrewIdAndProgram($session_user->andrewId, $programSelected)->id;
             if (!$user) {
                 $this->_redirect("/users/error");
                 return;
@@ -441,85 +447,16 @@ class UsersController extends Zend_Controller_Action
         $this->_redirect("/Shibboleth.sso/Logout", array("prependBase" => false));
     }
     
-    /**
-     * Create password for first-time users, or change password
-     */
-    public function changepwdAction() {
-        $this->view->title = 'EASy - Change Password';
-        $session_user = new Zend_Session_Namespace('user');
-        
-        if ($this->getRequest()->getMethod() == 'POST') {
-            $password = $this->getRequest()->getPost('password');
-            $repeat = $this->getRequest()->getPost('repeat');
-            
-            /* If passwords do not match, show error message */
-            if ($password != $repeat) {
-                $this->view->passwords_error = true;
-            }
-            /* If match, update password, set session user type and redirect to homepage */
-            else {
-                $db = new Application_Model_DbTable_Users();
-                $db->setPassword($session_user->andrewId, md5($password));
-                $user = $db->getUserByAndrewId($session_user->andrewId);
-                
-                $session_user->loginType = $user->role;
-                $this->_redirect("/");
-            }
-        }
-        
-        /* If GET request, set View variable and show page */
-        if (isset($session_user->andrewId)) {
-            $this->view->andrewId = $session_user->andrewId;
-        }
-        else {
-            $this->_redirect("/");
-        }
-    }
-    
     /* Print 0 if the user specified by Andrew ID does not exist, 1 otherwise */
     public function userAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
         $andrewId = $this->getRequest()->getParam('andrewid');
+        $program = $this->getRequest()->getParam('program');
         $db = new Application_Model_DbTable_Users();
         
-        if ($db->doesAndrewIdExist($andrewId)) {
-            echo '1';
-        }
-        else {
-            echo '0';
-        }
-    }
-    
-    /**
-     * Send a password reset email.
-     */
-    public function resetpwdAction() {
-        $this->view->title = 'EASy - Password Reset';
-        if ($this->getRequest()->getMethod() == 'POST') {
-            $andrew = $this->getRequest()->getPost('andrew-id');
-            $db = new Application_Model_DbTable_Users();
-            
-            if ($db->doesAndrewIdExist($andrew) && Zend_Registry::get('EmailEnabled')) {
-                /* Only proceed if user exists */
-                $password = substr(md5(time()), -10);
-                $db->resetPassword($andrew, md5($password));
-                $mail = new Zend_Mail();
-                $mail->setBodyHtml("<html><body><p>Dear $andrew,</p><p>Your temporary password for EASy is</p><div style='font-weight: 700; text-align: center; font-size: 17px'>$password</div><p>Please use this password to log in to http://easy.hcii.cs.cmu.edu/easy to create a new password. If you did not try to recover your password, please report this incident to us by replying to this email.</p>&nbsp;<p></p><p>Best,</p><p>EASy Robot</p></body></html>");
-                $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
-                $mail->addTo("$andrew@andrew.cmu.edu", $andrew);
-                $mail->setSubject('EASy account password reset');
-                $mail->send($this->transport);
-            }
-            else {
-                error_log("Andrew ID does not exist or email is disabled.");
-            }
-            
-            /* No matter exist or not, always redirect to avoid being exploited */
-            $this->_redirect("/");
-        }
-            
+        echo ($db->getUserByAndrewIdAndProgram($andrewId, $program) != null) ? '1' : '0';
     }
 
 }

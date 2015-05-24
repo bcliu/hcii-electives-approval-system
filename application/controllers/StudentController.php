@@ -14,14 +14,16 @@ class StudentController extends Zend_Controller_Action {
     public function init() {
         $this->session_user = new Zend_Session_Namespace('user');
         /* If this is not a student user, redirect to / */
-        if ($this->session_user->loginType != 'student' || !isset($this->session_user->andrewId)) {
+        if ($this->session_user->loginType != 'student' || !isset($this->session_user->andrewId) ||
+            !isset($this->session_user->userId)) {
             $this->_redirect("/users/logout");
         }
         
         $this->dbUsers = new Application_Model_DbTable_Users();
         $this->view->andrewId = $this->session_user->andrewId;
-        $this->view->name = $this->dbUsers->getNameById($this->session_user->userId);
-        $this->view->type = $this->dbUsers->getUserById($this->session_user->userId)->program;
+        $user = $this->dbUsers->getUserById($this->session_user->userId);
+        $this->view->name = $user->name;
+        $this->view->type = $user->program;
         $this->_helper->layout->setLayout('student-layout');
         
         $this->config = array(

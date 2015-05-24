@@ -13,8 +13,10 @@ class AdminController extends Zend_Controller_Action {
             $this->_redirect("/users/logout");
         }
         $db = new Application_Model_DbTable_Users();
+        assert($this->session_user->andrewId != null && $this->session_user->userId != null);
+
         $this->view->andrewId = $this->session_user->andrewId;
-        $this->view->name = $db->getNameByAndrewId($this->session_user->andrewId);
+        $this->view->name = $db->getUserById($this->session_user->userId)->name;
         $this->_helper->layout->setLayout('admin-layout');
 
         $this->config = array(
@@ -164,26 +166,22 @@ class AdminController extends Zend_Controller_Action {
 
         return $allUsers;
     }
-    
-    function getForcedValues($andrew_id) {
-        $dbForcedValues = new Application_Model_DbTable_ForcedValues();
-        $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getIdByAndrewId($andrew_id);
-
-        return $dbForcedValues->fetchAll("student_id = '$studentId'");
-    }
 
     function updateForcedValueAction() {
         $this->_helper->layout()->disableLayout();
         $this->_helper->viewRenderer->setNoRender(true);
 
         $andrewId = $this->getRequest()->getParam('andrew-id');
+        $program = $this->getRequest()->getParam('program');
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+
         $type = $this->getRequest()->getParam('type');
         $key = $this->getRequest()->getParam('key');
         $value = $this->getRequest()->getParam('value');
         $notes = $this->getRequest()->getParam('notes');
         $dbForcedValues = new Application_Model_DbTable_ForcedValues();
-        $dbForcedValues->updateValue($andrewId, $type, $key, $value, $notes);
+        $dbForcedValues->updateValue($studentId, $type, $key, $value, $notes);
     }
 
     function getStudentCoursesAction() {
@@ -191,7 +189,15 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
 
         $andrewId = $this->getRequest()->getParam('andrew-id');
-        $forcedValues = $this->getForcedValues($andrewId)->toArray();
+        $program = $this->getRequest()->getParam('program');
+        assert($program != null && $program != "");
+
+        $dbForcedValues = new Application_Model_DbTable_ForcedValues();
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+
+        $forcedValues = $dbForcedValues->getValuesOfUser($studentId)->toArray();
+
         $dbCourses = new Application_Model_DbTable_Courses();
         $courses = $dbCourses->getAllCoursesOfUser($andrewId, 'advisor');
         echo Zend_Json::encode(array('courses' => $courses, 'forced_values' => $forcedValues));
@@ -418,12 +424,13 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
 
         if ($this->getRequest()->getMethod() == 'POST') {
-            $id = $this->getRequest()->getPost('course_id');
-            $status = $this->getRequest()->getPost('status');
-            $comment = $this->getRequest()->getPost('comment');
-            $semester = $this->getRequest()->getPost('semester');
-            $year = $this->getRequest()->getPost('year');
-            $grade = $this->getRequest()->getPost('grade');
+            $req = $this->getRequest();
+            $id = $req->getPost('course_id');
+            $status = $req->getPost('status');
+            $comment = $req->getPost('comment');
+            $semester = $req->getPost('semester');
+            $year = $req->getPost('year');
+            $grade = $req->getPost('grade');
 
             $dbCourses = new Application_Model_DbTable_Courses();
             $dbCourses->updateCourse($id, $status, $comment, $semester, $year, $grade);
@@ -433,13 +440,17 @@ class AdminController extends Zend_Controller_Action {
     public function updateNotesAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
+        $req = $this->getRequest();
 
-        if ($this->getRequest()->getMethod() == 'POST') {
-            $andrewId = $this->getRequest()->getPost('andrew_id');
-            $notes = $this->getRequest()->getPost('notes');
+        if ($req->getMethod() == 'POST') {
+            $andrewId = $req->getPost('andrew_id');
+            $program = $req->getPost('program');
+            $notes = $req->getPost('notes');
 
             $db = new Application_Model_DbTable_Users();
-            $db->updateNotes($andrewId, $notes);
+            $studentId = $db->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+
+            $db->updateNotes($studentId, $notes);
         }
     }
 

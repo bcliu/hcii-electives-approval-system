@@ -92,4 +92,8 @@ class Application_Model_DbTable_Chats extends Zend_Db_Table_Abstract
         return $rows->toArray();
     }
 
+    public function deleteByStudentId($studentId) {
+        $this->delete("student_id = '$studentId'");
+    }
+
 }

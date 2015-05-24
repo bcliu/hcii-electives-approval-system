@@ -489,7 +489,7 @@ $(function () {
             return;
         }
         
-        $.get(baseUrl + "/users/user/andrewid/" + andrewId, function(result) {
+        $.get(baseUrl + "/users/user/andrewid/" + andrewId + "/program/" + currentProgram, function(result) {
             if (result == '0') {
                 /* If user does not exist, quietly submit form */
                 reloadList = true;
@@ -521,18 +521,17 @@ $(function () {
     $('#delete-user').click(function () {
         var andrewId = $('input[name="andrew-id"]').val();
         
-        $.get(baseUrl + "/users/user/andrewid/" + andrewId, function(result) {
+        $.get(baseUrl + "/users/user/andrewid/" + andrewId + "/program/" + currentProgram, function(result) {
             if (result == '0') {
                 alert("User '" + andrewId + "' has not been created yet");
             }
             else {
                 var del = confirm("Are you sure to remove " + andrewId + "?");
                 if (del == true) {
-                    $.get(baseUrl + "/users/remove/andrewid/" + andrewId, function () {
+                    $.get(baseUrl + "/users/remove/andrewid/" + andrewId + "/program/" + currentProgram, function () {
                         if (currentProgram != 'admin') {
                             loadStudents();
-                        }
-                        else {
+                        } else {
                             loadAdministrators();
                         }
                     });
@@ -725,6 +724,7 @@ $(function () {
             var newNotes = coursesNotes.val();
             var data = {
                 andrew_id: $('.user-selected #td-andrew-id').text(),
+                program: currentProgram,
                 notes: newNotes
             };
             $.post(baseUrl + "/admin/update-notes", data).done(function (ret) {
@@ -968,7 +968,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                 /* Fill in the table in Courses pane */
                 $('#courses-pane tbody').html('');
 
-                $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
+                $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId + "/program/" + currentProgram, function (result) {
                     var tmp = $.parseJSON(result);
                     var courses = tmp['courses'];
                     forcedValues = tmp['forced_values'];
@@ -1438,6 +1438,7 @@ function attachPrerequisiteHandler() {
     updateButton.click(function () {
             var data = {
                 'andrew-id': andrewId,
+                program: currentProgram,
                 type: 'prerequisite',
                 key: modal.find('#prerequisite-name').text(),
                 value: $('input[name="prerequisite-status"]:checked').val(),
@@ -1477,6 +1478,7 @@ function attachCoreClickHandler() {
     updateButton.click(function () {
             var data = {
                 'andrew-id': andrewId,
+                program: currentProgram,
                 type: 'core',
                 key: modal.find('#core-name').text(),
                 value: $('input[name="core-status"]:checked').val(),
@@ -1511,7 +1513,7 @@ function attachPlaceoutHandler() {
         notes.val('');
 
         /* Search in courses array to see if comment exists */
-        $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId, function (result) {
+        $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId + "/program/" + currentProgram, function (result) {
             var courses = $.parseJSON(result);
             courses['courses'].forEach(function (eC) {
                 if (eC['course_name'] == courseName) {
