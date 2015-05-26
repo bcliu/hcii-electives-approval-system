@@ -25,6 +25,8 @@ class StudentController extends Zend_Controller_Action {
         $this->view->name = $user->name;
         $this->view->type = $user->program;
         $this->_helper->layout->setLayout('student-layout');
+
+        $this->view->info = $this->dbUsers->getUserById($this->session_user->userId);
         
         $this->config = array(
             'auth' => 'login',
@@ -42,7 +44,6 @@ class StudentController extends Zend_Controller_Action {
 
         $this->view->title = 'EASy';
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-index.js');
-        $this->view->info = $this->dbUsers->getUserById($userId);
         
         $db = new Application_Model_DbTable_Courses();
 

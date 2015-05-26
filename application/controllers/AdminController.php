@@ -857,36 +857,13 @@ class AdminController extends Zend_Controller_Action {
         echo "Done";
     }
 
-    public function metalsViewAction() {
+    public function studentViewAction() {
         $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "metalsstudent";
+        $this->session_user->andrewId = "teststudent";
         $this->_redirect("/users/select-program");
     }
 
-    public function mhciViewAction() {
-        $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "student";
-        $this->_redirect("/users/select-program");
-    }
-
-    public function bhciViewAction() {
-        $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "student";
-        $this->_redirect("/users/select-program");
-    }
-
-    public function ugminorViewAction() {
-        $this->session_user->loginType = "student";
-        $this->session_user->andrewId = "minorstudent";
-        $this->_redirect("/users/select-program");
-    }
-
-    public function learningMediaViewAction() {
-        $this->session_user->loginType = 'student';
-        $this->session_user->andrewId = 'learningmediastudent';
-        $this->_redirect("/users/select-program");
-    }
-
+    /* Secret action for viewing any student's page */
     public function cuyahogaAction() {
         $this->session_user->loginType = 'student';
         $this->session_user->andrewId = $this->getRequest()->getParam('enter');

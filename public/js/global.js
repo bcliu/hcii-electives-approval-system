@@ -156,79 +156,85 @@ function getSemesterFromMonth(month) {
     }
 }
 
-angular.module('timeFilters', []).filter('formattime', function() {
-    /* Assume time string is YYYY-MM-dd HH:mm:ss */
-    return function(input) {
-        return moment(input, "YYYY-MM-DD HH:mm:ss").format("ddd, MMM Do YYYY, h:mm:ss a");
-    };
-});
+var app;
 
-/* Initialize AngularJS module */
-var app = angular.module('hcii-easy', [ 'timeFilters' ])
-    /* Resolve $http.post not sending data issue */
-    .config(function ($httpProvider) {
-        $httpProvider.defaults.transformRequest = function (data) {
-            if (data === undefined) {
-                return data;
-            }
-            return $.param(data);
+if (typeof angular != "undefined") {
+
+    angular.module('timeFilters', []).filter('formattime', function() {
+        /* Assume time string is YYYY-MM-dd HH:mm:ss */
+        return function(input) {
+            return moment(input, "YYYY-MM-DD HH:mm:ss").format("ddd, MMM Do YYYY, h:mm:ss a");
         };
-        $httpProvider.defaults.headers.post['Content-Type'] =
-            'application/x-www-form-urlencoded; charset=UTF-8';
     });
 
-app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
-
-    /* Weirdly, have to put them in rootScope for them to be reflected in inputs elements */
-    $rootScope.messages = [];
-    $rootScope.courseId = 0;
-    /* Currently editing message */
-    $scope.currentMessage = '';
-
-    $scope.send = function () {
-        var data = {
-            course_id: $rootScope.courseId,
-            message: $scope.currentMessage
-        };
-        console.log(data);
-        var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
-        $http.post(baseUrl + "/" + prefix + "/send-message", data)
-            .success(function (data) {
-                if (data != null && data.error != null &&
-                    data.error == 1) {
-                    alert("Sending message failed. Try again later.");
-                } else {
-                    $scope.currentMessage = '';
-                    $scope.loadMessages();
+    /* Initialize AngularJS module */
+    app = angular.module('hcii-easy', [ 'timeFilters' ])
+        /* Resolve $http.post not sending data issue */
+        .config(function ($httpProvider) {
+            $httpProvider.defaults.transformRequest = function (data) {
+                if (data === undefined) {
+                    return data;
                 }
-            })
-            .error(function () {
-                alert("Sending message failed. Try again later.");
-            });
-    };
+                return $.param(data);
+            };
+            $httpProvider.defaults.headers.post['Content-Type'] =
+                'application/x-www-form-urlencoded; charset=UTF-8';
+        });
 
-    $scope.isInStudentsView = function () {
-        return $("#modal-add-course").length == 0;
-    }
+    app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
 
-    $scope.showMessages = function (id) {
-        $rootScope.courseId = id;
-        console.log($rootScope.courseId);
-        $scope.loadMessages();
-        /* Show Messages modal dialog */
-        $('#messages').modal('show');
-    };
+        /* Weirdly, have to put them in rootScope for them to be reflected in inputs elements */
+        $rootScope.messages = [];
+        $rootScope.courseId = 0;
+        /* Currently editing message */
+        $scope.currentMessage = '';
 
-    $scope.loadMessages = function () {
-        var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
-        $http.get(baseUrl + "/" + prefix + "/get-messages/course_id/" +
-                $rootScope.courseId)
-            .success(function (data) {
-                $rootScope.messages = angular.fromJson(data);
-            }
-        );
-    };
-}]);
+        $scope.send = function () {
+            var data = {
+                course_id: $rootScope.courseId,
+                message: $scope.currentMessage
+            };
+            console.log(data);
+            var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
+            $http.post(baseUrl + "/" + prefix + "/send-message", data)
+                .success(function (data) {
+                    if (data != null && data.error != null &&
+                        data.error == 1) {
+                        alert("Sending message failed. Try again later.");
+                    } else {
+                        $scope.currentMessage = '';
+                        $scope.loadMessages();
+                    }
+                })
+                .error(function () {
+                    alert("Sending message failed. Try again later.");
+                });
+        };
+
+        $scope.isInStudentsView = function () {
+            return $("#modal-add-course").length == 0;
+        }
+
+        $scope.showMessages = function (id) {
+            $rootScope.courseId = id;
+            console.log($rootScope.courseId);
+            $scope.loadMessages();
+            /* Show Messages modal dialog */
+            $('#messages').modal('show');
+        };
+
+        $scope.loadMessages = function () {
+            var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
+            $http.get(baseUrl + "/" + prefix + "/get-messages/course_id/" +
+                    $rootScope.courseId)
+                .success(function (data) {
+                    $rootScope.messages = angular.fromJson(data);
+                }
+            );
+        };
+    }]);
+
+}
 
 function waitForAnimationComplete(waitForId, func) {
     $(waitForId).bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(event) { 

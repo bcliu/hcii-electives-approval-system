@@ -46,7 +46,7 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         );
 
         if ($updateFlag == 1) {
-            $this->update($data, "andrew_id = '$andrewId'");
+            $this->update($data, "andrew_id = '$andrewId' and program = '$program'");
         }
         else {
             $data['is_activated'] = 1;
