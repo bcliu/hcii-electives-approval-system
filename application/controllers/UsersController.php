@@ -427,8 +427,9 @@ class UsersController extends Zend_Controller_Action
         $programSelected = $this->getRequest()->getParam("program");
         if ($programSelected != null) {
             //error_log($programSelected);
-            $user = $db->getId($session_user->andrewId, $programSelected);
+            $user = $db->getUserByAndrewIdAndProgram($session_user->andrewId, $programSelected);
             if (!$user) {
+                error_log("Error in select program action. Redirecting");
                 $this->_redirect("/users/error");
                 return;
             }

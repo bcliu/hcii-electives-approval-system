@@ -11,7 +11,7 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
     }
 
     public function getValuesOfUser($studentId) {
-        return $this->fetchAll("student_id = '$student_id'");
+        return $this->fetchAll("student_id = '$studentId'");
     }
 
     public function updateValue($studentId, $type, $key, $value, $notes) {
@@ -27,7 +27,7 @@ class Application_Model_DbTable_ForcedValues extends Zend_Db_Table_Abstract
             "`student_id` = ?" => $studentId,
             "`type` = ?" => $type,
             "`key` = ?" => $key
-        )
+        );
 
         $this->update($data, $where);
     }
