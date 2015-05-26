@@ -334,7 +334,7 @@ class UsersController extends Zend_Controller_Action
             $program = $this->getRequest()->getParam('program');
 
             $dbUsers = new Application_Model_DbTable_Users();
-            $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+            $studentId = $dbUsers->getId($andrewId, $program);
             $dbUsers->deleteById($studentId);
 
             $dbCourses = new Application_Model_DbTable_Courses();
@@ -427,7 +427,7 @@ class UsersController extends Zend_Controller_Action
         $programSelected = $this->getRequest()->getParam("program");
         if ($programSelected != null) {
             //error_log($programSelected);
-            $user = $db->getUserByAndrewIdAndProgram($session_user->andrewId, $programSelected)->id;
+            $user = $db->getId($session_user->andrewId, $programSelected);
             if (!$user) {
                 $this->_redirect("/users/error");
                 return;

@@ -45,7 +45,6 @@ class StudentController extends Zend_Controller_Action {
         $this->view->info = $this->dbUsers->getUserById($userId);
         
         $db = new Application_Model_DbTable_Courses();
-        $andrewId = $this->session_user->andrewId;
 
         $forcedValues = new Application_Model_DbTable_ForcedValues();
         $programs = new Application_Model_DbTable_Programs();

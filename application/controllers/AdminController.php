@@ -49,9 +49,9 @@ class AdminController extends Zend_Controller_Action {
         $usersArr = $userRows->toArray();
 
         for ($i = 0; $i < count($usersArr); $i++) {
-            $andrewId = $usersArr[$i]['andrew_id'];
-            $awaitingApproval = $dbCourses->getCoursesByStatus($andrewId, "submitted")->toArray();
-            $dbUsers->updateAwaitings($andrewId, count($awaitingApproval));
+            $student_id = $usersArr[$i]['id'];
+            $awaitingApproval = $dbCourses->getCoursesByStatus($student_id, "submitted")->toArray();
+            $dbUsers->updateAwaitings($student_id, count($awaitingApproval));
         }
     }
 
@@ -174,7 +174,7 @@ class AdminController extends Zend_Controller_Action {
         $andrewId = $this->getRequest()->getParam('andrew-id');
         $program = $this->getRequest()->getParam('program');
         $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+        $studentId = $dbUsers->getId($andrewId, $program);
 
         $type = $this->getRequest()->getParam('type');
         $key = $this->getRequest()->getParam('key');
@@ -190,16 +190,14 @@ class AdminController extends Zend_Controller_Action {
 
         $andrewId = $this->getRequest()->getParam('andrew-id');
         $program = $this->getRequest()->getParam('program');
-        assert($program != null && $program != "");
+        $dbUsers = new Application_Model_DbTable_Users();
+        $studentId = $dbUsers->getId($andrewId, $program);
 
         $dbForcedValues = new Application_Model_DbTable_ForcedValues();
-        $dbUsers = new Application_Model_DbTable_Users();
-        $studentId = $dbUsers->getUserByAndrewIdAndProgram($andrewId, $program)->id;
-
         $forcedValues = $dbForcedValues->getValuesOfUser($studentId)->toArray();
 
         $dbCourses = new Application_Model_DbTable_Courses();
-        $courses = $dbCourses->getAllCoursesOfUser($andrewId, 'advisor');
+        $courses = $dbCourses->getAllCoursesOfUser($studentId, 'advisor');
         echo Zend_Json::encode(array('courses' => $courses, 'forced_values' => $forcedValues));
     }
 
@@ -420,7 +418,7 @@ class AdminController extends Zend_Controller_Action {
     }
 
     public function updateStatusAction() {
-        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->layout()->disableLayout();
         $this->_helper->viewRenderer->setNoRender(true);
 
         if ($this->getRequest()->getMethod() == 'POST') {
@@ -448,7 +446,7 @@ class AdminController extends Zend_Controller_Action {
             $notes = $req->getPost('notes');
 
             $db = new Application_Model_DbTable_Users();
-            $studentId = $db->getUserByAndrewIdAndProgram($andrewId, $program)->id;
+            $studentId = $db->getId($andrewId, $program);
 
             $db->updateNotes($studentId, $notes);
         }
@@ -545,18 +543,23 @@ class AdminController extends Zend_Controller_Action {
     public function addCourseAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
+        $req = $this->getRequest();
 
         if ($this->getRequest()->getMethod() == 'POST') {
-            $userId = $this->getRequest()->getPost('user_id');
-            $courseNumber = $this->getRequest()->getPost('course_number');
-            $courseName = $this->getRequest()->getPost('course_name');
-            $units = $this->getRequest()->getPost('units');
-            $takingAs = $this->getRequest()->getPost('taking_as');
-            $status = $this->getRequest()->getPost('status');
-            $comment = $this->getRequest()->getPost('comment');
-            $semester = $this->getRequest()->getPost('semester');
-            $year = $this->getRequest()->getPost('year');
-            $grade = $this->getRequest()->getPost('grade');
+            $andrewId = $req->getPost('andrew_id');
+            $program = $req->getPost('program');
+            $dbUsers = new Application_Model_DbTable_Users();
+            $userId = $dbUsers->getId($andrewId, $program);
+            
+            $courseNumber = $req->getPost('course_number');
+            $courseName = $req->getPost('course_name');
+            $units = $req->getPost('units');
+            $takingAs = $req->getPost('taking_as');
+            $status = $req->getPost('status');
+            $comment = $req->getPost('comment');
+            $semester = $req->getPost('semester');
+            $year = $req->getPost('year');
+            $grade = $req->getPost('grade');
 
             $dbCourses = new Application_Model_DbTable_Courses();
             $dbCourses->adminAddCourse($userId, $courseNumber, $courseName, $units, '',
@@ -606,8 +609,7 @@ class AdminController extends Zend_Controller_Action {
 
             if ($row['GradDate'] == null || strpos($row['GradDate'], '/') == -1) {
                 $graduationDate = "";
-            }
-            else {
+            } else {
                 $firstSlash = strpos($row['GradDate'], '/');
                 $month = substr($row['GradDate'], 0, $firstSlash);
                 $year = substr($row['GradDate'], strpos($row['GradDate'], '/', $firstSlash + 1) + 1, 4);

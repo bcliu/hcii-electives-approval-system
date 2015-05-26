@@ -34,7 +34,7 @@ class ErrorController extends Zend_Controller_Action
         }
         
         $this->view->request = $errors->request;
-	error_log($errors->exception->getMessage() . "\n" . $errors->exception->getTraceAsString());
+        error_log($errors->exception->getMessage() . "\n" . $errors->exception->getTraceAsString());
 
         /* Send error report to the awesome programmer! */
         if (Zend_Registry::get('EmailEnabled')) {

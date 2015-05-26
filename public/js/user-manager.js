@@ -785,9 +785,11 @@ function attachAddCourseHandler() {
     var takingAs = modal.find('#modal-add-course-type button');
     var status = modal.find('#modal-add-course-status button');
     var comment = modal.find('#modal-add-course-comment textarea');
+
     modal.find('#btn-add-course').click(function () {
         var data = {
             andrew_id: $('.user-selected #td-andrew-id').text(),
+            program: currentProgram,
             course_number: courseNumber.val(),
             course_name: courseName.val(),
             units: units.val(),
@@ -1538,6 +1540,7 @@ function attachPlaceoutHandler() {
     updateButton.click(function () {
         var data = {
             andrew_id: andrewId,
+            program: currentProgram,
             course_name: $('#modal-place-out-name').text(),
             status: $('#modal-place-out-status button').text() == 'Satisfied' ? 'satisfied' : 'not-satisfied',
             comment: $('#modal-place-out-comment textarea').val(),

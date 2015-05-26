@@ -61,11 +61,15 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
 
     public function getUserByAndrewIdAndProgram($andrewId, $program) {
         assert($program != null && $program != "");
-        
+
         return $this->fetchRow($this->select()
             ->where('andrew_id = ?', $andrewId)
             ->where('program = ?', $program)
         );
+    }
+
+    public function getId($andrew_id, $program) {
+        return $this->getUserByAndrewIdAndProgram($andrew_id, $program)->id;
     }
 
     public function getUserByAndrewId($andrewId) {
@@ -103,11 +107,11 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         $this->update($data, "id = '$studentId'");
     }
 
-    public function updateAwaitings($andrew_id, $number_awaiting) {
+    public function updateAwaitings($studentId, $number_awaiting) {
         $data = array(
             'number_awaiting_approval' => $number_awaiting
         );
-        $this->update($data, "andrew_id = '$andrew_id'");
+        $this->update($data, "id = '$studentId'");
     }
 
 }
