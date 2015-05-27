@@ -136,8 +136,9 @@ function computeCoresTakenTaking() {
                 numbers.indexOf(takingE['number']) >= 0) {
                 validTakingList[takingI]['used'] = true;
                 /* If one course is taking, whole expression is "Taking" */
-                if (numbers.search(takingE) != -1)
+                if (numbers.search(takingE['number']) != -1) {
                     cores[i]['taking'] = true;
+                }
             }
         });
 
