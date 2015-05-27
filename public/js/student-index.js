@@ -310,7 +310,7 @@ $(function () {
 
         reqsPopOver('#placeouts-taken-bar', placeOutsTaken + ' place-out ' +
             getPlural(placeOutsTaken, 'course') + ' taken');
-    } else if (prerequisitesTotal > 0) {
+    } else {
         computePrerequisitesTakenTaking();
         prerequisitesTotal = parseInt($('#prerequisites-total').text());
         prerequisitesLeft = prerequisitesTotal - prerequisitesTaken - prerequisitesTaking;
