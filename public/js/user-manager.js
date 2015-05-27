@@ -254,7 +254,9 @@ function adjustTableStyle() {
 }
 
 function attachUserClickHandler() {
-    $('#users-table tbody tr').click(function () {
+    var usersTableRows = $('#users-table tbody tr');
+    usersTableRows.unbind('click');
+    usersTableRows.click(function () {
         /* When clicking on some user, update the inputs with data */
         $('tr.user-selected').removeClass('user-selected');
         $(this).addClass('user-selected');
@@ -1437,6 +1439,10 @@ function attachPrerequisiteHandler() {
     });
 
     var updateButton = $('#prerequisite-update-status');
+    /* Unbind the click handler; otherwise the handler will be called multiple times whenever
+     * fillInfoCoursesWithAndrewId is called
+     */
+    updateButton.unbind('click');
     updateButton.click(function () {
             var data = {
                 'andrew-id': andrewId,
@@ -1477,6 +1483,7 @@ function attachCoreClickHandler() {
     });
 
     var updateButton = $('#core-update-status');
+    updateButton.unbind('click');
     updateButton.click(function () {
             var data = {
                 'andrew-id': andrewId,
@@ -1574,7 +1581,9 @@ function attachPlaceoutHandler() {
 
 function addCourseSelectedHandler() {
     /* Exclude clicking on the last td, which is reserved for Messages */
-    $('#table-courses tbody tr td:not(:last-child)').click(function () {
+    var lastTd = $('#table-courses tbody tr td:not(:last-child)');
+    lastTd.unbind('click');
+    lastTd.click(function () {
         var thisRow = $(this).parent();
         var dialogCourseData = thisRow.data('course-data');
         var detailsGradeButton = $('#dialog-grade button');
