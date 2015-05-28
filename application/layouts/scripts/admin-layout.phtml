@@ -42,6 +42,7 @@ Hope you like it!
         <ul class="nav navbar-nav">
           <li class="<?= ($currentAction == 'user-manager' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/admin/user-manager">User Manager</a></li>
           <li class="<?= ($currentAction == 'program-manager' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/admin/program-manager">Program Manager</a></li>
+          <li class="<?= ($currentAction == 'stats' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/admin/stats">Statistics</a></li>
         </ul>
     
         <ul class="nav navbar-nav navbar-right">
@@ -55,7 +56,6 @@ Hope you like it!
                   } ?>
                   <b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li><a href="<?= $this->baseUrl(); ?>/admin/stats">Statistics</a></li>
                 <li><a href="<?= $this->baseUrl(); ?>/admin/student-view">Switch to student view</a></li>
                 <li><a href="<?= $this->baseUrl(); ?>/users/logout">Log out</a></li>
               </ul>
