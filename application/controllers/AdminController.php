@@ -9,7 +9,8 @@ class AdminController extends Zend_Controller_Action {
     public function init() {
         $this->session_user = new Zend_Session_Namespace('user');
         /* If this is not an admin user, redirect to / */
-        if ($this->session_user->loginType != 'administrator' || !isset($this->session_user->andrewId)) {
+        if ($this->session_user->loginType != 'administrator' || !isset($this->session_user->andrewId) ||
+            !isset($this->session_user->userId)) {
             $this->_redirect("/users/logout");
         }
         $db = new Application_Model_DbTable_Users();
@@ -450,6 +451,10 @@ class AdminController extends Zend_Controller_Action {
 
             $db->updateNotes($studentId, $notes);
         }
+    }
+
+    public function preapprovedElectivesAction() {
+        $this->view->title = 'EASy - Preapproved Electives';
     }
 
     public function statsAction() {
