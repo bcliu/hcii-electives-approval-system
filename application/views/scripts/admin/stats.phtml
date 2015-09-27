@@ -23,6 +23,7 @@
                     <th>Course name</th>
                     <th>Course number</th>
                     <th>Count</th>
+                    <th>Add to Preapproved List</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +33,7 @@
                     <td><?= $this->mostSubmitted[$i]['course_number'] ?></td>
                     <td><?= $this->mostSubmitted[$i]['course_name'] ?></td>
                     <td><?= $this->mostSubmitted[$i]['freq'] ?></td>
+                    <td><img class='glyphicon glyphicon-plus-sign' /></td>
                 </tr>
             <?php } ?>
             </tbody>

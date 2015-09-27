@@ -440,30 +440,33 @@ $(function () {
             $(this).datepicker('show');
         });
     }
+    
+    var enrollDateSelector = $('#enroll-date');
+    var graduationDateSelector = $('#graduation-date');
 
     if (isManagingStudents) {
         
         /* Set enroll date datepicker */
-        $('#enroll-date').datepicker({
+        enrollDateSelector.datepicker({
             format: "mm/yyyy",
             viewMode: "months", 
             minViewMode: "months"
         }).on('changeDate', function (){
-            $('#enroll-date').datepicker('hide');
+            enrollDateSelector.datepicker('hide');
         });
-        $('#enroll-date').click(function () {
+        enrollDateSelector.click(function () {
             $(this).datepicker('show');
         });
         
         /* Set graduation date datepicker */
-        $('#graduation-date').datepicker({
+        graduationDateSelector.datepicker({
             format: "mm/yyyy",
             viewMode: "months", 
             minViewMode: "months"
         }).on('changeDate', function () {
-            $('#graduation-date').datepicker('hide');
+            graduationDateSelector.datepicker('hide');
         });
-        $('#graduation-date').click(function () {
+        graduationDateSelector.click(function () {
             $(this).datepicker('show');
         });
     }
@@ -491,13 +494,22 @@ $(function () {
             return;
         }
         
+        if (enrollDateSelector.val().length == 0) {
+            alert('Date entered program cannot be empty');
+            return;
+        }
+        
+        if (graduationDateSelector.val().length == 0) {
+            alert('Expected graduation date cannot be empty');
+            return;
+        }
+        
         $.get(baseUrl + "/users/user/andrewid/" + andrewId + "/program/" + currentProgram, function(result) {
             if (result == '0') {
                 /* If user does not exist, quietly submit form */
                 reloadList = true;
                 $('#user-info-form').submit();
-            }
-            else {
+            } else {
                 /* Otherwise, ask if user wants to continue */
                 var override = confirm('User "' + andrewId + '" already exists. Update the current user?');
                 if (override == true) {
