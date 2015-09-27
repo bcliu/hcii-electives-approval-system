@@ -334,13 +334,16 @@ class UsersController extends Zend_Controller_Action
             $program = $this->getRequest()->getParam('program');
 
             $dbUsers = new Application_Model_DbTable_Users();
-            $studentId = $dbUsers->getId($andrewId, $program);
+            if ($program == 'admin')
+                $studentId = $dbUsers->getId($andrewId, null);
+            else
+                $studentId = $dbUsers->getId($andrewId, $program);
             $dbUsers->deleteById($studentId);
 
             $dbCourses = new Application_Model_DbTable_Courses();
             $dbCourses->deleteByStudentId($studentId);
 
-            $dbChats = new Application_Model_DbTable_Users();
+            $dbChats = new Application_Model_DbTable_Chats();
             $dbChats->deleteByStudentId($studentId);
 
             $dbForcedValues = new Application_Model_DbTable_ForcedValues();
@@ -457,7 +460,14 @@ class UsersController extends Zend_Controller_Action
         $program = $this->getRequest()->getParam('program');
         $db = new Application_Model_DbTable_Users();
         
-        echo ($db->getUserByAndrewIdAndProgram($andrewId, $program) != null) ? '1' : '0';
+        /* When querying the database, program == null means it's an admin account */
+        if ($program == 'admin') {
+            $queryResult = $db->getUserByAndrewIdAndProgram($andrewId, null);
+        } else {
+            $queryResult = $db->getUserByAndrewIdAndProgram($andrewId, $program);
+        }
+        
+        echo ($queryResult != null) ? '1' : '0';
     }
 
 }
