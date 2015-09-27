@@ -494,14 +494,17 @@ $(function () {
             return;
         }
         
-        if (enrollDateSelector.val().length == 0) {
-            alert('Date entered program cannot be empty');
-            return;
-        }
-        
-        if (graduationDateSelector.val().length == 0) {
-            alert('Expected graduation date cannot be empty');
-            return;
+        /* Don't check dates if on Admin management page */
+        if (isManagingStudents) {
+            if (enrollDateSelector.val().length == 0) {
+                alert('Date entered program cannot be empty');
+                return;
+            }
+            
+            if (graduationDateSelector.val().length == 0) {
+                alert('Expected graduation date cannot be empty');
+                return;
+            }
         }
         
         $.get(baseUrl + "/users/user/andrewid/" + andrewId + "/program/" + currentProgram, function(result) {

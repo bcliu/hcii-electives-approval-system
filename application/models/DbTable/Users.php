@@ -47,8 +47,7 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
 
         if ($updateFlag == 1) {
             $this->update($data, "andrew_id = '$andrewId' and program = '$program'");
-        }
-        else {
+        } else {
             $data['is_activated'] = 1;
             $this->insert($data);
         }
@@ -60,8 +59,13 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
     }
 
     public function getUserByAndrewIdAndProgram($andrewId, $program) {
-        assert($program != null && $program != "");
-
+        /* If program == null, request an administrator account (since it doesn't belong to any program) */
+        if ($program == null) {
+            return $this->fetchRow($this->select()
+                ->where('andrew_id = ?', $andrewId)
+                ->where('program is null')
+            );
+        }
         return $this->fetchRow($this->select()
             ->where('andrew_id = ?', $andrewId)
             ->where('program = ?', $program)
