@@ -3,3 +3,4 @@ tmp/
 *~
 application/configs
 application/Bootstrap.php
+typings/

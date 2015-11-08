@@ -34,12 +34,28 @@ function getForcedValue(reqName, type) {
 
 function loadCoursesList() {
     /* Load all courses of this student */
-    if (courses == null)
-        courses = jQuery.parseJSON($('#courses-list').text());
+    if (courses == null) {
+        /* NOTE: Bad practice to parseJSON from some HTML element. Lots of trouble escaping html characters.
+         * Should always prefer AJAX
+         */
+        //courses = jQuery.parseJSON($('#courses-list').text());
+        
+        $.ajax({
+            url: baseUrl + "/student/get-courses-list",
+            success: function (result) {
+                courses = $.parseJSON(result);
+            },
+            async: false
+        });
+    }
 
-    var forcedText = $('#forced-values').text().trim();
-    if (forcedText.length != 0)
-        forcedValues = jQuery.parseJSON(forcedText);
+    $.ajax({
+        url: baseUrl + "/student/get-forced-values",
+        success: function (result) {
+            forcedValues = $.parseJSON(result);
+        },
+        async: false
+    });
 }
 
 function processCourseNumbers(numbers) {

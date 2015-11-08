@@ -38,6 +38,26 @@ class StudentController extends Zend_Controller_Action {
 
         $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
     }
+    
+    public function getCoursesListAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $userId = $this->session_user->userId;
+        $db = new Application_Model_DbTable_Courses();
+        
+        echo Zend_Json::encode($db->getAllCoursesOfUser($userId, "student"));
+    }
+    
+    public function getForcedValuesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $userId = $this->session_user->userId;
+        $forcedValues = new Application_Model_DbTable_ForcedValues();
+        
+        echo Zend_Json::encode($forcedValues->getValuesOfUser($userId));
+    }
 
     public function indexAction() {
         $userId = $this->session_user->userId;
@@ -47,7 +67,6 @@ class StudentController extends Zend_Controller_Action {
         
         $db = new Application_Model_DbTable_Courses();
 
-        $forcedValues = new Application_Model_DbTable_ForcedValues();
         $programs = new Application_Model_DbTable_Programs();
         $program = $this->view->type;
         $enrollDate = $this->dbUsers->getUserById($userId)->enroll_date;
@@ -72,11 +91,8 @@ class StudentController extends Zend_Controller_Action {
         $this->view->coresTaken = $db->getNumberSatisfiedByType($userId, "core", $coreMinGrade);
         $this->view->coresTaking = $db->getNumberTakingByType($userId, "core");
 
-        $this->view->coursesList = Zend_Json::encode($db->getAllCoursesOfUser($userId, "student"));
         $this->view->coresReqs = Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
         $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
-
-        $this->view->forcedValues = Zend_Json::encode($forcedValues->getValuesOfUser($userId));
 
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
         if ($this->view->bhciOrMinor) {
