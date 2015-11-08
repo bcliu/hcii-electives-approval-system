@@ -81,7 +81,15 @@ function computeCoresTakenTaking() {
     loadCoursesList();
     var cores = [];
     /* Core requirements */
-    var coreReqs = jQuery.parseJSON($('#cores-reqs').text());
+    var coreReqs = null;
+    $.ajax({
+        url: baseUrl + "/student/get-core-requirements",
+        success: function (result) {
+            coreReqs = $.parseJSON(result);
+        },
+        async: false
+    });
+    
     var coreGradeReq = $('#cores-grade-req').text();
     if (coreGradeReq.length == 0)
         coreGradeReq = 'd';

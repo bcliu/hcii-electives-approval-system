@@ -28,6 +28,20 @@ class StudentController extends Zend_Controller_Action {
 
         $this->view->info = $this->dbUsers->getUserById($this->session_user->userId);
         
+        $this->view->enrollDate = $this->view->info->enroll_date;
+        $this->view->enrollMonth = substr($this->view->enrollDate, 0, 2);
+        $this->view->enrollYear = substr($this->view->enrollDate, 3, 4);
+        
+        if (1 <= $this->view->enrollMonth && $this->view->enrollMonth <= 4) {
+            $this->view->enrollSemester = "Spring";
+        }
+        else if (5 <= $this->view->enrollMonth && $this->view->enrollMonth <= 7) {
+            $this->view->enrollSemester = "Summer";
+        }
+        else if (8 <= $this->view->enrollMonth && $this->view->enrollMonth <= 12) {
+            $this->view->enrollSemester = "Fall";
+        }
+        
         $this->config = array(
             'auth' => 'login',
             'username' => 'cmu.hcii.easy@gmail.com',
@@ -58,6 +72,18 @@ class StudentController extends Zend_Controller_Action {
         
         echo Zend_Json::encode($forcedValues->getValuesOfUser($userId));
     }
+    
+    public function getCoreRequirementsAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $programs = new Application_Model_DbTable_Programs();
+        
+        $enrollYear = $this->view->enrollYear;
+        $program = $this->view->type;
+        $enrollSemester = $this->view->enrollSemester;
+        echo Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
+    }
 
     public function indexAction() {
         $userId = $this->session_user->userId;
@@ -69,29 +95,16 @@ class StudentController extends Zend_Controller_Action {
 
         $programs = new Application_Model_DbTable_Programs();
         $program = $this->view->type;
-        $enrollDate = $this->dbUsers->getUserById($userId)->enroll_date;
-        $enrollMonth = substr($enrollDate, 0, 2);
-        $enrollYear = substr($enrollDate, 3, 4);
-        $enrollSemester;
-
+        
         $this->view->bhciOrMinor = ($program == 'bhci' || $program == 'ugminor');
-
-        if (1 <= $enrollMonth && $enrollMonth <= 4) {
-            $enrollSemester = "Spring";
-        }
-        else if (5 <= $enrollMonth && $enrollMonth <= 7) {
-            $enrollSemester = "Summer";
-        }
-        else if (8 <= $enrollMonth && $enrollMonth <= 12) {
-            $enrollSemester = "Fall";
-        }
+        $enrollYear = $this->view->enrollYear;
+        $enrollSemester = $this->view->enrollSemester;
 
         $this->view->coresTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'core');
         $coreMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
         $this->view->coresTaken = $db->getNumberSatisfiedByType($userId, "core", $coreMinGrade);
         $this->view->coresTaking = $db->getNumberTakingByType($userId, "core");
 
-        $this->view->coresReqs = Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
         $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
 
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
