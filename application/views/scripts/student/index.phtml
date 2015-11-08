@@ -110,9 +110,7 @@
             Place-out total: <label id='placeouts-total'><?= $this->placeOutsTotal ?></label>
             Taken: <label id='placeouts-taken'><?= $this->placeOutsTaken ?></label>
             <?php } ?>
-
-            <!-- Load all courses here since hard to compute on server side -->
-            <!-- Load all but place-out and electives, since they don't require conflict-resolving -->
+            
             Core grade requirement: <label id='cores-grade-req'><?= $this->coresGradeReq ?></label>
 
             <?php if ($this->bhciOrMinor) { ?>

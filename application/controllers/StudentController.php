@@ -75,24 +75,27 @@ class StudentController extends Zend_Controller_Action {
         echo Zend_Json::encode($this->dbForcedValues->getValuesOfUser($userId));
     }
     
-    public function getCoreRequirementsAction() {
+    public function getRequirementsAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
+        $type = $this->getRequest()->getParam('type');
         $enrollYear = $this->view->enrollYear;
         $program = $this->view->type;
         $enrollSemester = $this->view->enrollSemester;
-        echo Zend_Json::encode($this->dbPrograms->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
+        echo Zend_Json::encode($this->dbPrograms->getReqsByType($enrollYear, $enrollSemester, $program, $type));
     }
     
-    public function getPrerequisiteRequirementsAction() {
+    public function getGradeRequirementAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
+        $type = $this->getRequest()->getParam('type');
         $enrollYear = $this->view->enrollYear;
         $program = $this->view->type;
         $enrollSemester = $this->view->enrollSemester;
-        echo Zend_Json::encode($this->dbPrograms->getReqsByType($enrollYear, $enrollSemester, $program, 'prerequisite'));
+        
+        echo $this->dbPrograms->getMinGrade($program, $enrollSemester, $enrollYear, $type);
     }
 
     public function indexAction() {

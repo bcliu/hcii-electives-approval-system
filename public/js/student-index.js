@@ -21,6 +21,19 @@ var forcedValues = [];
 
 var courseReg = /\d{2}-\d{3}/g;
 
+function blockingAjaxGet(url) {
+    var ret = null;
+    $.ajax({
+        url: url,
+        success: function (result) {
+            ret = result;
+        },
+        async: false
+    });
+    
+    return ret;
+}
+
 function getForcedValue(reqName, type) {
     var ret = null;
     $.each(forcedValues, function (i, v) {
@@ -40,22 +53,9 @@ function loadCoursesList() {
          */
         //courses = jQuery.parseJSON($('#courses-list').text());
         
-        $.ajax({
-            url: baseUrl + "/student/get-courses-list",
-            success: function (result) {
-                courses = $.parseJSON(result);
-            },
-            async: false
-        });
+        courses = $.parseJSON(blockingAjaxGet(baseUrl + "/student/get-courses-list"));
     }
-
-    $.ajax({
-        url: baseUrl + "/student/get-forced-values",
-        success: function (result) {
-            forcedValues = $.parseJSON(result);
-        },
-        async: false
-    });
+    forcedValues = $.parseJSON(blockingAjaxGet(baseUrl + "/student/get-forced-values"));
 }
 
 function processCourseNumbers(numbers) {
@@ -81,14 +81,7 @@ function computeCoresTakenTaking() {
     loadCoursesList();
     var cores = [];
     /* Core requirements */
-    var coreReqs = null;
-    $.ajax({
-        url: baseUrl + "/student/get-core-requirements",
-        success: function (result) {
-            coreReqs = $.parseJSON(result);
-        },
-        async: false
-    });
+    var coreReqs = $.parseJSON(blockingAjaxGet(baseUrl + "/student/get-requirements/type/core"));
     
     var coreGradeReq = $('#cores-grade-req').text();
     if (coreGradeReq.length == 0)
@@ -188,14 +181,7 @@ function computePrerequisitesTakenTaking() {
     loadCoursesList();
     var prerequisites = [];
     /* Prereq requirements */
-    var prereqReqs = null;
-    $.ajax({
-        url: baseUrl + "/student/get-prerequisite-requirements",
-        success: function (result) {
-            prereqReqs = $.parseJSON(result);
-        },
-        async: false
-    });
+    var prereqReqs = $.parseJSON(blockingAjaxGet(baseUrl + "/student/get-requirements/type/prerequisite"));
     
     var prereqGradeReq = $('#prerequisites-grade-req').text();
     if (prereqGradeReq.length == 0)
