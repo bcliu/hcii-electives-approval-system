@@ -20,6 +20,10 @@ class StudentController extends Zend_Controller_Action {
         }
         
         $this->dbUsers = new Application_Model_DbTable_Users();
+        $this->dbPrograms = new Application_Model_DbTable_Programs();
+        $this->dbCourses = new Application_Model_DbTable_Courses();
+        $this->dbForcedValues = new Application_Model_DbTable_ForcedValues();
+        
         $this->view->andrewId = $this->session_user->andrewId;
         $user = $this->dbUsers->getUserById($this->session_user->userId);
         $this->view->name = $user->name;
@@ -58,9 +62,8 @@ class StudentController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
         
         $userId = $this->session_user->userId;
-        $db = new Application_Model_DbTable_Courses();
         
-        echo Zend_Json::encode($db->getAllCoursesOfUser($userId, "student"));
+        echo Zend_Json::encode($this->dbCourses->getAllCoursesOfUser($userId, "student"));
     }
     
     public function getForcedValuesAction() {
@@ -68,21 +71,28 @@ class StudentController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
         
         $userId = $this->session_user->userId;
-        $forcedValues = new Application_Model_DbTable_ForcedValues();
         
-        echo Zend_Json::encode($forcedValues->getValuesOfUser($userId));
+        echo Zend_Json::encode($this->dbForcedValues->getValuesOfUser($userId));
     }
     
     public function getCoreRequirementsAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
-        $programs = new Application_Model_DbTable_Programs();
+        $enrollYear = $this->view->enrollYear;
+        $program = $this->view->type;
+        $enrollSemester = $this->view->enrollSemester;
+        echo Zend_Json::encode($this->dbPrograms->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
+    }
+    
+    public function getPrerequisiteRequirementsAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
         
         $enrollYear = $this->view->enrollYear;
         $program = $this->view->type;
         $enrollSemester = $this->view->enrollSemester;
-        echo Zend_Json::encode($programs->getReqsByType($enrollYear, $enrollSemester, $program, 'core'));
+        echo Zend_Json::encode($this->dbPrograms->getReqsByType($enrollYear, $enrollSemester, $program, 'prerequisite'));
     }
 
     public function indexAction() {
@@ -91,9 +101,9 @@ class StudentController extends Zend_Controller_Action {
         $this->view->title = 'EASy';
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-index.js');
         
-        $db = new Application_Model_DbTable_Courses();
+        $db = $this->dbCourses;
 
-        $programs = new Application_Model_DbTable_Programs();
+        $programs = $this->dbPrograms;
         $program = $this->view->type;
         
         $this->view->bhciOrMinor = ($program == 'bhci' || $program == 'ugminor');
@@ -114,10 +124,6 @@ class StudentController extends Zend_Controller_Action {
             /* TODO How to check forced values?? */
             $this->view->prerequisitesTaken = $db->getNumberSatisfiedByType($userId, "prerequisite", $prereqMinGrade);
             $this->view->prerequisitesTaking = $db->getNumberTakingByType($userId, "prerequisite");
-
-            /* Print out prerequisites requirements */
-            $this->view->prerequisitesReqs = Zend_Json::encode(
-                $programs->getReqsByType($enrollYear, $enrollSemester, $program, 'prerequisite'));
             $this->view->prerequisitesGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'prerequisite');
         } else {
             $this->view->placeOutsTotal = $programs->getNumberByType($enrollYear, $enrollSemester, $program, 'place-out');

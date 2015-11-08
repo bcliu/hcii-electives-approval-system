@@ -188,7 +188,15 @@ function computePrerequisitesTakenTaking() {
     loadCoursesList();
     var prerequisites = [];
     /* Prereq requirements */
-    var prereqReqs = jQuery.parseJSON($('#prerequisites-reqs').text());
+    var prereqReqs = null;
+    $.ajax({
+        url: baseUrl + "/student/get-prerequisite-requirements",
+        success: function (result) {
+            prereqReqs = $.parseJSON(result);
+        },
+        async: false
+    });
+    
     var prereqGradeReq = $('#prerequisites-grade-req').text();
     if (prereqGradeReq.length == 0)
         prereqGradeReq = 'd';
