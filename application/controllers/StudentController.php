@@ -119,6 +119,11 @@ class StudentController extends Zend_Controller_Action {
         $this->view->coresTaking = $db->getNumberTakingByType($userId, "core");
 
         $this->view->coresGradeReq = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'core');
+        
+        /* ========================
+         * TODO: Move all printing to html code below to using AJAX
+         * ========================
+         */
 
         /* Minor and BHCI have prerequisites; MHCI and METALS have place-outs */
         if ($this->view->bhciOrMinor) {

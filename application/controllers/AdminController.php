@@ -458,6 +458,7 @@ class AdminController extends Zend_Controller_Action {
     }
 
     public function statsAction() {
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/statistics.js');
         $this->view->title = 'EASy - Statistics';
         $db = new Application_Model_DbTable_Courses();
 
