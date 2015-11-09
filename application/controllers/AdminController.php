@@ -456,43 +456,22 @@ class AdminController extends Zend_Controller_Action {
     public function preapprovedElectivesAction() {
         $this->view->title = 'EASy - Preapproved Electives';
     }
+    
+    /**
+     * Used in Statistics page to get submitted electives under a program sorted by frequency
+     */
+    public function getAllSubmittedElectivesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbCourses = new Application_Model_DbTable_Courses();
+        $program = $this->getRequest()->getParam('program');
+        echo Zend_Json::encode($dbCourses->getAllSubmittedElectives($program)->toArray());
+    }
 
     public function statsAction() {
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/statistics.js');
         $this->view->title = 'EASy - Statistics';
-        $db = new Application_Model_DbTable_Courses();
-
-        $count = $this->getRequest()->getParam('count');
-        $program = $this->getRequest()->getParam('program');
-        if ($count == null)
-            $count = 30;
-        if ($program == null)
-            $program = 'mhci';
-
-        $this->view->count = $count;
-        switch ($program) {
-            case 'bhci':
-                $this->view->program = 'BHCI';
-                break;
-            case 'mhci':
-                $this->view->program = 'MHCI';
-                break;
-            case 'ugminor':
-                $this->view->program = 'Undergraduate Minor';
-                break;
-            case 'metals':
-                $this->view->program = 'METALS';
-                break;
-            case 'learning-media':
-                $this->view->program = 'Learning Media Minor';
-                break;
-            default:
-                $this->view->program = $program;
-        }
-
-        $this->view->programRaw = $program;
-
-        $this->view->mostSubmitted = $db->getMostSubmittedElectives($program, $count)->toArray();
     }
 
     /**

@@ -209,7 +209,10 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         $this->delete("id = '$courseId'");
     }
 
-    public function getMostSubmittedElectives($program, $count) {
+    /**
+     * Used in Statistics page: show all approved submitted electives sorted by frequency
+     */
+    public function getAllSubmittedElectives($program) {
         $q = $this->select()
             ->from('courses', array('course_number', 'course_name', 'count(*) as freq'))
             ->join(array('users' => 'users'), "users.id = courses.student_id AND users.program = '$program'", array())
@@ -219,7 +222,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             ->where('courses.status != ?', 'need-clarification')
             ->group('courses.course_number')
             ->order('freq desc')
-            ->limit($count)
             ->setIntegrityCheck(false);
 
         error_log($q->assemble());
