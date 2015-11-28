@@ -15,8 +15,7 @@ $(function () {
 
 		if (takingAsObj.length == 0) {
 		    takingAs = "elective";
-		}
-		else {
+		} else {
 		    takingAsObj.val();
 		}
         
@@ -29,8 +28,7 @@ $(function () {
 				});
 		    courseNumberObj.popover('show');
 		    return;
-		}
-		else if (courseName.length == 0) {
+		} else if (courseName.length == 0) {
 		    courseNameObj.parent().addClass('has-error');
 		    courseNameObj.popover({
 			    html: true,
@@ -39,8 +37,7 @@ $(function () {
 				});
 		    courseNameObj.popover('show');
 		    return;
-		}
-		else if (units == null) {
+		} else if (units == null) {
 		    unitsObj.parent().addClass('has-error');
 		    unitsObj.popover({
 			    html: true,
@@ -49,8 +46,8 @@ $(function () {
 				});
 		    unitsObj.popover('show');
 		    return;
-		}
-		else if ($('.btn-group .active').attr('class') == undefined) {
+		} else if ($('#course-type-selector').length != 0 &&
+					$('#course-type-selector .btn-group .active').attr('class') == undefined) {
 		    var btnGroup = $('#buttons-taking-as');
 		    if (btnGroup.length != 0) {
 			btnGroup.popover({
@@ -63,5 +60,5 @@ $(function () {
 		    }
 		}
 		$('form').submit();
-	    });
-    });
+	});
+});

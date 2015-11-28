@@ -1,0 +1,29 @@
+<h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
+<table id='table-cores' class='table' type='core'>
+	<thead>
+		<tr>
+			<th>#</th>
+			<th>Course name</th>
+			<th style='width: 50%'>Course numbers <span id='course-number-notice' style='margin-left: 10px' class="glyphicon glyphicon-question-sign"></span></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class='tr-add-course'>
+			<td>&nbsp;</td>
+			<td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+
+<div id='core-grade-req'>
+	Grade requirement:
+	<span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
+		<!-- Grade requirement defaults to B or above, if not specified -->
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+		<ul class="dropdown-menu" role="menu">
+			<?= $this->produceList($gradeOptions) ?>
+		</ul>
+	</span>
+	<span>or above</span>
+</div>

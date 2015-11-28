@@ -123,38 +123,13 @@
             </div>
         </ul>
 
-        <?php if ($this->program == 'bhci' || $this->program == 'ugminor') { ?>
+        <?php if ($this->program == 'bhci' || $this->program == 'ugminor' || $this->program == 'learning-media') { ?>
 
             <div id="<?= $this->program ?>-pane">
-                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
-                <table id='table-cores' class='table' type='core'>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Course name</th>
-                            <th style='width: 50%'>Course numbers <span id='course-number-notice' style='margin-left: 10px' class="glyphicon glyphicon-question-sign"></span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class='tr-add-course'>
-                            <td>&nbsp;</td>
-                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
-                            <td>&nbsp;</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div id='core-grade-req'>
-                    Grade requirement:
-                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
-                        <!-- Grade requirement defaults to B or above, if not specified -->
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                        <ul class="dropdown-menu" role="menu">
-                            <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
-                        </ul>
-                    </span>
-                    <span>or above</span>
-                </div>
+                <?php
+                    $gradeOptions = ['No requirement', 'A', 'B', 'C'];
+                    require("program-manager-core-table.phtml");
+                ?>
 
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Prerequisites</h4>
                 <table id='table-prerequisite' class='table' type='prerequisite'>
@@ -185,99 +160,18 @@
                     <span>or above</span>
                 </div>
 
-                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
-                    <table id='table-electives' class='table' style='width: 0'>
-                        <tr>
-                            <td style='line-height: 35px'>Number of electives needed: </td>
-                            <td id='num-electives'>
-                                <span class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                    </ul>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style='line-height: 35px'>Grade requirement: </td>
-                            <td id='elective-grade-req'>
-                                <span class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
-                                    </ul>
-                                </span>
-                                <span>or above</span>
-                            </td>
-                        </tr>
-                    </table>
-            </div>
-
-        <?php } else if ($this->program == 'learning-media') { ?>
-
-            <div id="learning-media-pane">
-                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
-                <table id='table-cores' class='table' type='core'>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Course name</th>
-                            <th style='width: 50%'>Course numbers</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class='tr-add-course'>
-                            <td>&nbsp;</td>
-                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
-                            <td>&nbsp;</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div id='core-grade-req'>
-                    Grade requirement:
-                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
-                        <!-- Grade requirement defaults to B or above, if not specified -->
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                        <ul class="dropdown-menu" role="menu">
-                            <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
-                        </ul>
-                    </span>
-                    <span>or above</span>
-                </div>
+                <?php
+                    $gradeOptions = ['No requirement', 'A', 'B', 'C'];
+                    require("program-manager-elective-table.phtml");
+                ?>
             </div>
 
         <?php } else { ?>
             <div id="<?= $this->program ?>-pane">
-                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Core Requirements</h4>
-                <table id='table-cores' class='table' type='core'>
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Course name</th>
-                            <th style='width: 50%'>Course numbers</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class='tr-add-course'>
-                            <td>&nbsp;</td>
-                            <td><input type="text" class="form-control" placeholder='Click to add a course' /></td>
-                            <td>&nbsp;</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div id='core-grade-req'>
-                    Grade requirement:
-                    <span class="btn-group" style='margin-left: 5px; margin-right: 5px'>
-                        <!-- Grade requirement defaults to B or above, if not specified -->
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                        <ul class="dropdown-menu" role="menu">
-                            <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
-                        </ul>
-                    </span>
-                    <span>or above</span>
-                </div>
+                <?php
+                    $gradeOptions = ['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
+                    require("program-manager-core-table.phtml");
+                ?>
 
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Place-out Courses</h4>
                 <table id='table-place-out' class='table' type='place-out' style='width: 50%'>
@@ -295,33 +189,10 @@
                     </tbody>
                 </table>
 
-                <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
-                <table id='table-electives' class='table' style='width: 0'>
-                    <tr>
-                        <td style='line-height: 35px'>Number of Electives needed: </td>
-                        <td id='num-electives'>
-                            <span class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                </ul>
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style='line-height: 35px'>Grade requirement: </td>
-                        <td id='elective-grade-req'>
-                            <span class="btn-group">
-                                <!-- Grade requirement defaults to B or above, if not specified -->
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <?= $this->produceList(['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-']) ?>
-                                </ul>
-                            </span>
-                            <span>or above</span>
-                        </td>
-                    </tr>
-                </table>
+                <?php
+                    $gradeOptions = ['No requirement', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-'];
+                    require("program-manager-elective-table.phtml");
+                ?>
             </div>
 
         <?php } ?>

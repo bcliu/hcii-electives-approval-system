@@ -1,0 +1,27 @@
+<h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
+<table id='table-electives' class='table' style='width: 0'>
+	<tr>
+		<td style='line-height: 35px'>Number of electives needed: </td>
+		<td id='num-electives'>
+			<span class="btn-group">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
+				<ul class="dropdown-menu" role="menu">
+					<?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
+				</ul>
+			</span>
+		</td>
+	</tr>
+	<tr>
+		<td style='line-height: 35px'>Grade requirement: </td>
+		<td id='elective-grade-req'>
+			<span class="btn-group">
+				<!-- Grade requirement defaults to B or above, if not specified -->
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
+				<ul class="dropdown-menu" role="menu">
+					<?= $this->produceList($gradeOptions) ?>
+				</ul>
+			</span>
+			<span>or above</span>
+		</td>
+	</tr>
+</table>
