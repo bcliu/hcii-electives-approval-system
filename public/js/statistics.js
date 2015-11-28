@@ -2,10 +2,10 @@ app.controller('StatisticsController', ['$scope', function ($scope) {
     $scope.electives = [];
     
     $scope.programs = [
-        [ 'mhci', 'MHCI' ],
         [ 'bhci', 'BHCI' ],
         [ 'ugminor', 'Undergraduate Minor' ],
         [ 'learning-media', 'Learning Media' ],
+        [ 'mhci', 'MHCI' ],
         [ 'metals', 'METALS' ]
     ];
     
@@ -18,6 +18,12 @@ app.controller('StatisticsController', ['$scope', function ($scope) {
         $scope.loadElectives();
     };
     
+    /**
+     * ====================
+     * TODO: store all previously loaded program electives to an array
+     * Don't reload if it's already loaded before, to save time
+     * ====================
+     */
     $scope.loadElectives = function () {
         var url = baseUrl + "/admin/get-all-submitted-electives/program/" + $scope.selectedProgram[0];
         

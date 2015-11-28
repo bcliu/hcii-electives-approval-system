@@ -73,21 +73,20 @@
 <div class="row" id='program-manager-page' style='width: 90%; margin-left: auto; margin-right: auto; min-height: calc(100% - 55px)' current-page='<?= $this->program ?>'>
     <div class="col-sm-12">
         <ul class="nav nav-tabs">
-
-            <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/mhci">MHCI</a>
-            </li>
-
-            <li id='metals-tab' class='<?= $this->program == "metals" ? "active" : "" ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/metals">METALS</a>
-            </li>
-            
             <li id='bhci-tab' class='<?= $this->program == "bhci" ? "active" : "" ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/bhci">BHCI</a>
             </li>
 
             <li id='ugminor-tab' class='<?= $this->program == "ugminor" ? "active" : "" ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/ugminor">Undergraduate Minor</a>
+            </li>
+            
+            <li id='mhci-tab' class='<?= $this->program == "mhci" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/mhci">MHCI</a>
+            </li>
+
+            <li id='metals-tab' class='<?= $this->program == "metals" ? "active" : "" ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/program-manager/type/metals">METALS</a>
             </li>
 
             <li id='learning-media-tab' class='<?= $this->program == "learning-media" ? "active" : "" ?>'>
@@ -189,8 +188,8 @@
                 <h4 style='margin-top: 20px; margin-left: 5px; font-weight: bold'>Electives</h4>
                     <table id='table-electives' class='table' style='width: 0'>
                         <tr>
-                            <td style='line-height: 35px'>Number of <?= ($this->program == "bhci" ? "Restricted Application Electives" : "electives") ?> needed: </td>
-                            <td id='<?= ($this->program == "bhci" ? "num-application-electives" : "num-electives") ?>'>
+                            <td style='line-height: 35px'>Number of electives needed: </td>
+                            <td id='num-electives'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
                                     <ul class="dropdown-menu" role="menu">
@@ -200,8 +199,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td style='line-height: 35px'><?= ($this->program == "bhci" ? "Restricted Application Electives g" : "G") ?>rade requirement: </td>
-                            <td id='<?= ($this->program == "bhci" ? "application-elective" : "elective") ?>-grade-req'>
+                            <td style='line-height: 35px'>Grade requirement: </td>
+                            <td id='elective-grade-req'>
                                 <span class="btn-group">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
                                     <ul class="dropdown-menu" role="menu">
@@ -211,31 +210,6 @@
                                 <span>or above</span>
                             </td>
                         </tr>
-                        <?php if ($this->program == 'bhci') { ?>
-                        <tr>
-                            <td style='line-height: 35px'>Number of Free Electives needed: </td>
-                            <td id='num-free-electives'>
-                                <span class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">No requirement</button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <?= $this->produceList(['No requirement', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) ?>
-                                    </ul>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style='line-height: 35px'>Free Electives grade requirement: </td>
-                            <td id='free-elective-grade-req'>
-                                <span class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">B</button>
-                                    <ul class="dropdown-menu" role="menu">
-                                        <?= $this->produceList(['No requirement', 'A', 'B', 'C']) ?>
-                                    </ul>
-                                </span>
-                                <span>or above</span>
-                            </td>
-                        </tr>
-                        <?php } ?>
                     </table>
             </div>
 

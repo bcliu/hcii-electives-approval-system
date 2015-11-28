@@ -3,12 +3,12 @@
  * Will look for buttons with reference "#num-{type}s button"
  * E.g. "#num-free-electives button"
  */
-var numButtonTypes = [ 'elective', 'application-elective', 'free-elective' ];
+var numButtonTypes = [ 'elective' ];
 /*
  * Same as above
  * Will look for buttons with reference "#{type}-grade-req button"
  */
-var gradeButtonTypes = [ 'core', 'prerequisite', 'elective', 'application-elective', 'free-elective' ];
+var gradeButtonTypes = [ 'core', 'prerequisite', 'elective' ];
 
 function populateYearSelector(requirements) {
     /* Fill in year options. By default, current year - 4 to current year + 4.
@@ -107,9 +107,7 @@ function getRequirements(semesterToLoad, yearToLoad) {
 $(function () {
 
     /* Add number of electives click handler */
-    $('#num-electives li, #num-free-electives li, #num-application-electives li,\
-        #core-grade-req li, #elective-grade-req li, #prerequisite-grade-req li,\
-        #free-elective-grade-req li, #application-elective-grade-req li')
+    $('#num-electives li, #core-grade-req li, #elective-grade-req li, #prerequisite-grade-req li')
         .click(function () {
             var newValue = $(this).find('a').text();
             $(this).parent().parent().find('button').text(newValue);
@@ -286,9 +284,7 @@ function saveRequirements() {
 
     /* An array of 'number of courses' and 'type' tuples */
     var numsData = [
-        [ $('#num-free-electives button').text(), 'free-elective' ],
-        [ $('#num-electives button').text(), 'elective' ],
-        [ $('#num-application-electives button').text(), 'application-elective' ]
+        [ $('#num-electives button').text(), 'elective' ]
     ];
     numsData.forEach(function (e, i) {
         if (e[0].length != 0) {
@@ -361,12 +357,8 @@ function loadRequirements(semester, year) {
     var prereqIndex = 1;
     var placeoutIndex = 1;
     $('#num-electives button').text(NO_REQ);
-    $('#num-free-electives button').text(NO_REQ);
-    $('#num-application-electives button').text(NO_REQ);
     $('#core-grade-req button').text(NO_REQ);
     $('#prerequisite-grade-req button').text(NO_REQ);
-    $('#application-elective-grade-req button').text(NO_REQ);
-    $('#free-elective-grade-req button').text(NO_REQ);
     $('#elective-grade-req button').text(NO_REQ);
 
 	$('body').data('requirements').forEach(function (e, i) {

@@ -138,39 +138,18 @@ class StudentController extends Zend_Controller_Action {
             $this->view->placeOutsTaken = $db->getNumSatisfiedPlaceOuts($userId);
         }
 
-        if ($program == 'bhci') {
-            $numApplicationElectives = $programs->getNumberOfElectivesByProgram(
-                $enrollYear, $enrollSemester, $program, "application-elective");
-            $numFreeElectives = $programs->getNumberOfElectivesByProgram(
-                $enrollYear, $enrollSemester, $program, "free-elective");
-
-            /* Since I'm using -1 to denote "No requirement", need to exclude those */
-            $this->view->electivesTotal = ($numApplicationElectives > 0 ? $numApplicationElectives : 0) +
-                ($numFreeElectives > 0 ? $numFreeElectives : 0);
-
-            $freeElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'free-elective');
-            $appElectMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'application-elective');
-            $this->view->electivesTaken =
-                ($numFreeElectives > 0 ? $db->getNumberSatisfiedByType($userId, "free-elective", $freeElectMinGrade) : 0) +
-                ($numApplicationElectives > 0 ? $db->getNumberSatisfiedByType($userId, "application-elective", $appElectMinGrade) : 0);
-
-            $this->view->electivesTaking =
-                ($numFreeElectives > 0 ? $db->getNumberTakingByType($userId, "free-elective") : 0) +
-                ($numApplicationElectives > 0 ? $db->getNumberTakingByType($userId, "application-elective") : 0);
-        } else if ($program == 'mhci' || $program == 'ugminor' || $program == 'metals') {
-            $numElectives = $programs->getNumberOfElectivesByProgram(
-                $enrollYear, $enrollSemester, $program, "elective");
-            if ($numElectives > 0) {
-                $electMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'elective');
-                $this->view->electivesTotal = $numElectives;
-                $this->view->electivesTaken = $db->getNumberSatisfiedByType($userId, "elective", $electMinGrade);
-                $this->view->electivesTaking = $db->getNumberTakingByType($userId, "elective");
-            } else {
-                /* There is no requirements on electives */
-                $this->view->electivesTotal = 0;
-                $this->view->electivesTaken = 0;
-                $this->view->electivesTaking = 0;
-            }
+        $numElectives = $programs->getNumberOfElectivesByProgram($enrollYear, $enrollSemester, $program);
+        /* Since I'm using -1 to denote "No requirement", need to exclude those */
+        if ($numElectives > 0) {
+            $electMinGrade = $programs->getMinGrade($program, $enrollSemester, $enrollYear, 'elective');
+            $this->view->electivesTotal = $numElectives;
+            $this->view->electivesTaken = $db->getNumberSatisfiedByType($userId, "elective", $electMinGrade);
+            $this->view->electivesTaking = $db->getNumberTakingByType($userId, "elective");
+        } else {
+            /* There is no requirements on electives */
+            $this->view->electivesTotal = 0;
+            $this->view->electivesTaken = 0;
+            $this->view->electivesTaking = 0;
         }
 
         $this->view->coursesSubmitted = count($db->getCoursesByStatus($userId, "submitted"));

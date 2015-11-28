@@ -1093,7 +1093,7 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     var enrollYear = enrollDate.substr(3, 7);
                     var enrollSemester = getSemesterFromMonth(enrollMonth);
 
-                    var numElectivesNeeded, numFreeElectivesNeeded, numApplicationElectivesNeeded;
+                    var numElectivesNeeded;
                     var coresFound = false, placeOutsFound = false, prereqsFound = false;
                     var coresIdx = 1, placeOutsIdx = 1, prereqsIdx = 1;
 
@@ -1109,34 +1109,6 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 reqDisplay.text("");
                             }
                         });
-                    var electiveReqDisplay = $('#elective-grade-req');
-                    var appElectiveExists = (gradeReqs['application-elective'] != undefined) && (gradeReqs['application-elective'] != 'd');
-                    var freeElectiveExists = (gradeReqs['free-elective'] != undefined) && (gradeReqs['free-elective'] != 'd');
-                    var electiveExists = (gradeReqs['elective'] != undefined) && (gradeReqs['elective'] != 'd');
-                    /* Only fill in required grade using application elective and free elective
-                     * if requirement for Elective doesn't exist
-                     */
-                    if (electiveReqDisplay.length > 0 && !electiveExists) {
-                        if (appElectiveExists && !freeElectiveExists) {
-                            electiveReqDisplay.text("(" + grade2Text[gradeReqs['application-elective']] +
-                                " or above required for restricted application electives)");
-                        } else if (!appElectiveExists && freeElectiveExists) {
-                            electiveReqDisplay.text("(" + grade2Text[gradeReqs['free-elective']] +
-                                " or above required for free electives)");
-                        } else if (appElectiveExists && freeElectiveExists) {
-                            if (gradeReqs['application-elective'] == gradeReqs['free-elective']) {
-                                electiveReqDisplay.text("(" + grade2Text[gradeReqs['free-elective']] +
-                                    " or above required)");
-                            } else {
-                                electiveReqDisplay.text("(" + grade2Text[gradeReqs['application-elective']] +
-                                    " required for application electives, " +
-                                    grade2Text[gradeReqs['free-elective']] +
-                                    " required for free electives)");
-                            }
-                        } else {
-                            electiveReqDisplay.text("");
-                        }
-                    }
 
                     reqs.forEach(function (e, i, arr) {
                         if (e['program'] == $('input[name="type"]').val() &&
@@ -1153,16 +1125,6 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                             /* If it is the electives requirements */
                             if (type == 'elective') {
                                 numElectivesNeeded = e['number'];
-                                return;
-                            }
-                            
-                            if (type == 'free-elective') {
-                                numFreeElectivesNeeded = e['number'];
-                                return;
-                            }
-                            
-                            if (type == 'application-elective') {
-                                numApplicationElectivesNeeded = e['number'];
                                 return;
                             }
 
@@ -1324,14 +1286,12 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                         /* If cores are found, then requirements for this semester are defined. Show courses summary */
                         var summaryElectives = $('#summary-electives');
                         summaryElectives.html('');
-                        var numElectivesCompleted = 0, numFreeElectivesCompleted = 0, numApplicationElectivesCompleted = 0;
+                        var numElectivesCompleted = 0;
 
                         courses.forEach(function (eC) {
                             var takingAs = eC['taking_as'];
                             /* Only counting electives in here */
-                            if (takingAs != 'elective' &&
-                                takingAs != 'application-elective' &&
-                                takingAs != 'free-elective')
+                            if (takingAs != 'elective')
                                 return;
 
                             var gradeReq = gradeReqs[takingAs];
@@ -1343,10 +1303,6 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                                 if (eC['status'] == 'taken') {
                                     if (takingAs == 'elective') {
                                         numElectivesCompleted++;
-                                    } else if (takingAs == 'application-elective') {
-                                        numApplicationElectivesCompleted++;
-                                    } else if (takingAs == 'free-elective') {
-                                        numFreeElectivesCompleted++;
                                     }
                                 }
                             }
@@ -1362,32 +1318,6 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                             }
                             else {
                                 summaryElectives.append(numElectivesCompleted + " electives are completed.");
-                            }
-                        }
-
-                        if (numFreeElectivesNeeded != null) {
-                            if (numFreeElectivesNeeded != -1) {
-                                summaryElectives.append(numFreeElectivesCompleted + " out of " + numFreeElectivesNeeded + " required free electives are completed.");
-                                summaryElectives.append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' +
-                                    numFreeElectivesCompleted + '" aria-valuemin="0" aria-valuemax="' +
-                                    numFreeElectivesNeeded + '" style="width: ' +
-                                    (numFreeElectivesCompleted / numFreeElectivesNeeded * 100) + '%;"></div></div>');
-                            }
-                            else {
-                                summaryElectives.append(numFreeElectivesCompleted + " free electives are completed.<br />");
-                            }
-                        }
-
-                        if (numApplicationElectivesNeeded != null) {
-                            if (numApplicationElectivesNeeded != -1) {
-                                summaryElectives.append(numApplicationElectivesCompleted + " out of " + numApplicationElectivesNeeded + " required restricted application electives are completed.");
-                                summaryElectives.append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' +
-                                    numApplicationElectivesCompleted + '" aria-valuemin="0" aria-valuemax="' +
-                                    numApplicationElectivesNeeded + '" style="width: ' +
-                                    (numApplicationElectivesCompleted / numApplicationElectivesNeeded * 100) + '%;"></div></div>');
-                            }
-                            else {
-                                summaryElectives.append(numApplicationElectivesCompleted + " restricted application electives are completed.");
                             }
                         }
 

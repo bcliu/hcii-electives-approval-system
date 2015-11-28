@@ -3,6 +3,19 @@
 class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
 
     protected $_name = 'courses';
+    
+    /**
+     * Migration 11/27/2015: removing application elective and free elective types
+     * Merge them to just one type of elective
+     */
+    public function migrateMergingElectives() {
+        $data = array(
+            'taking_as' => "elective"
+        );
+
+        $this->update($data, "taking_as = 'free-elective'");
+        $this->update($data, "taking_as = 'application-elective'");
+    }
 
     public function addCourse($studentId, $courseNumber, $courseName, $units, $description,
                            $takingAs, $status) {
@@ -224,7 +237,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             ->order('freq desc')
             ->setIntegrityCheck(false);
 
-        error_log($q->assemble());
+        //error_log($q->assemble());
         $rows = $this->fetchAll($q);
         return $rows;
     }

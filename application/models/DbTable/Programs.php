@@ -62,15 +62,21 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
         return count($this->getReqsByType($year, $semester, $program, $type));
     }
 
-    /**
-     * @param  $type     'elective' or 'free-elective' or 'application-elective'
-     */
-    public function getNumberOfElectivesByProgram($year, $semester, $program, $type) {
-        $number = $this->fetchRow("program = '$program' AND year = '$year' AND semester = '$semester' AND type = '$type' AND number IS NOT NULL");
+    public function getNumberOfElectivesByProgram($year, $semester, $program) {
+        $number = $this->fetchRow("program = '$program' AND year = '$year' AND semester = '$semester' AND type = 'elective' AND number IS NOT NULL");
 
         if (!$number) {
             return -1;
         }
         return $number->number;
+    }
+    
+    public function migrateMergingElectives() {
+        $data = array(
+            'type' => 'elective'
+        );
+        
+        $this->update($data, "type = 'free-elective'");
+        $this->delete("type = 'application-elective'");
     }
 }

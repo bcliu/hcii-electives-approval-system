@@ -31,10 +31,8 @@
                             <span class="btn-group">
                                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Core</button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <?php if ($this->type == "ugminor") { ?>
+                                    <?php if ($this->type == "ugminor" || $this->type == "bhci") { ?>
                                         <?= $this->produceList(['Elective', 'Prerequisite', 'Core']) ?>
-                                    <?php } else if ($this->type == "bhci") { ?>
-                                        <?= $this->produceList(['Restricted application elective', 'Free elective', 'Core', 'Prerequisite']) ?>
                                     <?php } else if ($this->type == "mhci" || $this->type == 'metals') { ?>
                                         <?= $this->produceList(['Elective', 'Core']) ?>
                                     <?php } else if ($this->type == 'learning-media') { ?>

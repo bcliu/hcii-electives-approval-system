@@ -4,20 +4,20 @@
 <div class="row" style='width: 90%; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
     <div class="col-sm-6" style='height: 100%'>
         <ul class="nav nav-tabs">
-            <li class='<?= ($this->type == "mhci" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/mhci">MHCI</a>
-            </li>
-
-            <li class='<?= ($this->type == "metals" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/metals">METALS</a>
-            </li>
-            
             <li class='<?= ($this->type == "bhci" ? "active" : "") ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/bhci">BHCI</a>
             </li>
             
             <li class='<?= ($this->type == "ugminor" ? "active" : "") ?>'>
                 <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/ugminor">Undergraduate Minor</a>
+            </li>
+            
+            <li class='<?= ($this->type == "mhci" ? "active" : "") ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/mhci">MHCI</a>
+            </li>
+
+            <li class='<?= ($this->type == "metals" ? "active" : "") ?>'>
+                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/metals">METALS</a>
             </li>
 
             <li class='<?= ($this->type == "learning-media" ? "active" : "") ?>'>

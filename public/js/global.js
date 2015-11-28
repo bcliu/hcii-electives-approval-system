@@ -20,8 +20,6 @@ var status2Text = {
 var takingAs2Text = {
     elective: "Elective",
     core: "Core",
-    "free-elective": "Free elective",
-    "application-elective": "Restricted application elective",
     "place-out": "Place-out",
     'prerequisite': 'Prerequisite'
 };

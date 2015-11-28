@@ -331,7 +331,7 @@ class AdminController extends Zend_Controller_Action {
             CURLOPT_URL => $prefix . $suffix
         ));
         $result = curl_exec($ch);
-        error_log(strpos($result, "with-data"));
+        //error_log(strpos($result, "with-data"));
         if (curl_errno($ch) || strpos($result, "with-data") === false) {
             error_log("attempting to query again");
             /* Attempt to query again by changing to the current year */
@@ -364,9 +364,9 @@ class AdminController extends Zend_Controller_Action {
 
         $dbPrograms = new Application_Model_DbTable_Programs();
         
-        if ($type == 'bhci') {
-            /* Load core and prerequisite requirements for BHCI of all years */
-            $reqs = $dbPrograms->getRequirementsByProgram('bhci');
+        if ($type == 'mhci') {
+            /* Load core and prerequisite requirements for MHCI of all years */
+            $reqs = $dbPrograms->getRequirementsByProgram('mhci');
         } else if ($type == 'ugminor') {
             /* Load core and prerequisite requirements for UGMinor, of all years */
             $reqs = $dbPrograms->getRequirementsByProgram('ugminor');
@@ -379,11 +379,9 @@ class AdminController extends Zend_Controller_Action {
             /* Load core, prereq and electives requirements for METALS, of all years */
             $reqs = $dbPrograms->getRequirementsByProgram('metals');
         } else {
-            /* Show MHCI users for all other cases */
-            $this->view->type = 'mhci';
-
-            /* Load core and place-out requirements for MHCI, of all years */
-            $reqs = $dbPrograms->getRequirementsByProgram('mhci');
+            /* Show BHCI users for all other cases */
+            $this->view->type = 'bhci';
+            $reqs = $dbPrograms->getRequirementsByProgram('bhci');
         }
 
         if (isset($reqs)) {
@@ -412,7 +410,7 @@ class AdminController extends Zend_Controller_Action {
          */
         if ($type != 'mhci' && $type != 'bhci' && $type != 'metals'
              && $type != 'ugminor' && $type != 'learning-media') {
-            $type = 'mhci'; /* Default to MHCI */
+            $type = 'bhci'; /* Default to BHCI */
         }
 
         $this->view->program = $type;
@@ -745,11 +743,7 @@ class AdminController extends Zend_Controller_Action {
             $courseName = $row['CourseName'];
             $units = $row['NumUnits'];
             $description = $row['Description'];
-            $takingAs = 'free-elective';
-
-            if ($row['SubmittedAs'] == 'P') {
-                $takingAs = 'application-elective';
-            }
+            $takingAs = 'elective';
 
             $status = 'submitted';
 
@@ -854,5 +848,22 @@ class AdminController extends Zend_Controller_Action {
         $this->session_user->loginType = 'student';
         $this->session_user->andrewId = $this->getRequest()->getParam('enter');
         $this->_redirect("/users/select-program");
+    }
+    
+    /**
+     * Migration 11/27/2015: removing application elective and free elective types
+     * Merge them to just one type of elective
+     */
+    public function migrateMergingElectivesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbCourses = new Application_Model_DbTable_Courses();
+        $dbPrograms = new Application_Model_DbTable_Programs();
+        
+        $dbCourses->migrateMergingElectives();
+        $dbPrograms->migrateMergingElectives();
+        
+        echo "Done";
     }
 }

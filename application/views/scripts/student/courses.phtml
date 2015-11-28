@@ -26,19 +26,7 @@
                     <td><?php if ($course['taking_as'] != 'place-out') echo $course['course_number']; ?></td>
                     <td><?php if ($course['taking_as'] != 'place-out') echo $course['units']; ?></td>
                     <td><?= $course['course_description'] ?></td>
-                    <td><?php
-                        switch ($course['taking_as']) {
-                            case "free-elective":
-                            echo "Free elective";
-                            break;
-
-                            case "application-elective":
-                            echo "Restricted application elective";
-                            break;
-
-                            default:
-                            echo ucfirst($course['taking_as']);
-                        } ?></td>
+                    <td><?php echo ucfirst($course['taking_as']); ?></td>
                     <td><?php if ($course['taking_as'] != 'place-out') echo $course['submission_time']; ?></td>
                     <td><?php
                         switch ($course['status']) {
