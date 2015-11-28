@@ -450,9 +450,24 @@ class AdminController extends Zend_Controller_Action {
             $db->updateNotes($studentId, $notes);
         }
     }
+    
+    public function getProgramsAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        echo Zend_Json::encode(array(
+            'bhci' => 'BHCI',
+            'ugminor' => 'Undergraduate Minor',
+            'learning-media' => 'Learning Media Minor',
+            'mhci' => 'MHCI',
+            'metals' => 'METALS'
+        ));
+    }
 
     public function preapprovedElectivesAction() {
         $this->view->title = 'EASy - Preapproved Electives';
+        
+        
     }
     
     /**
