@@ -29,7 +29,10 @@
                     <th scope="row" style='width: 50px'>{{ $index + 1 }}</th>
                     <td style='width: 180px'>{{ elective.course_number }}</td>
                     <td>{{ elective.course_name }}</td>
-                    <td style='width: 200px'><button class="btn btn-danger btn-xs" ng-click="delete(elective)" type="button">Delete</button></td>
+                    <td style='width: 200px'>
+                        <button class="btn btn-danger btn-xs" ng-click="delete(elective)" type="button">Delete</button>
+                        <button class="btn btn-warning btn-xs" type="button">Edit</button>
+                    </td>
                 </tr>
                 
                 <tr ng-show="!electives.length">
@@ -42,9 +45,9 @@
                 <tr>
                     <th></th>
                     <td><input id="new-course-number-input" type="text" class="form-control" placeholder="Click to add a course"
-                        ng-model="newCourseNumber" ng-click="enterNewCourseEditing()" ng-blur="exitNewCourseEditing()"></td>
-                    <td><input  id="new-course-name-input" ng-show="newCourseEditing" type="text" class="form-control"
-                        ng-blur="exitNewCourseEditing()" placeholder="Course name" ng-model="newCourseName"></td>
+                        ng-model="newCourseNumber" ng-click="enterNewCourseEditing()" ng-blur="exitNewCourseEditing()" ng-keypress="keyPressed($event)"></td>
+                    <td><input id="new-course-name-input" ng-show="newCourseEditing" type="text" class="form-control"
+                        ng-blur="exitNewCourseEditing()" placeholder="Course name" ng-model="newCourseName" ng-keypress="keyPressed($event)"></td>
                     <td>
                         <button ng-show="newCourseEditing" class="btn btn-success" ng-click="addNewCourse()"
                             data-toggle="popover" id='btn-add-new-course' type="button">Add</button>

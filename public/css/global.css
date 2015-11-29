@@ -209,12 +209,12 @@ table#users-table tbody {
 }
 
 /* Only clearly show Delete elective button when hovered on that row */
-#preapproved-electives-table .btn-danger,
-#elective-statistics-table .btn-success {
+#preapproved-electives-table .btn-xs,
+#elective-statistics-table .btn-xs {
     opacity: 0.4
 }
 
-#preapproved-electives-table tr:hover .btn-danger,
-#elective-statistics-table tr:hover .btn-success {
+#preapproved-electives-table tr:hover .btn-xs,
+#elective-statistics-table tr:hover .btn-xs {
     opacity: 1
 }

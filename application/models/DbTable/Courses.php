@@ -227,7 +227,12 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
      */
     public function getAllSubmittedElectives($program) {
         $q = $this->select()
-            ->from('courses', array('course_number', 'course_name', 'count(*) as freq'))
+            ->from('courses', array(
+                'course_number',
+                'course_name',
+                'count(*) as freq',
+                "(course_number IN (SELECT course_number FROM preapproved_electives WHERE program = '$program')) as preapproved"
+            ))
             ->join(array('users' => 'users'), "users.id = courses.student_id AND users.program = '$program'", array())
             ->where("courses.course_number != ''")
             ->where('courses.taking_as = ?', 'elective')

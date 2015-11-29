@@ -42,5 +42,42 @@ app.controller('StatisticsController', ['$scope', function ($scope) {
         });
     };
     
+    $scope.preapprove = function (elective) {
+        jQuery.ajax({
+            url: baseUrl + "/admin/add-preapproved-elective/",
+			data: {
+				program: $scope.selectedProgram[0],
+				courseNumber: elective.course_number,
+				courseName: elective.course_name
+			},
+            success: function (result) {
+                $scope.loadElectives();
+            },
+			error: function (result) {
+				alert("Failed to add elective. Please try again later");
+                console.log(result);
+			},
+			async: false
+        });
+    };
+    
+    $scope.removePreapproval = function (elective) {
+		jQuery.ajax({
+			url: baseUrl + "/admin/delete-preapproved-elective",
+			data: {
+				program: $scope.selectedProgram[0],
+				courseNumber: elective.course_number
+			},
+			success: function () {
+				$scope.loadElectives();
+			},
+			error: function (result) {
+				alert("Failed to delete elective. Please try again later");
+                console.log(result);
+			},
+			async: false
+		});
+    };
+    
     $scope.loadPrograms();
 }]);

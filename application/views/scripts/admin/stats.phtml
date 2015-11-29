@@ -32,7 +32,10 @@
                         <td>{{ elective.course_name }}</td>
                         <td class='center-text'>{{ elective.freq }}</td>
                         <td class='center-text'>
-                            <button class="btn btn-success btn-xs" ng-click="" type="button">Add</button>
+                            <button ng-show="elective.preapproved == 0" class="btn btn-success btn-xs"
+                                ng-click="preapprove(elective)" type="button">Add</button>
+                            <button ng-show="elective.preapproved == 1" class="btn btn-danger btn-xs"
+                                ng-click="removePreapproval(elective)" type="button">Remove</button>
                         </td>
                     </tr>
                     

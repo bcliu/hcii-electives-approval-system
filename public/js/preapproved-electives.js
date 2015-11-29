@@ -65,7 +65,13 @@ app.controller('PreapprovedElectivesController', ['$scope', function ($scope) {
 			obj.popover('hide');
 			obj.popover('destroy');
 		}, 3000);
-	}
+	};
+	
+	$scope.keyPressed = function (event) {
+		if (event.which == 13) {
+			$scope.addNewCourse();
+		}
+	};
 	
 	/* Add and delete have to be synchronized -- otherwise new electives will be loaded before
 	 * request is completed!
@@ -103,7 +109,7 @@ app.controller('PreapprovedElectivesController', ['$scope', function ($scope) {
 			url: baseUrl + "/admin/delete-preapproved-elective",
 			data: {
 				program: $scope.selectedProgram[0],
-				courseNumber: elective['course_number']
+				courseNumber: elective.course_number
 			},
 			success: function () {
 				$scope.loadElectives();
