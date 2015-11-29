@@ -479,6 +479,26 @@ class AdminController extends Zend_Controller_Action {
         echo Zend_Json::encode($dbPreapproved->getAll($program)->toArray());
     }
     
+    public function addPreapprovedElectiveAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbPreapproved = new Application_Model_DbTable_PreapprovedElectives();
+        $req = $this->getRequest();
+        $program = $req->getParam('program');
+        $courseNumber = $req->getParam('courseNumber');
+        $courseName = $req->getParam('courseName');
+        
+        try {
+            $dbPreapproved->add($courseNumber, $courseName, $program);
+            echo "Success";
+        } catch (Exception $e) {
+            $this->getResponse()
+                ->setHttpResponseCode(500)
+                ->appendBody($e->getMessage());
+        }
+    }
+    
     /**
      * Used in Statistics page to get submitted electives under a program sorted by frequency
      */

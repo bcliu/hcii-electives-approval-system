@@ -11,7 +11,7 @@ class Application_Model_DbTable_PreapprovedElectives extends Zend_Db_Table_Abstr
 			'course_name' => $courseName,
 			'program' => $program
 		);
-		$this->insert($data);
+		return $this->insert($data);
 	}
 	
 	public function delete($courseNumber) {

@@ -26,15 +26,30 @@
             </thead>
             <tbody>
                 <tr ng-repeat="elective in electives">
-                    <th scope="row">{{ $index + 1 }}</th>
-                    <td>{{ elective.course_number }}</td>
+                    <th scope="row" style='width: 50px'>{{ $index + 1 }}</th>
+                    <td style='width: 180px'>{{ elective.course_number }}</td>
                     <td>{{ elective.course_name }}</td>
                     <td></td>
                 </tr>
                 
                 <tr ng-show="!electives.length">
+                    <th style='width: 50px'></th>
+                    <td style='width: 180px'><i>No courses found</i></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                
+                <tr>
                     <th></th>
-                    <td><i>No courses found</i></td>
+                    <td><input type="text" class="form-control" placeholder="Click to add a course"
+                        ng-model="newCourseNumber" ng-click="enterNewCourseEditing()" ng-blur="exitNewCourseEditing()"></td>
+                    <td><input ng-show="newCourseEditing" type="text" class="form-control"  ng-blur="exitNewCourseEditing()"
+                        placeholder="Course name" ng-model="newCourseName"></td>
+                    <td>
+                        <button ng-show="newCourseEditing" class="btn btn-success" ng-click="addNewCourse()"
+                            data-toggle="popover" id='btn-add-new-course' type="button">Add</button>
+                        <button ng-show="newCourseEditing" class="btn btn-default" ng-click="clearNewCourse()" type="button">Clear</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
