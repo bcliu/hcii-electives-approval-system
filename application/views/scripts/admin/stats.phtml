@@ -14,14 +14,14 @@
         </span>
         
         <div class="panel panel-default" style='margin-top: 20px'>
-            <table class='table'>
+            <table class='table table-hover' id='elective-statistics-table'>
                 <thead>
                     <tr>
                         <th style='width: 50px'>#</th>
                         <th style='width: 150px'>Course number</th>
                         <th>Course name</th>
-                        <th>Count</th>
-                        <th>Add to Preapproved</th>
+                        <th class='center-text'>Count</th>
+                        <th class='center-text'>Preapprove</th>
                     </tr>
                 </thead>
                 
@@ -30,8 +30,10 @@
                         <th scope="row">{{ $index + 1 }}</th>
                         <td>{{ elective.course_number }}</td>
                         <td>{{ elective.course_name }}</td>
-                        <td>{{ elective.freq }}</td>
-                        <td><span class='glyphicon glyphicon-plus-sign' style='font-size: 1.4em; color: #506FDC'></span></td>
+                        <td class='center-text'>{{ elective.freq }}</td>
+                        <td class='center-text'>
+                            <button class="btn btn-success btn-xs" ng-click="" type="button">Add</button>
+                        </td>
                     </tr>
                     
                     <tr ng-show="!electives.length">

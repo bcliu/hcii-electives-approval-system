@@ -15,7 +15,7 @@
     </div>
     
     <div class="panel panel-default" style='margin-top: 20px'>
-        <table class="table">
+        <table id='preapproved-electives-table' class="table table-hover">
             <thead>
                 <tr>
                     <th>#</th>
@@ -29,14 +29,14 @@
                     <th scope="row" style='width: 50px'>{{ $index + 1 }}</th>
                     <td style='width: 180px'>{{ elective.course_number }}</td>
                     <td>{{ elective.course_name }}</td>
-                    <td><button class="btn btn-danger btn-xs" ng-click="delete(elective)" type="button">Delete</button></td>
+                    <td style='width: 200px'><button class="btn btn-danger btn-xs" ng-click="delete(elective)" type="button">Delete</button></td>
                 </tr>
                 
                 <tr ng-show="!electives.length">
                     <th style='width: 50px'></th>
                     <td style='width: 180px'><i>No courses found</i></td>
                     <td></td>
-                    <td></td>
+                    <td style='width: 200px'></td>
                 </tr>
                 
                 <tr>
