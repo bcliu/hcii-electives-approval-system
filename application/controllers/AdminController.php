@@ -499,6 +499,25 @@ class AdminController extends Zend_Controller_Action {
         }
     }
     
+    public function deletePreapprovedElectiveAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbPreapproved = new Application_Model_DbTable_PreapprovedElectives();
+        $req = $this->getRequest();
+        $program = $req->getParam('program');
+        $courseNumber = $req->getParam('courseNumber');
+        
+        try {
+            $dbPreapproved->deleteElective($courseNumber, $program);
+            echo "Success";
+        } catch (Exception $e) {
+            $this->getResponse()
+                ->setHttpResponseCode(500)
+                ->appendBody($e->getMessage());
+        }
+    }
+    
     /**
      * Used in Statistics page to get submitted electives under a program sorted by frequency
      */

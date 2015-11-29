@@ -53,8 +53,33 @@ app.controller('PreapprovedElectivesController', ['$scope', function ($scope) {
 		$scope.newCourseEditing = false;
 	};
 	
+	$scope.showPopover = function (obj, msg) {
+		obj.popover('destroy');
+		obj.popover({
+			content: msg,
+			placement: 'top',
+			html: true
+		});
+		obj.popover('show');
+		setTimeout(function() {
+			obj.popover('hide');
+			obj.popover('destroy');
+		}, 3000);
+	}
+	
+	/* Add and delete have to be synchronized -- otherwise new electives will be loaded before
+	 * request is completed!
+	 */
 	$scope.addNewCourse = function () {
-		// TODO: validation
+		if ($scope.newCourseNumber.match(/^\d{2}-\d{3}$/) == null) {
+			$scope.showPopover($('#new-course-number-input'), 'Course number must be in<br />the form of xx-xxx');
+			return;
+		}
+		if ($scope.newCourseName.length == 0) {
+			$scope.showPopover($('#new-course-name-input'), 'Course name cannot be empty');
+			return;
+		}
+		
         jQuery.ajax({
             url: baseUrl + "/admin/add-preapproved-elective/",
 			data: {
@@ -67,23 +92,28 @@ app.controller('PreapprovedElectivesController', ['$scope', function ($scope) {
 				$scope.clearNewCourse();
             },
 			error: function (result) {
-				$('#btn-add-new-course').popover('show');
+				$scope.showPopover($('#btn-add-new-course'), 'Failed to submit the elective.<br />Has it already been added?');
 			},
-            async: false
+			async: false
         });
 	};
 	
-	$scope.loadPrograms();
+	$scope.delete = function (elective) {
+		jQuery.ajax({
+			url: baseUrl + "/admin/delete-preapproved-elective",
+			data: {
+				program: $scope.selectedProgram[0],
+				courseNumber: elective['course_number']
+			},
+			success: function () {
+				$scope.loadElectives();
+			},
+			error: function (result) {
+				alert("Failed to delete elective. Please try again later");
+			},
+			async: false
+		});
+	};
 	
-	var addNewCourseButton = $('#btn-add-new-course');
-	addNewCourseButton.on('shown.bs.popover', function() {
-		setTimeout(function() {
-			addNewCourseButton.popover('hide');
-		}, 5000);
-	});
-	addNewCourseButton.popover({
-		content: 'Failed to submit the elective.<br />Has it already been added?',
-		placement: 'top',
-		html: true
-	});
+	$scope.loadPrograms();
 }]);
