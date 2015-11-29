@@ -1,75 +1,78 @@
 <div class="row main-row" style='width: auto; min-width: 1024px; max-width: 90%; min-height: 95%' ng-controller='MessageCtrl'>
     <div class="col-sm-12">
         <div style='display: none' class="alert alert-success" role="alert"><b>New!</b> You can now use Messages to communicate with advisors and submit clarifications.</div>
-        <table class='table'>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Course name</th>
-                    <th>Course number</th>
-                    <th>Units</th>
-                    <th>Description</th>
-                    <th>Taking as</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Advisor comment</th>
-                    <th>Messages</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $index = 1;
-                foreach ($this->all_courses as $course) { ?>
-                <tr>
-                    <td><?= $index ?></td>
-                    <td><?= $course['course_name'] ?></td>
-                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['course_number']; ?></td>
-                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['units']; ?></td>
-                    <td><?= $course['course_description'] ?></td>
-                    <td><?php echo ucfirst($course['taking_as']); ?></td>
-                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['submission_time']; ?></td>
-                    <td><?php
-                        switch ($course['status']) {
-                            case 'taking':
-                            echo "<span>In progress</span>";
-                            break;
-
-                            case 'taken':
-                            echo "<span class='text-success'>Taken</span>";
-                            break;
-
-                            case 'submitted':
-                            echo "<span class='text-info'>Submitted, under review</span>";
-                            break;
-
-                            case 'rejected':
-                            echo "<span class='text-danger'>Rejected</span>";
-                            break;
-
-                            case 'approved':
-                            echo "<span class='text-success'>Approved</span>";
-                            break;
-
-                            case 'need-clarification':
-                            echo "<span class='text-warning'>Clarification needed</span>";
-                            break;
-
-                            case 'satisfied':
-                            echo "<span class='text-success'>Satisfied</span>";
-                            break;
-
-                            case 'not-satisfied':
-                            echo "<span class='text-danger'>Not satisfied</span>";
-                            break;
-                        }
-
-                         ?></td>
-                    <td><?php if ($course['taking_as'] != 'place-out') echo $course['comment']; ?></td>
-                    <td><a class='view-msg <?= $course['has_unread_msg'] ? "text-danger" : "" ?>' ng-click='showMessages(<?= $course['id'] ?>)' href='javascript: ;'><?= $course['has_unread_msg'] ? "Unread messages" : "View" ?></a></td>
-                </tr>
-                <?php $index++; } ?>
-            </tbody>
-        </table>
+        
+        <div class="panel panel-default">
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Course name</th>
+                        <th>Course number</th>
+                        <th>Units</th>
+                        <th>Description</th>
+                        <th>Taking as</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Advisor comment</th>
+                        <th>Messages</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $index = 1;
+                    foreach ($this->all_courses as $course) { ?>
+                    <tr>
+                        <th scope="row"><?= $index ?></th>
+                        <td><?= $course['course_name'] ?></td>
+                        <td><?php if ($course['taking_as'] != 'place-out') echo $course['course_number']; ?></td>
+                        <td><?php if ($course['taking_as'] != 'place-out') echo $course['units']; ?></td>
+                        <td><?= $course['course_description'] ?></td>
+                        <td><?php echo ucfirst($course['taking_as']); ?></td>
+                        <td><?php if ($course['taking_as'] != 'place-out') echo $course['submission_time']; ?></td>
+                        <td><?php
+                            switch ($course['status']) {
+                                case 'taking':
+                                echo "<span>In progress</span>";
+                                break;
+    
+                                case 'taken':
+                                echo "<span class='text-success'>Taken</span>";
+                                break;
+    
+                                case 'submitted':
+                                echo "<span class='text-info'>Submitted, under review</span>";
+                                break;
+    
+                                case 'rejected':
+                                echo "<span class='text-danger'>Rejected</span>";
+                                break;
+    
+                                case 'approved':
+                                echo "<span class='text-success'>Approved</span>";
+                                break;
+    
+                                case 'need-clarification':
+                                echo "<span class='text-warning'>Clarification needed</span>";
+                                break;
+    
+                                case 'satisfied':
+                                echo "<span class='text-success'>Satisfied</span>";
+                                break;
+    
+                                case 'not-satisfied':
+                                echo "<span class='text-danger'>Not satisfied</span>";
+                                break;
+                            }
+    
+                            ?></td>
+                        <td><?php if ($course['taking_as'] != 'place-out') echo $course['comment']; ?></td>
+                        <td><a class='view-msg <?= $course['has_unread_msg'] ? "text-danger" : "" ?>' ng-click='showMessages(<?= $course['id'] ?>)' href='javascript: ;'><?= $course['has_unread_msg'] ? "Unread messages" : "View" ?></a></td>
+                    </tr>
+                    <?php $index++; } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

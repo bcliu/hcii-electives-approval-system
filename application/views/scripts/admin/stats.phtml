@@ -1,36 +1,46 @@
-<div ng-controller="StatisticsController" class="row" style='width: 90%; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
+<div ng-controller="StatisticsController" class="row" style='width: 950px; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
     <div class="col-sm-12" style='height: 100%'>
         View top <input id='count-input' class='form-control' style='width:60px; display:inline !important' ng-model="numElectivesToShow" /> approved elective requests from
         <span class="dropdown" style='display: inline-block'>
-          <button class="btn btn-default dropdown-toggle" type="button" id="program-select" data-toggle="dropdown" aria-expanded="true">
-            {{ selectedProgram[1] }}
-            <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="program-select" id='programs-list'>
-            <li ng-repeat="program in programs" role="presentation">
-              <a role="menuitem" tabindex="-1" href="#" ng-click="programSelected(program)">{{ program[1] }}</a>
-            </li>
-          </ul>
+            <button class="btn btn-default dropdown-toggle" type="button" id="program-select" data-toggle="dropdown" aria-expanded="true">
+                {{ selectedProgram[1] }}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="program-select" id='programs-list'>
+                <li ng-repeat="program in programs" role="presentation">
+                    <a role="menuitem" tabindex="-1" href="#" ng-click="programSelected(program)">{{ program[1] }}</a>
+                </li>
+            </ul>
         </span>
-        <table class='table'>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Course number</th>
-                    <th>Course name</th>
-                    <th>Count</th>
-                    <th>Add to Preapproved List</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="elective in electives | limitTo:numElectivesToShow">
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ elective.course_number }}</td>
-                    <td>{{ elective.course_name }}</td>
-                    <td>{{ elective.freq }}</td>
-                    <td><span class='glyphicon glyphicon-plus-sign' style='font-size: 1.4em; color: #506FDC'></span></td>
-                </tr>
-            </tbody>
-        </table>
+        
+        <div class="panel panel-default" style='margin-top: 20px'>
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Course number</th>
+                        <th>Course name</th>
+                        <th>Count</th>
+                        <th>Add to Preapproved</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    <tr ng-repeat="elective in electives | limitTo:numElectivesToShow">
+                        <th scope="row">{{ $index + 1 }}</th>
+                        <td>{{ elective.course_number }}</td>
+                        <td>{{ elective.course_name }}</td>
+                        <td>{{ elective.freq }}</td>
+                        <td><span class='glyphicon glyphicon-plus-sign' style='font-size: 1.4em; color: #506FDC'></span></td>
+                    </tr>
+                    
+                    <tr ng-show="!electives.length">
+                        <th></th>
+                        <td><i>No courses found</i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
     </div>
 </div>

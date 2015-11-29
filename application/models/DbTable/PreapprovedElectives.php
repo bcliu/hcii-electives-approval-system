@@ -15,10 +15,10 @@ class Application_Model_DbTable_PreapprovedElectives extends Zend_Db_Table_Abstr
 	}
 	
 	public function delete($courseNumber) {
-		$this->delete($this->quoteInto('course_number = ?', $courseNumber));
+		$this->delete(array('course_number = ?', $courseNumber));
 	}
 	
 	public function getAll($program) {
-		return $this->fetchAll($this->quoteInto('program = ?', $program));
+		return $this->fetchAll(array('program = ?' => $program));
 	}
 }

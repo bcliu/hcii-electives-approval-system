@@ -1,14 +1,16 @@
 <div ng-controller="PreapprovedElectivesController" class="row"
-        style='width: 1000px; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
+        style='width: 950px; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
     View preapproved electives for
     
     <div class="dropdown" style='display: inline-block'>
         <button class="btn btn-default dropdown-toggle" type="button" id="program-selector"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            BHCI <span class="caret"></span>
+            {{ selectedProgram[1] }} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" aria-labelledby="program-selector">
-            <li><a href="#">BHCI</a></li>
+            <li ng-repeat="program in programs">
+                <a role="menuitem" tabindex="-1" href="#" ng-click="programSelected(program)">{{ program[1] }}</a>
+            </li>
         </ul>
     </div>
     
@@ -23,11 +25,16 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
+                <tr ng-repeat="elective in electives">
+                    <th scope="row">{{ $index + 1 }}</th>
+                    <td>{{ elective.course_number }}</td>
+                    <td>{{ elective.course_name }}</td>
+                    <td></td>
+                </tr>
+                
+                <tr ng-show="!electives.length">
+                    <th></th>
+                    <td><i>No courses found</i></td>
                 </tr>
             </tbody>
         </table>

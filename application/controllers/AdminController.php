@@ -456,18 +456,27 @@ class AdminController extends Zend_Controller_Action {
         $this->_helper->viewRenderer->setNoRender(true);
         
         echo Zend_Json::encode(array(
-            'bhci' => 'BHCI',
-            'ugminor' => 'Undergraduate Minor',
-            'learning-media' => 'Learning Media Minor',
-            'mhci' => 'MHCI',
-            'metals' => 'METALS'
+            array('bhci', 'BHCI'),
+            array('ugminor', 'Undergraduate Minor'),
+            array('learning-media', 'Learning Media Minor'),
+            array('mhci', 'MHCI'),
+            array('metals', 'METALS')
         ));
     }
 
     public function preapprovedElectivesAction() {
         $this->view->title = 'EASy - Preapproved Electives';
         
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/preapproved-electives.js');
+    }
+    
+    public function getPreapprovedElectivesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
         
+        $dbPreapproved = new Application_Model_DbTable_PreapprovedElectives();
+        $program = $this->getRequest()->getParam('program');
+        echo Zend_Json::encode($dbPreapproved->getAll($program)->toArray());
     }
     
     /**

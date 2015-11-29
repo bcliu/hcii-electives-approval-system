@@ -1,13 +1,7 @@
 app.controller('StatisticsController', ['$scope', function ($scope) {
     $scope.electives = [];
     
-    $scope.programs = [
-        [ 'bhci', 'BHCI' ],
-        [ 'ugminor', 'Undergraduate Minor' ],
-        [ 'learning-media', 'Learning Media' ],
-        [ 'mhci', 'MHCI' ],
-        [ 'metals', 'METALS' ]
-    ];
+    $scope.programs = [ "", "Loading..." ];
     
     $scope.selectedProgram = $scope.programs[0];
     
@@ -17,6 +11,18 @@ app.controller('StatisticsController', ['$scope', function ($scope) {
         $scope.selectedProgram = program;
         $scope.loadElectives();
     };
+    
+	$scope.loadPrograms = function () {
+		jQuery.ajax({
+			url: baseUrl + "/admin/get-programs",
+			success: function (result) {
+				$scope.programs = jQuery.parseJSON(result);
+				$scope.selectedProgram = $scope.programs[0];
+                $scope.loadElectives();
+			},
+			async: false
+		});
+	};
     
     /**
      * ====================
@@ -36,7 +42,5 @@ app.controller('StatisticsController', ['$scope', function ($scope) {
         });
     };
     
-    (function() {
-        $scope.loadElectives();
-    })();
+    $scope.loadPrograms();
 }]);
