@@ -8,10 +8,23 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
         $http.get(url)
             .success(function (data) {
                 $scope.courses = angular.fromJson(data);
+                /* Indexes of courses with nonempty advisor comments */
+                var courseIdsWithComment = [];
                 angular.forEach($scope.courses, function (v, k) {
                     /* Generate index for correct display on the # column */
                     $scope.courses[k].id = k;
                     $scope.courseDescriptionShown.push(false);
+                    
+                    if (v.comment != "") {
+                        courseIdsWithComment.push(k);
+                    }
+                });
+                
+                angular.forEach(courseIdsWithComment, function (v, k) {
+                    $scope.courses.splice(v + k + 1, 0, {
+                        comment: $scope.courses[v + k].comment,
+                        large_row_type: "comment"
+                    });
                 });
             })
             .error(function () {
@@ -45,7 +58,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
         if (!isShown) {
             $scope.courses.splice(listIndex + 1, 0, {
                 course_description: course.course_description,
-                large_row: true
+                large_row_type: "description"
             });
         } else {
             $scope.courses.splice(listIndex + 1, 1);
