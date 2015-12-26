@@ -5,7 +5,7 @@
             <div style='display: none' class="alert alert-success" role="alert"><b>New!</b> You can now use Messages to communicate with advisors and submit clarifications.</div>
             
             <div class="panel panel-default">
-                <table id='student-courses-table' class='table table-hover table-striped'>
+                <table id='student-courses-table' class='table table-hover'>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -20,12 +20,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="course in courses">
-                            <th scope="row">{{ $index + 1 }}
+                        <tr ng-if="false" ng-repeat-start="course in courses"></tr>
+                        
+                        <tr ng-if="!course.large_row">
+                            <th scope="row">{{ course.id + 1 }}</th>
                             <td>{{ generateCourseNameNumberText(course) }}</td>
                             <td>{{ course.taking_as == 'place-out' ? '-' : course.units }}</td>
                             
-                            <td><a href='javascript: ;'>View</a></td>
+                            <td>
+                                <a ng-show="course.course_description != ''" href='javascript: ;'
+                                   ng-click="toggleCourseDescription($index, course)">
+                                    {{ courseDescriptionShown[course.id] ? "Hide" : "Show" }}
+                                </a>
+                                <span ng-show="course.course_description == ''">-</span>
+                            </td>
                             <td>{{ ucfirst(course.taking_as) }}</td>
                             
                             <td>{{ course.taking_as == 'place-out' ? '-' : generateDateText(course.submission_time) }}</td>
@@ -48,6 +56,15 @@
                                 {{ course.has_unread_msg ? "Unread messages" : "View" }}
                             </a></td>
                         </tr>
+                        
+                        <tr ng-if="course.large_row" style='background-color: #f9f9f9'>
+                            <td colspan="9">
+                                <span style="font-weight: bold">Description:&nbsp</span>
+                                {{ course.course_description }}
+                            </td>
+                        </tr>
+                        
+                        <tr ng-if="false" ng-repeat-end></tr>
                     </tbody>
                 </table>
             </div>

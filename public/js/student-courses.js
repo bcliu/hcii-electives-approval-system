@@ -1,5 +1,6 @@
 app.controller('StudentCoursesController', ['$scope', '$http', function ($scope, $http) {
 	$scope.courses = [];
+    $scope.courseDescriptionShown = [];
 	
     $scope.loadCourses = function () {
         var url = baseUrl + "/student/get-courses-list";
@@ -7,8 +8,11 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
         $http.get(url)
             .success(function (data) {
                 $scope.courses = angular.fromJson(data);
-                console.log($scope.courses);
-                //$scope.courses.splice(1, 0, { large_row: true });
+                angular.forEach($scope.courses, function (v, k) {
+                    /* Generate index for correct display on the # column */
+                    $scope.courses[k].id = k;
+                    $scope.courseDescriptionShown.push(false);
+                });
             })
             .error(function () {
                 alert("Loading courses failed. Try again later.");
@@ -33,6 +37,20 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
     
     $scope.generateDateText = function (dateTime) {
         return moment(dateTime).format("MM/DD/YYYY");
+    };
+    
+    /* listIndex: index of row on page */
+    $scope.toggleCourseDescription = function (listIndex, course) {
+        var isShown = $scope.courseDescriptionShown[course.id];
+        if (!isShown) {
+            $scope.courses.splice(listIndex + 1, 0, {
+                course_description: course.course_description,
+                large_row: true
+            });
+        } else {
+            $scope.courses.splice(listIndex + 1, 1);
+        }
+        $scope.courseDescriptionShown[course.id] = !isShown;
     };
     
     $scope.loadCourses();
