@@ -218,3 +218,16 @@ table#users-table tbody {
 #elective-statistics-table tr:hover .btn-xs {
     opacity: 1
 }
+
+#student-courses-table th {
+    white-space: nowrap
+}
+
+#student-courses-table td:nth-child(2) {
+    white-space: nowrap
+}
+
+#student-courses-table td,
+#student-courses-table th {
+    border-right: 1px solid #ddd;
+}

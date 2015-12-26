@@ -192,7 +192,6 @@ if (typeof angular != "undefined") {
                 course_id: $rootScope.courseId,
                 message: $scope.currentMessage
             };
-            console.log(data);
             var prefix = $scope.isInStudentsView() ? 'student' : 'admin';
             $http.post(baseUrl + "/" + prefix + "/send-message", data)
                 .success(function (data) {
@@ -215,7 +214,6 @@ if (typeof angular != "undefined") {
 
         $scope.showMessages = function (id) {
             $rootScope.courseId = id;
-            console.log($rootScope.courseId);
             $scope.loadMessages();
             /* Show Messages modal dialog */
             $('#messages').modal('show');
