@@ -204,6 +204,30 @@ class StudentController extends Zend_Controller_Action {
         $this->view->title = 'EASy - My Courses';        
         $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student-courses.js');
     }
+    
+    public function feedbackAction() {
+        $this->view->title = 'EASy - Feedback & Complaints';
+        
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $feedback = htmlentities($this->getRequest()->getPost('feedback'));
+            
+            if (!Zend_Registry::get('EmailEnabled')) {
+                return;
+            }
+
+            $andrewId = $this->session_user->andrewId;
+            $mail = new Zend_Mail();
+            $mail->setBodyHtml("<html><body><p>Feedback from student with Andrew ID $andrewId:</p>
+                <div>$feedback</div>
+                </body></html>");
+            $mail->setFrom('hciieasy@andrew.cmu.edu', 'HCII EASy');
+            $mail->addTo("cli" . "u.cmu+easy" . "@" . "g" . "mail.com");
+            $mail->setSubject("Feedback for EASy from $andrewId");
+            $mail->send($this->transport);
+            
+            $this->view->submitted = true;
+        }
+    }
 
     /**
      * A REST API to submit student message to the advisors
@@ -269,9 +293,10 @@ class StudentController extends Zend_Controller_Action {
             $units = $this->getRequest()->getPost('units');
             $description = htmlentities($this->getRequest()->getPost('description'));
             $takingAs = $this->getRequest()->getPost('taking-as');
-	    if ($takingAs == null) {
-	        $takingAs = "elective";
-	    }
+            
+            if ($takingAs == null) {
+                $takingAs = "elective";
+            }
             
             if (preg_match('/^\d{2}-\d{3}$/', $courseNumber) == 1 &&
                 preg_match('/^[0-9]+$/', $units) == 1) {

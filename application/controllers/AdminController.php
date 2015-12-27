@@ -290,6 +290,8 @@ class AdminController extends Zend_Controller_Action {
             $mail->setBodyHtml("<html><body><p>An advisor sent you a new message regarding the course \"$courseName\":</p>
                 <p>$message</p>
                 <div>&nbsp;</div>
+                <div>Please do not reply to this message as it was sent by an unmonitored robot.</div>
+                <div>&nbsp;</div>
                 <div>Best,</div>
                 <div>EASy Robot</div>
                 </body></html>");
