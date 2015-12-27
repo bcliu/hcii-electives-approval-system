@@ -12,7 +12,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
                 var courseIdsWithComment = [];
                 angular.forEach($scope.courses, function (v, k) {
                     /* Generate index for correct display on the # column */
-                    $scope.courses[k].id = k;
+                    $scope.courses[k].display_id = k;
                     $scope.courseDescriptionShown.push(false);
                     
                     if (v.comment != "" && v.comment != null) {
@@ -54,7 +54,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
     
     /* listIndex: index of row on page */
     $scope.toggleCourseDescription = function (listIndex, course) {
-        var isShown = $scope.courseDescriptionShown[course.id];
+        var isShown = $scope.courseDescriptionShown[course.display_id];
         if (!isShown) {
             $scope.courses.splice(listIndex + 1, 0, {
                 course_description: course.course_description,
@@ -63,7 +63,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
         } else {
             $scope.courses.splice(listIndex + 1, 1);
         }
-        $scope.courseDescriptionShown[course.id] = !isShown;
+        $scope.courseDescriptionShown[course.display_id] = !isShown;
     };
     
     $scope.loadCourses();

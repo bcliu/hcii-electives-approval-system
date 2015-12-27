@@ -22,14 +22,14 @@
                         <tr ng-if="false" ng-repeat-start="course in courses"></tr>
                         
                         <tr ng-if="!course.large_row_type">
-                            <th scope="row">{{ course.id + 1 }}</th>
+                            <th scope="row">{{ course.display_id + 1 }}</th>
                             <td class='one-line'>{{ generateCourseNameNumberText(course) }}</td>
                             <td>{{ (course.taking_as == 'place-out' || course.units == 0) ? '-' : course.units }}</td>
                             
                             <td>
                                 <a ng-show="!(course.course_description == '' || course.course_description == null)" href='javascript: ;'
                                    ng-click="toggleCourseDescription($index, course)">
-                                    {{ courseDescriptionShown[course.id] ? "Hide" : "Show" }}
+                                    {{ courseDescriptionShown[course.display_id] ? "Hide" : "Show" }}
                                 </a>
                                 <span ng-show="(course.course_description == '' || course.course_description == null)">-</span>
                             </td>
