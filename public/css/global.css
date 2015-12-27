@@ -231,3 +231,8 @@ table#users-table tbody {
 #student-courses-table th {
     border-right: 1px solid #ddd;
 }
+
+.one-line {
+    white-space: nowrap;
+    overflow: hidden
+}

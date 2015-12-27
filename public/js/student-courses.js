@@ -15,7 +15,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
                     $scope.courses[k].id = k;
                     $scope.courseDescriptionShown.push(false);
                     
-                    if (v.comment != "") {
+                    if (v.comment != "" && v.comment != null) {
                         courseIdsWithComment.push(k);
                     }
                 });

@@ -23,21 +23,21 @@
                         
                         <tr ng-if="!course.large_row_type">
                             <th scope="row">{{ course.id + 1 }}</th>
-                            <td>{{ generateCourseNameNumberText(course) }}</td>
-                            <td>{{ course.taking_as == 'place-out' ? '-' : course.units }}</td>
+                            <td class='one-line'>{{ generateCourseNameNumberText(course) }}</td>
+                            <td>{{ (course.taking_as == 'place-out' || course.units == 0) ? '-' : course.units }}</td>
                             
                             <td>
-                                <a ng-show="course.course_description != ''" href='javascript: ;'
+                                <a ng-show="!(course.course_description == '' || course.course_description == null)" href='javascript: ;'
                                    ng-click="toggleCourseDescription($index, course)">
                                     {{ courseDescriptionShown[course.id] ? "Hide" : "Show" }}
                                 </a>
-                                <span ng-show="course.course_description == ''">-</span>
+                                <span ng-show="(course.course_description == '' || course.course_description == null)">-</span>
                             </td>
                             <td>{{ ucfirst(course.taking_as) }}</td>
                             
                             <td>{{ course.taking_as == 'place-out' ? '-' : generateDateText(course.submission_time) }}</td>
                             
-                            <td>
+                            <td class='one-line'>
                                 <span ng-show="course.status == 'taking'">In progress</span>
                                 <span ng-show="course.status == 'taken'" class='text-success'>Taken</span>
                                 <span ng-show="course.status == 'submitted'" class='text-info'>Submitted, under review</span>
