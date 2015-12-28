@@ -66,6 +66,35 @@ class StudentController extends Zend_Controller_Action {
         echo Zend_Json::encode($this->dbCourses->getAllCoursesOfUser($userId, "student"));
     }
     
+    public function removeCourseAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $userId = $this->session_user->userId;
+        $courseId = $this->getRequest()->getParam('courseId');
+        
+        if ($courseId == null || $courseId == '' || $this->dbCourses->getCourseById($courseId) == null) {
+            echo Zend_Json::encode(array(
+                'success' => 0,
+                'message' => 'Invalid request'
+            ));
+        }
+        
+        $course = $this->dbCourses->getCourseById($courseId);
+        $courseStatus = $course->status;
+        /* Only courses under review or need clarification can be deleted */
+        if ($course->student_id == $userId && 
+            ($courseStatus == 'submitted' || $courseStatus == 'need-clarification')) {
+            $this->dbCourses->deleteCourse($courseId);
+            echo Zend_Json::encode(array('success' => 1));
+        } else {
+            echo Zend_Json::encode(array(
+                'success' => 0,
+                'message' => 'Unauthorized'
+            ));
+        }
+    }
+    
     public function getForcedValuesAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);

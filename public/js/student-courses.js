@@ -5,32 +5,47 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
     $scope.loadCourses = function () {
         var url = baseUrl + "/student/get-courses-list";
         
-        $http.get(url)
-            .success(function (data) {
-                $scope.courses = angular.fromJson(data);
-                /* Indexes of courses with nonempty advisor comments */
-                var courseIdsWithComment = [];
-                angular.forEach($scope.courses, function (v, k) {
-                    /* Generate index for correct display on the # column */
-                    $scope.courses[k].display_id = k;
-                    $scope.courseDescriptionShown.push(false);
-                    
-                    if (v.comment != "" && v.comment != null) {
-                        courseIdsWithComment.push(k);
-                    }
-                });
+        $http.get(url).success(function (data) {
+            $scope.courses = angular.fromJson(data);
+            /* Indexes of courses with nonempty advisor comments */
+            var courseIdsWithComment = [];
+            angular.forEach($scope.courses, function (v, k) {
+                /* Generate index for correct display on the # column */
+                $scope.courses[k].display_id = k;
+                $scope.courseDescriptionShown.push(false);
                 
-                angular.forEach(courseIdsWithComment, function (v, k) {
-                    $scope.courses.splice(v + k + 1, 0, {
-                        comment: $scope.courses[v + k].comment,
-                        large_row_type: "comment"
-                    });
-                });
-            })
-            .error(function () {
-                alert("Loading courses failed. Try again later.");
+                if (v.comment != "" && v.comment != null) {
+                    courseIdsWithComment.push(k);
+                }
             });
+            
+            angular.forEach(courseIdsWithComment, function (v, k) {
+                $scope.courses.splice(v + k + 1, 0, {
+                    comment: $scope.courses[v + k].comment,
+                    large_row_type: "comment"
+                });
+            });
+        }).error(function () {
+            alert("Loading courses failed. Try again later.");
+        });
     };
+    
+    $scope.removeCourse = function (course) {
+        var del = confirm("Are you sure to remove " + course.course_number + "?");
+        if (del == true) {
+            var url = baseUrl + "/student/remove-course";
+            $http.get(url, {
+                params: { courseId: course.id }
+            }).success(function (data) {
+                var json = angular.fromJson(data);
+                if (json.success == 1) {
+                    $scope.loadCourses();
+                } else {
+                    alert('Removing course failed: ' + json.message);
+                }
+            });
+        }
+    }
     
     $scope.generateCourseNameNumberText = function (course) {
         var name = course.course_name;

@@ -149,8 +149,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             }
         }
 
-        //error_log("Generated query grade string: $query");
-
         return $query;
     }
 
@@ -198,11 +196,9 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         $studentId = $course->student_id;
         $originalStatus = $course->status;
         if ($originalStatus == 'submitted' && $status != 'submitted') {
-            //error_log("adding 1 to awaiting count");
             $dbUsers->addAwaitingCount($studentId, -1);
         }
         else if ($originalStatus != 'submitted' && $status == 'submitted') {
-            //error_log("adding -1 to awaiting count");
             $dbUsers->addAwaitingCount($studentId, 1);
         }
 
@@ -242,7 +238,6 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             ->order('freq desc')
             ->setIntegrityCheck(false);
 
-        //error_log($q->assemble());
         $rows = $this->fetchAll($q);
         return $rows;
     }

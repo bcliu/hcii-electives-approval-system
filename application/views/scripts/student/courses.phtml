@@ -8,39 +8,40 @@
                 <table id='student-courses-table' class='table table-hover'>
                     <thead>
                         <tr>
-                            <th style='width: 1px'>#</th>
+                            <th style='width: 1px' class='center-text'>#</th>
                             <th>Course name</th>
-                            <th style='width: 1px'>Units</th>
-                            <th style='width: 1px'>Description</th>
-                            <th style='width: 1px'>Type</th>
-                            <th style='width: 1px'>Date</th>
-                            <th style='width: 100px'>Status</th>
-                            <th style='width: 1px'>Messages</th>
+                            <th style='width: 1px' class='center-text'>Units</th>
+                            <th style='width: 1px' class='center-text'>Description</th>
+                            <th style='width: 1px' class='center-text'>Type</th>
+                            <th style='width: 1px' class='center-text'>Date</th>
+                            <th style='width: 100px' class='center-text'>Status</th>
+                            <th style='width: 1px' class='center-text'>Messages</th>
+                            <th style='max-width: 120px' class='center-text'>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr ng-if="false" ng-repeat-start="course in courses"></tr>
                         
                         <tr ng-if="!course.large_row_type">
-                            <th scope="row">{{ course.display_id + 1 }}</th>
+                            <th scope="row" class='center-text'>{{ course.display_id + 1 }}</th>
                             <td class='one-line'>{{ generateCourseNameNumberText(course) }}</td>
-                            <td>{{ (course.taking_as == 'place-out' || course.units == 0) ? '-' : course.units }}</td>
-                            
-                            <td>
+                            <td class='center-text'>{{ (course.taking_as == 'place-out' || course.units == 0) ? '-' : course.units }}</td>
+
+                            <td class='center-text'>
                                 <a ng-show="!(course.course_description == '' || course.course_description == null)" href='javascript: ;'
                                    ng-click="toggleCourseDescription($index, course)">
                                     {{ courseDescriptionShown[course.display_id] ? "Hide" : "Show" }}
                                 </a>
                                 <span ng-show="(course.course_description == '' || course.course_description == null)">-</span>
                             </td>
-                            <td>{{ ucfirst(course.taking_as) }}</td>
+                            <td class='center-text'>{{ ucfirst(course.taking_as) }}</td>
                             
                             <td>{{ course.taking_as == 'place-out' ? '-' : generateDateText(course.submission_time) }}</td>
                             
-                            <td class='one-line'>
+                            <td class='one-line center-text'>
                                 <span ng-show="course.status == 'taking'">In progress</span>
                                 <span ng-show="course.status == 'taken'" class='text-success'>Taken</span>
-                                <span ng-show="course.status == 'submitted'" class='text-info'>Submitted, under review</span>
+                                <span ng-show="course.status == 'submitted'" class='text-info'>Under review</span>
                                 <span ng-show="course.status == 'rejected'" class='text-danger'>Rejected</span>
                                 <span ng-show="course.status == 'approved'" class='text-success'>Approved</span>
                                 <span ng-show="course.status == 'need-clarification'" class='text-warning'>Clarification needed</span>
@@ -48,11 +49,20 @@
                                 <span ng-show="course.status == 'not-satisfied'" class='text-danger'>Not satisfied</span>
                             </td>
                             
-                            <td><a class='view-msg {{ course.has_unread_msg ? "text-danger" : "" }}'
+                            <td class='center-text'><a class='view-msg {{ course.has_unread_msg ? "text-danger" : "" }}'
                                 ng-click='showMessages(course.id)'
                                 href='javascript: ;'>
                                 {{ course.has_unread_msg ? "Unread messages" : "View" }}
                             </a></td>
+                            
+                            <td class='center-text'>
+                                <div ng-show='course.status == "submitted" || course.status == "need-clarification"'
+                                    class="btn-group btn-group-xs" role="group">
+                                    <button type="button" class="btn btn-default">Edit</button>
+                                    <button type="button" class="btn btn-danger" ng-click='removeCourse(course)'>Remove</button>
+                                </div>
+                                <div ng-show='course.status != "submitted" && course.status != "need-clarification"'>-</div>
+                             </td>
                         </tr>
                         
                         <tr ng-if="course.large_row_type" style='background-color: #f9f9f9'>
