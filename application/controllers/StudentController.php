@@ -23,6 +23,7 @@ class StudentController extends Zend_Controller_Action {
         $this->dbPrograms = new Application_Model_DbTable_Programs();
         $this->dbCourses = new Application_Model_DbTable_Courses();
         $this->dbForcedValues = new Application_Model_DbTable_ForcedValues();
+        $this->dbChats = new Application_Model_DbTable_Chats();
         
         $this->view->andrewId = $this->session_user->andrewId;
         $user = $this->dbUsers->getUserById($this->session_user->userId);
@@ -57,6 +58,17 @@ class StudentController extends Zend_Controller_Action {
         $this->transport = new Zend_Mail_Transport_Smtp('smtp.gmail.com', $this->config);
     }
     
+    public function returnSuccess() {
+        echo Zend_Json::encode(array('success' => 1));
+    }
+    
+    public function returnFailure($msg) {
+        echo Zend_Json::encode(array(
+            'success' => 0,
+            'message' => $msg
+        ));
+    }
+    
     public function getCoursesListAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
@@ -66,32 +78,64 @@ class StudentController extends Zend_Controller_Action {
         echo Zend_Json::encode($this->dbCourses->getAllCoursesOfUser($userId, "student"));
     }
     
+    public function isValidCourseId($courseId) {
+        return $courseId != null && $courseId != '' && $this->dbCourses->getCourseById($courseId) != null;
+    }
+    
+    public function canCourseBeEdited($courseId) {
+        $userId = $this->session_user->userId;
+        
+        $course = $this->dbCourses->getCourseById($courseId);
+        $courseStatus = $course->status;
+        
+        /* Only courses under review or need clarification can be deleted or updated */
+        return $course->student_id == $userId && 
+            ($courseStatus == 'submitted' || $courseStatus == 'need-clarification');
+    }
+    
     public function removeCourseAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
-        $userId = $this->session_user->userId;
         $courseId = $this->getRequest()->getParam('courseId');
         
-        if ($courseId == null || $courseId == '' || $this->dbCourses->getCourseById($courseId) == null) {
-            echo Zend_Json::encode(array(
-                'success' => 0,
-                'message' => 'Invalid request'
-            ));
+        if (!$this->isValidCourseId($courseId)) {
+            $this->returnFailure('Invalid request');
+            return;
         }
         
-        $course = $this->dbCourses->getCourseById($courseId);
-        $courseStatus = $course->status;
-        /* Only courses under review or need clarification can be deleted */
-        if ($course->student_id == $userId && 
-            ($courseStatus == 'submitted' || $courseStatus == 'need-clarification')) {
+        if ($this->canCourseBeEdited($courseId)) {
             $this->dbCourses->deleteCourse($courseId);
-            echo Zend_Json::encode(array('success' => 1));
+            $this->returnSuccess();
         } else {
-            echo Zend_Json::encode(array(
-                'success' => 0,
-                'message' => 'Unauthorized'
-            ));
+            $this->returnFailure('Unauthorized');
+        }
+    }
+    
+    /* POST request */
+    public function updateCourseInfoAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $courseId = $this->getRequest()->getPost('id');
+            $newCourseDescription = $this->getRequest()->getPost('course_description');
+        
+            /* Verify that this course can be updated */
+            if (!$this->isValidCourseId($courseId)) {
+                $this->returnFailure('Invalid request');
+                return;
+            }
+            
+            if ($this->canCourseBeEdited($courseId)) {
+                $this->dbCourses->update(array(
+                    'course_description' => $newCourseDescription
+                ), "id = $courseId");
+                $this->dbChats->addMessage($courseId, "[EASy message: course description updated by student]", "student");
+                $this->returnSuccess();
+            } else {
+                $this->returnFailure('Unauthorized');
+            }
         }
     }
     
@@ -280,8 +324,7 @@ class StudentController extends Zend_Controller_Action {
                 $data['error'] = 1;
                 $data['message'] = "LOL go for it if you want to break the system :)";
             } else {
-                $db = new Application_Model_DbTable_Chats();
-                if ($db->addMessage($courseId, $message, "student") == -1) {
+                if ($this->dbChats->addMessage($courseId, $message, "student") == -1) {
                     $data['error'] = 1;
                 }
             }

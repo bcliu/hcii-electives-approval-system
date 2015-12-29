@@ -1,9 +1,39 @@
 app.controller('StudentCoursesController', ['$scope', '$http', function ($scope, $http) {
 	$scope.courses = [];
     $scope.courseDescriptionShown = [];
+    
+    $scope.editingCourse = {};
+    
+    /* Update which course to edit */
+    $scope.updateEditingCourse = function (course) {
+        angular.copy(course, $scope.editingCourse);
+    };
+    
+    /* Update info of the course currently editing */
+    $scope.updateEditingCourseInfo = function () {
+        /* Only take the description to edit */
+        var data = {
+            id: $scope.editingCourse.id,
+            course_description: $scope.editingCourse.course_description
+        };
+        var url = baseUrl + "/student/update-course-info";
+        
+        $http.post(url, data).success(function (data) {
+            var json = angular.fromJson(data);
+            if (json.success == 1) {
+                $scope.loadCourses();
+            } else {
+                alert('Failed to update course: ' + json.message);
+            }
+        }).error(function () {
+            alert('Failed to update course. Please try again later.');
+        });
+    };
 	
     $scope.loadCourses = function () {
         var url = baseUrl + "/student/get-courses-list";
+        /* Clear old values */
+        $scope.courseDescriptionShown = [];
         
         $http.get(url).success(function (data) {
             $scope.courses = angular.fromJson(data);
@@ -45,7 +75,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
                 }
             });
         }
-    }
+    };
     
     $scope.generateCourseNameNumberText = function (course) {
         var name = course.course_name;
@@ -60,6 +90,7 @@ app.controller('StudentCoursesController', ['$scope', '$http', function ($scope,
     };
     
     $scope.ucfirst = function (str) {
+        if (str == null || str == '') return '';
         return str.charAt(0).toUpperCase() + str.slice(1);
     };
     
