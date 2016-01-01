@@ -18,43 +18,60 @@
                 This user has never logged in to EASy. This account will be activated after s/he logs in and creates a new password.
             </div>
             
-            <form target='iframe-dummy' id='user-info-form' action="<?= $this->baseUrl(); ?>/users/create" method="post" style='margin-top: 10px'>
+            <form class="form-horizontal" role="form" target='iframe-dummy' id='user-info-form' action="<?= $this->baseUrl(); ?>/users/create" method="post" style='margin-top: 10px'>
                 <input type="hidden" name='type' value='<?= $this->type ?>'>
                 <input type='hidden' name='from' value='<?= Zend_Controller_Front::getInstance()->getRequest()->getRequestUri(); ?>'>
-            <?php if ($this->type != 'admin') { ?>
-                <span class="input-group">
-                    <span class="input-group-addon">Andrew ID</span>
-                    <input type="text" name='andrew-id' class="form-control">
-                </span>
-                
-                <span class="input-group" style='display: inline-table; width: calc(100% - 50px)'>
-                    <span class="input-group-addon">Name</span>
-                    <input type="text" name='name' class="form-control">                        
-                </span>
 
-                <button type="button" id='btn-infer-name' style='margin-top: -25px' onclick='infer("name")' class="btn btn-default"><i class="fa fa-book"></i></button>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Andrew ID</label>
+                    <div class="col-lg-9">
+                        <input type="text" name='andrew-id' class="form-control">
+                    </div>
+                </div>
                 
-                <span class="input-group" style='display: inline-table; width: calc(100% - 50px)'>
-                    <span class="input-group-addon">Primary Major</span>
-                    <input type="text" name='major' class="form-control">
-                </span>
-
-                <button type="button" id='btn-infer-major' style='margin-top: -25px' onclick='infer("major")' class="btn btn-default"><i class="fa fa-book"></i></button>
-            
-                <div class="input-group">
-                    <span class="input-group-addon">Entered Program</span>
-                    <input id='enroll-date' style='background-color: white' readonly type="text" name='enroll-date' class="form-control">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Name</label>
+                    <div class="col-lg-8">
+                        <input type="text" name='name' class="form-control">
+                    </div>
+                    <div class='col-lg-1' style='padding-left: 0px; margin-left: -10px'>
+                        <button type="button" id='btn-infer-name' onclick='infer("name")' class="btn btn-default">
+                            <i class="fa fa-book"></i>
+                        </button>
+                    </div>
+                </div>
+                
+            <?php if ($this->type != 'admin') { ?>                
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Primary Major</label>
+                    <div class="col-lg-8">
+                        <input type="text" name='major' class="form-control">
+                    </div>
+                    <div class='col-lg-1' style='padding-left: 0px; margin-left: -10px'>
+                        <button type="button" id='btn-infer-major' onclick='infer("major")' class="btn btn-default">
+                            <i class="fa fa-book"></i>
+                        </button>
+                    </div>
+                </div>
+  
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Enrolled</label>
+                    <div class="col-lg-9">
+                        <input id='enroll-date' style='background-color: white' readonly type="text" name='enroll-date' class="form-control">
+                    </div>
                 </div>
             
-                <div class="input-group">
-                    <span class="input-group-addon">Expected Graduation</span>
-                    <input id='graduation-date' style='background-color: white' readonly type="text" name='graduation-date' class="form-control">
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Graduation</label>
+                    <div class="col-lg-9">
+                        <input id='graduation-date' style='background-color: white' readonly type="text" name='graduation-date' class="form-control">
+                    </div>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-group-addon">Status</span>
-                    <span class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-default active" style='border-top-left-radius: 0; border-bottom-left-radius: 0'>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">Status</label>
+                    <span class="btn-group col-lg-9" data-toggle="buttons">
+                        <label class="btn btn-default active">
                             <input type="radio" name="status" value="enrolled">Enrolled
                         </label>
                         <label class="btn btn-default">
@@ -66,10 +83,10 @@
                     </span>
                 </div>
 
-                <div class="input-group">
-                    <span class="input-group-addon">FT/PT Status</span>
-                    <span class="btn-group" data-toggle="buttons">
-                        <label class="btn btn-default active" style='border-top-left-radius: 0; border-bottom-left-radius: 0'>
+                <div class="form-group">
+                    <label class="col-lg-3 control-label">FT/PT Status</label>
+                    <span class="btn-group col-lg-9" data-toggle="buttons">
+                        <label class="btn btn-default active">
                             <input type="radio" name="is-full-time" value="1">Full-time
                         </label>
                         <label class="btn btn-default">
@@ -79,16 +96,6 @@
                 </div>
             
             <?php } else { ?>
-                <div class="input-group">
-                    <span class="input-group-addon">Andrew ID</span>
-                    <input type="text" name='andrew-id' class="form-control">
-                </div>
-                
-                <div class="input-group">
-                    <span class="input-group-addon">Name</span>
-                    <input type="text" name='name' class="form-control">
-                </div>
-
                 Receive elective requests and questions from students in
                 <span class="input-group">
                     <span class="input-group-addon" id='receive-from-mhci'>
