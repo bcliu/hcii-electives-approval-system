@@ -1,0 +1,27 @@
+<div ng-controller="StudentPreapprovedController" class="row"
+        style='width: 950px; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
+    
+    <div class="panel panel-default" style='margin-top: 20px'>
+        <table id='preapproved-electives-table' class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Course Number</th>
+                    <th>Course Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="elective in electives">
+                    <th scope="row" style='width: 1px'>{{ $index + 1 }}</th>
+                    <td style='width: 180px'>{{ elective.course_number }}</td>
+                    <td>{{ elective.course_name }}</td>
+                </tr>
+                
+                <tr ng-show="!electives.length">
+                    <th style='width: 50px'></th>
+                    <td colspan='2' style='width: 180px'><i>No courses have been preapproved yet</i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

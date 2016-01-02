@@ -38,10 +38,19 @@ Hope you'll like it!
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
           <?php if ($this->info->program != 'learning-media') { ?>
-          <li class="<?= ($currentAction == 'submit' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/student/submit">Submit New Elective</a></li>
+          <li class="<?= ($currentAction == 'submit' ? 'active' : '') ?>">
+            <a href="<?= $this->baseUrl(); ?>/student/submit">Submit New Elective</a>
+          </li>
           <?php } ?>
-          <li class="<?= ($currentAction == 'courses' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/student/courses">My Courses</a></li>
-          <li class="<?= ($currentAction == 'feedback' ? 'active' : '') ?>"><a href="<?= $this->baseUrl(); ?>/student/feedback">Feedback &amp; Complaints</a></li>
+          <li class="<?= ($currentAction == 'courses' ? 'active' : '') ?>">
+            <a href="<?= $this->baseUrl(); ?>/student/courses">My Courses</a>
+          </li>
+          <li class="<?= ($currentAction == 'preapproved-electives' ? 'active' : '') ?>">
+            <a href="<?= $this->baseUrl(); ?>/student/preapproved-electives">Preapproved Electives</a>
+          </li>
+          <li class="<?= ($currentAction == 'feedback' ? 'active' : '') ?>">
+            <a href="<?= $this->baseUrl(); ?>/student/feedback">Feedback &amp; Complaints</a>
+          </li>
         </ul>
     
         <ul class="nav navbar-nav navbar-right">

@@ -235,6 +235,19 @@ class StudentController extends Zend_Controller_Action {
         $this->view->clarificationNeeded = count($db->getCoursesByStatus($userId, "need-clarification"));
     }
     
+    public function getPreapprovedElectivesAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbPreapproved = new Application_Model_DbTable_PreapprovedElectives();
+        echo Zend_Json::encode($dbPreapproved->getAll($this->view->type)->toArray());
+    }
+    
+    public function preapprovedElectivesAction() {
+        $this->view->title = 'EASy - Preapproved Electives';
+        $this->view->headScript()->prependFile($this->view->baseUrl() . '/public/js/student/preapproved-electives.js');
+    }
+    
     public function correctionAction() {
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
