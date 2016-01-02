@@ -674,12 +674,15 @@ class AdminController extends Zend_Controller_Action {
             }
             else {
                 $firstSlash = strpos($row['EnterDate'], '/');
-                $month = substr($row['EnterDate'], 0, $firstSlash);
-                if (strlen($month) == 1) {
-                    $month = "0$month";
+                $month = intval(substr($row['EnterDate'], 0, $firstSlash));
+                $season = 0;
+                if ($month > 5 && $month < 8) {
+                    $season = 1;
+                } else if ($month >= 8) {
+                    $season = 2;
                 }
                 $year = substr($row['EnterDate'], strpos($row['EnterDate'], '/', $firstSlash + 1) + 1, 4);
-                $enrollDate = "$month/$year";
+                $enrollDate = "$season/$year";
             }
 
             $dbUsers->newUser($row['UserId'], $row['FirstName'] . ' ' . $row['LastName'], md5($row['Password']), $role, $status, "bhci", $isFullTime, 
@@ -928,6 +931,51 @@ class AdminController extends Zend_Controller_Action {
         
         $dbCourses->migrateMergingElectives();
         $dbPrograms->migrateMergingElectives();
+        
+        echo "Done";
+    }
+    
+    /* MM/YYYY expression => [season]/YYYY
+     * where 1 = spring, 2 = summer, 3 = fall
+     */
+    private function monthToSeason($str) {
+        $month = intval(substr($str, 0, 2));
+        $year = substr($str, 3, 4);
+        
+        $season = 0;
+        if ($month <= 5) {
+            $season = 0;
+        } else if ($month <= 7) {
+            $season = 1;
+        } else {
+            $season = 2;
+        }
+        
+        return "$season/$year";
+    }
+    
+    /**
+     * Migration 1/1/2016: use 1, 2, 3 to represent spring, summer and fall respectively
+     * instead of recording exact months
+     */
+    public function migrateMonthsToSeasonsAction() {
+        $this->_helper->layout()->disableLayout(); 
+        $this->_helper->viewRenderer->setNoRender(true);
+        
+        $dbUsers = new Application_Model_DbTable_Users();
+        $allUsers = $dbUsers->fetchAll();
+        
+        foreach ($allUsers as $user) {
+            if ($user->enroll_date != null) {
+                $id = $user->id;
+                $newEnrollDate = $this->monthToSeason($user->enroll_date);
+                $newGraduationDate = $this->monthToSeason($user->graduation_date);
+                $dbUsers->update(array(
+                    'enroll_date' => $newEnrollDate,
+                    'graduation_date' => $newGraduationDate
+                ), "id = $id");
+            }
+        }
         
         echo "Done";
     }

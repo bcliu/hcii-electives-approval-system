@@ -150,6 +150,10 @@ table#users-table tbody {
     overflow-x: hidden;
 }
 
+#users-table {
+    white-space: nowrap
+}
+
 #users-table tbody tr td:nth-child(1),
 #users-table thead tr th:nth-child(1),
 #users-table tbody tr td:nth-child(2),
@@ -160,7 +164,7 @@ table#users-table tbody {
 #users-table thead tr th:nth-child(4),
 #users-table thead tr th:nth-child(5),
 #users-table tbody tr td:nth-child(5) {
-    width: 50% !important;
+    width: 30% !important;
 }
 
 /* User manager page small grade requirement text */

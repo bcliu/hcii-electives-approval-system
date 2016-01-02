@@ -233,8 +233,8 @@ class UsersController extends Zend_Controller_Action
                     $enrollDate = date_parse_from_format("m/Y", $row[$ENTERED_PROGRAM]);
                     if ($enrollDate['year'] == false || $enrollDate['month'] == false) {
                         throw new Exception("Unrecognized date format for user with Andrew ID $andrewId");
-                    }
-                    else {
+                    } else {
+                        /* NOTE: this no longer works as enroll_date column takes season and year, instead of month */
                         $enrollDate = sprintf('%02d', $enrollDate['month']) . '/' . $enrollDate['year'];
                     }
 
@@ -292,32 +292,38 @@ class UsersController extends Zend_Controller_Action
         $this->_helper->viewRenderer->setNoRender(true);
 
         $session_user = new Zend_Session_Namespace('user');
-        if ($session_user->loginType == "administrator" && $this->getRequest()->getMethod() == 'POST') {
-            $andrewId = $this->getRequest()->getPost('andrew-id');
-            $name = $this->getRequest()->getPost('name');
-            $from = $this->getRequest()->getPost('from');
-            $type = $this->getRequest()->getPost('type');
+        $req = $this->getRequest();
+        if ($session_user->loginType == "administrator" && $req->getMethod() == 'POST') {
+            $andrewId = $req->getPost('andrew-id');
+            $name = $req->getPost('name');
+            $from = $req->getPost('from');
+            $type = $req->getPost('type');
             $role = $type == 'admin' ? "administrator" : "student";
-            $isFullTime = $this->getRequest()->getPost('is-full-time');
-            $enrollDate = $this->getRequest()->getPost('enroll-date');
-            $graduationDate = $this->getRequest()->getPost('graduation-date');
-            $major = $this->getRequest()->getPost('major');
-            $notes = $this->getRequest()->getPost('notes');
+            $isFullTime = $req->getPost('is-full-time');
+            
+            $enrollSemester = $req->getPost('enroll-season');
+            $enrollYear = $req->getPost('enroll-year');
+            
+            $graduationSemester = $req->getPost('graduation-season');
+            $graduationYear = $req->getPost('graduation-year');
+            
+            $major = $req->getPost('major');
+            $notes = $req->getPost('notes');
             $program = $type == 'admin' ? null : $type;
-            $status = $this->getRequest()->getPost('status');
+            $status = $req->getPost('status');
 
             $receiveFrom = "";
 
             if ($type == 'admin') {
-                $receiveFrom .= $this->getRequest()->getPost('receive-from-mhci') ? "mhci," : "";
-                $receiveFrom .= $this->getRequest()->getPost('receive-from-metals') ? "metals," : "";
-                $receiveFrom .= $this->getRequest()->getPost('receive-from-bhci') ? "bhci," : "";
-                $receiveFrom .= $this->getRequest()->getPost('receive-from-ugminor') ? "ugminor" : "";
-                $receiveFrom .= $this->getRequest()->getPost('receive-from-learning-media') ? 'learning-media' : "";
+                $receiveFrom .= $req->getPost('receive-from-mhci') ? "mhci," : "";
+                $receiveFrom .= $req->getPost('receive-from-metals') ? "metals," : "";
+                $receiveFrom .= $req->getPost('receive-from-bhci') ? "bhci," : "";
+                $receiveFrom .= $req->getPost('receive-from-ugminor') ? "ugminor" : "";
+                $receiveFrom .= $req->getPost('receive-from-learning-media') ? 'learning-media' : "";
             }
             
-            $this->createUser($andrewId, $name, $role, $status, $program, $isFullTime, $enrollDate, $graduationDate, $major,
-                              $notes, $receiveFrom);
+            $this->createUser($andrewId, $name, $role, $status, $program, $isFullTime,
+                "$enrollSemester/$enrollYear", "$graduationSemester/$graduationYear", $major, $notes, $receiveFrom);
         }
     }
     

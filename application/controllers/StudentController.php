@@ -10,6 +10,16 @@ class StudentController extends Zend_Controller_Action {
     private $transport;
     private $session_user;
     
+    private function seasonToString($season) {
+        if ($season == 0) {
+            return "Spring";
+        } else if ($season == 1) {
+            return "Summer";
+        } else if ($season == 2) {
+            return "Fall";
+        }
+    }
+    
     /* Public initialization function to check if it's a valid student user */
     public function init() {
         $this->session_user = new Zend_Session_Namespace('user');
@@ -34,18 +44,14 @@ class StudentController extends Zend_Controller_Action {
         $this->view->info = $this->dbUsers->getUserById($this->session_user->userId);
         
         $this->view->enrollDate = $this->view->info->enroll_date;
-        $this->view->enrollMonth = substr($this->view->enrollDate, 0, 2);
-        $this->view->enrollYear = substr($this->view->enrollDate, 3, 4);
+        $this->view->enrollSeason = substr($this->view->enrollDate, 0, 1);
+        $this->view->enrollYear = substr($this->view->enrollDate, 2, 4);
+        $this->view->enrollSemester = $this->seasonToString($this->view->enrollSeason);
         
-        if (1 <= $this->view->enrollMonth && $this->view->enrollMonth <= 4) {
-            $this->view->enrollSemester = "Spring";
-        }
-        else if (5 <= $this->view->enrollMonth && $this->view->enrollMonth <= 7) {
-            $this->view->enrollSemester = "Summer";
-        }
-        else if (8 <= $this->view->enrollMonth && $this->view->enrollMonth <= 12) {
-            $this->view->enrollSemester = "Fall";
-        }
+        $this->view->graduationDate = $this->view->info->graduation_date;
+        $this->view->graduationSeason = substr($this->view->graduationDate, 0, 1);
+        $this->view->graduationYear = substr($this->view->graduationDate, 2, 4);
+        $this->view->graduationSemester = $this->seasonToString($this->view->graduationSeason);
         
         $this->config = array(
             'auth' => 'login',

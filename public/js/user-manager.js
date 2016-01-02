@@ -318,11 +318,16 @@ function searchStudents() {
     var numOtherMatches = otherMatches.length;
 
     var getUserRowString = function (e) {
+        var enrollSeason = e.enroll_date.substring(0, 1);
+        var enrollYear = e.enroll_date.substring(2);
+        var graduationSeason = e['graduation_date'].substring(0, 1);
+        var graduationYear = e['graduation_date'].substring(2);
+        
         return '<tr andrewid="' + e['andrew_id'] +
         '"><td id="td-andrew-id">' + e['andrew_id'] +
         "</td><td>" + e['name'] +
-        "</td><td class='td-enroll-date'>" + e['enroll_date'] +
-        "</td><td>" + e['graduation_date'] +
+        "</td><td class='td-enroll-date'>" + seasonToString(enrollSeason) + ' ' + enrollYear +
+        "</td><td>" + seasonToString(graduationSeason) + ' ' + graduationYear +
         "</td><td class='nowrap-line'>" +
         "<span class='badge'>" + (e['number_awaiting_approval'] > 0 ? e['number_awaiting_approval'] : "") +
         "</span>" + (e['has_unread_msg'] == 1 ? "<span class='glyphicon glyphicon-envelope has_unread_msg'></span>" : "") +
@@ -411,66 +416,6 @@ $(function () {
         placement: 'top'
     });
 
-
-    var isManagingStudents = ($('#enroll-date').attr('id') != undefined);
-    if (isManagingStudents) {
-        datePickerHidden = false;
-
-        var selectors = $('#filter-year-lower-bound, #filter-year-upper-bound');
-        selectors.datepicker({
-            format: "mm/yyyy",
-            viewMode: "years", 
-            minViewMode: "years"
-        }).on('changeDate', function (ev){
-            selectors.datepicker('hide');
-            var newDate = new Date(ev.date);
-            if ($(this).attr('id') == 'filter-year-upper-bound') {
-                newDate.setMonth(11);
-            }
-            else {
-                newDate.setMonth(0);
-            }
-            $(this).datepicker('setValue', newDate);
-            loadStudents();
-        }).on('hide', function () {
-            datePickerHidden = true;
-        });
-
-        selectors.click(function () {
-            $(this).datepicker('show');
-        });
-    }
-    
-    var enrollDateSelector = $('#enroll-date');
-    var graduationDateSelector = $('#graduation-date');
-
-    if (isManagingStudents) {
-        
-        /* Set enroll date datepicker */
-        enrollDateSelector.datepicker({
-            format: "mm/yyyy",
-            viewMode: "months", 
-            minViewMode: "months"
-        }).on('changeDate', function (){
-            enrollDateSelector.datepicker('hide');
-        });
-        enrollDateSelector.click(function () {
-            $(this).datepicker('show');
-        });
-        
-        /* Set graduation date datepicker */
-        graduationDateSelector.datepicker({
-            format: "mm/yyyy",
-            viewMode: "months", 
-            minViewMode: "months"
-        }).on('changeDate', function () {
-            graduationDateSelector.datepicker('hide');
-        });
-        graduationDateSelector.click(function () {
-            $(this).datepicker('show');
-        });
-    }
-
     /* Form submitted successfully: load students again */
     $(document).ajaxComplete(function (e) {
         if (typeof(reloadList) != 'undefined' && reloadList) {
@@ -495,14 +440,14 @@ $(function () {
         }
         
         /* Don't check dates if on Admin management page */
-        if (isManagingStudents) {
-            if (enrollDateSelector.val().length == 0) {
-                alert('Date entered program cannot be empty');
+        if ($('#enroll-year').length > 0) {
+            if ($('#enroll-year').val().length == 0) {
+                alert('Year entered program cannot be empty');
                 return;
             }
             
-            if (graduationDateSelector.val().length == 0) {
-                alert('Expected graduation date cannot be empty');
+            if ($('#graduation-year').val().length == 0) {
+                alert('Graduation cannot be empty');
                 return;
             }
         }
@@ -897,8 +842,16 @@ function clearUserInfoFields() {
     if ($('input[name="major"]').attr('name') != undefined) {
         /* If major exists, then it is a student page */
         $('input[name="major"]').val("");
-        $('input[name="enroll-date"]').val("");
-        $('input[name="graduation-date"]').val("");
+        
+        $('#enroll-year').val("");
+        $('#enroll-season').val('0');
+        /* Angular listens to the input event to update model */
+        $('#enroll-season').trigger('input');
+        
+        $('#graduation-year').val("");
+        $('#graduation-season').val('0');
+        $('#graduation-season').trigger('input');
+        
         $('input[value="enrolled"]').parent().button('toggle');
         $('input[name="is-full-time"][value="1"]').parent().button('toggle');
     }
@@ -979,8 +932,19 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                 }
 
                 $('input[name="major"]').val(e['major']);
-                $('input[name="enroll-date"]').val(e['enroll_date']);
-                $('input[name="graduation-date"]').val(e['graduation_date']);
+                
+                var enrollSeason = e.enroll_date.substring(0, 1);
+                var enrollYear = e.enroll_date.substring(2);
+                $('#enroll-season').val(enrollSeason);
+                $('#enroll-season').trigger('input');
+                $('#enroll-year').val(enrollYear);
+                
+                var graduationSeason = e.graduation_date.substring(0, 1);
+                var graduationYear = e.graduation_date.substring(2);
+                $('#graduation-season').val(graduationSeason);
+                $('#graduation-season').trigger('input');
+                $('#graduation-year').val(graduationYear);
+                
                 $('input[value="' + e['status'] + '"]').parent().button('toggle');
                 $('input[name="is-full-time"][value="' + e['is_full_time'] + '"]').parent().button('toggle');
 
@@ -1088,10 +1052,8 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                     }
 
                     var reqs = $('body').data('requirements');
-                    var enrollDate = $('#enroll-date').val();
-                    var enrollMonth = parseInt(enrollDate.substr(0, 2));
-                    var enrollYear = enrollDate.substr(3, 7);
-                    var enrollSemester = getSemesterFromMonth(enrollMonth);
+                    var enrollYear = $('#enroll-year').val();
+                    var enrollSemester = seasonToString($('#enroll-season').val());
 
                     var numElectivesNeeded;
                     var coresFound = false, placeOutsFound = false, prereqsFound = false;
@@ -1580,3 +1542,18 @@ function addCourseSelectedHandler() {
         $('#course-details').modal('show');
     });
 }
+
+app.controller('UserManagerController', ['$scope', function ($scope) {
+    /* 0 = Spring, 1 = Summer, 2 = Fall in the database */
+    $scope.seasons = [ 'Spring', 'Summer', 'Fall' ];
+    $scope.selectedEnrolledSeason = 0;
+    $scope.selectedGraduationSeason = 0;
+    
+    $scope.selectEnrollSeason = function (id) {
+        $scope.selectedEnrolledSeason = id;
+    };
+    
+    $scope.selectGraduationSeason = function (id) {
+        $scope.selectedGraduationSeason = id;
+    };
+}]);

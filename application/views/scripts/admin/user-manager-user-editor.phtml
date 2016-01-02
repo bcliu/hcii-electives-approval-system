@@ -56,15 +56,41 @@
   
                 <div class="form-group">
                     <label class="col-lg-3 control-label">Enrolled</label>
-                    <div class="col-lg-9">
-                        <input id='enroll-date' style='background-color: white' readonly type="text" name='enroll-date' class="form-control">
+                    <div class="col-lg-2">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            {{ seasons[selectedEnrolledSeason] }}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li ng-repeat='season in seasons'>
+                                <a role="menuitem" tabindex="-1" href="javascript: ;" value='{{ $index }}' ng-click='selectEnrollSeason($index)'>{{ season }}</a>
+                            </li>
+                        </ul>
+                        <!-- NOTE: a temporary way to communicate between angular and non-angular code. Remove after fully converted -->
+                        <input id='enroll-season' name='enroll-season' ng-model='selectedEnrolledSeason' style='display: none'>
+                    </div>
+                    <div class='col-lg-7'>
+                        <input id='enroll-year' type="number" name='enroll-year' class="form-control" placeholder='Year'>
                     </div>
                 </div>
             
                 <div class="form-group">
                     <label class="col-lg-3 control-label">Graduation</label>
-                    <div class="col-lg-9">
-                        <input id='graduation-date' style='background-color: white' readonly type="text" name='graduation-date' class="form-control">
+                    <div class="col-lg-2">
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                            {{ seasons[selectedGraduationSeason] }}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li ng-repeat='season in seasons'>
+                                <a role="menuitem" tabindex="-1" href="javascript: ;" value='{{ $index }}' ng-click='selectGraduationSeason($index)'>{{ season }}</a>
+                            </li>
+                        </ul>
+                        <!-- NOTE: a temporary way to communicate between angular and non-angular code. Remove after fully converted -->
+                        <input id='graduation-season' name='graduation-season' ng-model='selectedGraduationSeason' style='display: none'>
+                    </div>
+                    <div class='col-lg-7'>
+                        <input id='graduation-year' type="number" name='graduation-year' class="form-control" placeholder='Year'>
                     </div>
                 </div>
 

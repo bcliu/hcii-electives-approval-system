@@ -1,126 +1,128 @@
-<iframe name='iframe-dummy' src="" style='display: none'>
-</iframe>
-
-<div class="row" style='width: 90%; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
-    <div class="col-sm-6" style='height: 100%'>
-        <ul class="nav nav-tabs">
-            <li class='<?= ($this->type == "bhci" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/bhci">BHCI</a>
-            </li>
+<div ng-controller='UserManagerController'>
+    <iframe name='iframe-dummy' src="" style='display: none'>
+    </iframe>
+    
+    <div class="row" style='width: 90%; min-height: calc(100% - 55px); padding-bottom: 20px; margin-left: auto; margin-right: auto'>
+        <div class="col-sm-6" style='height: 100%'>
+            <ul class="nav nav-tabs">
+                <li class='<?= ($this->type == "bhci" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/bhci">BHCI</a>
+                </li>
+                
+                <li class='<?= ($this->type == "ugminor" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/ugminor">Undergraduate Minor</a>
+                </li>
+                
+                <li class='<?= ($this->type == "learning-media" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/learning-media">Learning Media Minor</a>
+                </li>
+                
+                <li class='<?= ($this->type == "mhci" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/mhci">MHCI</a>
+                </li>
+    
+                <li class='<?= ($this->type == "metals" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/metals">METALS</a>
+                </li>
+                
+                <li class='<?= ($this->type == "admin" ? "active" : "") ?>'>
+                    <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/admin">Administrators</a>
+                </li>
+            </ul>
             
-            <li class='<?= ($this->type == "ugminor" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/ugminor">Undergraduate Minor</a>
-            </li>
+            <div style='max-height:80%'>
+    
+                <?php if ($this->type != "admin") { ?>
+                <span style='position: relative' style='display: inline'>
+                    <input id='search-student' style='display: inline; margin-top: 20px; width: calc(100% - 130px)' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
+                    <span id='search-student-clear' style='position: absolute; right: 10px; cursor: pointer' class="glyphicon glyphicon-remove"></span>
+                </span>
+    
+                <span class="btn-group" style='display: inline; margin-top: 20px; float: right'>
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options <span class="caret"></span>
+                    </button>
+                    <ul id='filter-options' class="dropdown-menu" role="menu">
+                        <li><a><div class="checkbox"><label>
+                            <input type="checkbox" id='show-outstanding-elective-requests'>Show outstanding elective requests only
+                        </label></div></a><li>
+                        <li><a><div class="checkbox"><label>
+                            <input type="checkbox" id='show-unread-messages'>Show unread messages only
+                        </label></div></a><li>
+                        <li><a><div class="checkbox"><label>
+                            <input type="checkbox" id='show-elective-requests-messages'>Show outstanding elective requests and unread messages only
+                        </label></div></a><li>
+                        <li><a><div class="checkbox"><label>
+                            <input type="checkbox" checked id='show-enrolled'>Show enrolled students
+                        </label></div></a></li>
+                        <li><a><div class="checkbox"><label>
+                            <input type="checkbox" id='show-graduated'>Show graduated and inactive students
+                        </label></div></a></li>
+                        <li><a>
+                            Show students entered program between
+                            <span style='display: inline-block; width: 100px'>
+                                <input id='filter-year-lower-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
+                            </span>
+                            and 
+                            <span style='display: inline-block; width: 100px'>
+                                <input id='filter-year-upper-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
+                            </span>
+                        </a></li>
+                        <li class='divider'></li>
+                        <li><a href='javascript: ;' onclick='clearFilter()' style='padding-top: 10px; padding-bottom: 10px'>Clear Filter</a></li>
+                    </ul>
+                </span>
+                <?php } ?>
+    
+                <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
+                    <thead>
+                        <tr>
+                            <?php if ($this->type == 'admin') { ?>
+                            <th>Andrew ID</th>
+                            <th>Name</th>
+                            <?php } else { ?>
+                            <th>Andrew ID</th>
+                            <th>Name</th>
+                            <th>Enrolled</th>
+                            <th>Graduation</th>
+                            <th class='nowrap-line'>
+                                <span class="badge" style='opacity: 0'>0</span>
+                            </th>
+                            <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+    
+                    </tbody>
+                </table>
+            </div>
             
-            <li class='<?= ($this->type == "learning-media" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/learning-media">Learning Media Minor</a>
-            </li>
-            
-            <li class='<?= ($this->type == "mhci" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/mhci">MHCI</a>
-            </li>
-
-            <li class='<?= ($this->type == "metals" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/metals">METALS</a>
-            </li>
-            
-            <li class='<?= ($this->type == "admin" ? "active" : "") ?>'>
-                <a class="dropdown-toggle" href="<?= $this->baseUrl(); ?>/admin/user-manager/type/admin">Administrators</a>
-            </li>
-        </ul>
-        
-        <div style='max-height:80%'>
-
+            <h4 id='no-users' style='display: none; text-align: center'>No users to show.</h4>
+            <h4 id='loading-users' style='display: none; text-align: center'>Loading users list...</h4>
+    
             <?php if ($this->type != "admin") { ?>
-            <span style='position: relative' style='display: inline'>
-                <input id='search-student' style='display: inline; margin-top: 20px; width: calc(100% - 130px)' placeholder='Enter name or Andrew ID to filter' type="text" class="form-control">
-                <span id='search-student-clear' style='position: absolute; right: 10px; cursor: pointer' class="glyphicon glyphicon-remove"></span>
-            </span>
-
-            <span class="btn-group" style='display: inline; margin-top: 20px; float: right'>
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Filter options <span class="caret"></span>
-                </button>
-                <ul id='filter-options' class="dropdown-menu" role="menu">
-                    <li><a><div class="checkbox"><label>
-                        <input type="checkbox" id='show-outstanding-elective-requests'>Show outstanding elective requests only
-                    </label></div></a><li>
-                    <li><a><div class="checkbox"><label>
-                        <input type="checkbox" id='show-unread-messages'>Show unread messages only
-                    </label></div></a><li>
-                    <li><a><div class="checkbox"><label>
-                        <input type="checkbox" id='show-elective-requests-messages'>Show outstanding elective requests and unread messages only
-                    </label></div></a><li>
-                    <li><a><div class="checkbox"><label>
-                        <input type="checkbox" checked id='show-enrolled'>Show enrolled students
-                    </label></div></a></li>
-                    <li><a><div class="checkbox"><label>
-                        <input type="checkbox" id='show-graduated'>Show graduated and inactive students
-                    </label></div></a></li>
-                    <li><a>
-                        Show students entered program between
-                        <span style='display: inline-block; width: 100px'>
-                            <input id='filter-year-lower-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
-                        </span>
-                         and 
-                        <span style='display: inline-block; width: 100px'>
-                            <input id='filter-year-upper-bound' style='background-color: white; height: 30px' readonly type="text" class="form-control">
-                        </span>
-                    </a></li>
-                    <li class='divider'></li>
-                    <li><a href='javascript: ;' onclick='clearFilter()' style='padding-top: 10px; padding-bottom: 10px'>Clear Filter</a></li>
-                </ul>
-            </span>
-            <?php } ?>
-
-            <table id='users-table' class="table table-hover table-striped <?php if ($this->type == 'admin') echo 'admin-table';?>">
-                <thead>
-                    <tr>
-                        <?php if ($this->type == 'admin') { ?>
-                        <th>Andrew ID</th>
-                        <th>Name</th>
-                        <?php } else { ?>
-                        <th>Andrew ID</th>
-                        <th>Name</th>
-                        <th>Date entered program</th>
-                        <th>Graduation date</th>
-                        <th class='nowrap-line'>
-                            <span class="badge" style='opacity: 0'>0</span>
-                        </th>
-                        <?php } ?>
-                    </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-            </table>
-        </div>
-        
-        <h4 id='no-users' style='display: none; text-align: center'>No users to show.</h4>
-        <h4 id='loading-users' style='display: none; text-align: center'>Loading users list...</h4>
-
-        <?php if ($this->type != "admin") { ?>
-            <div class="panel panel-default" id='panel-import' style='margin-top: 20px'>
-                <div class="panel-heading bold" style='font-size: 15px'>Import</div>
-                <div class="row main-row" style='padding-bottom: 20px; padding-top: 20px'>
-                    <div class="col-sm-12">
-                        <button type="button" id='btn-import-users' class="btn btn-default" data-toggle="modal" data-target="#modal-import-users">Import Users</button>
+                <div class="panel panel-default" id='panel-import' style='margin-top: 20px'>
+                    <div class="panel-heading bold" style='font-size: 15px'>Import</div>
+                    <div class="row main-row" style='padding-bottom: 20px; padding-top: 20px'>
+                        <div class="col-sm-12">
+                            <button type="button" id='btn-import-users' class="btn btn-default" data-toggle="modal" data-target="#modal-import-users">Import Users</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php } ?>
-        
+            <?php } ?>
+            
+        </div>
+    
+        <?php require_once("user-manager-user-editor.phtml"); ?>
     </div>
-
-    <?php require_once("user-manager-user-editor.phtml"); ?>
+    
+    <?php
+    require_once("add-course-modal.phtml"); 
+    require_once("course-details-modal.phtml");
+    require_once("import-users-modal.phtml");
+    require_once("place-out-details-modal.phtml");
+    require_once("prerequisite-details-modal.phtml");
+    require_once("core-details-modal.phtml");
+    require_once("soc-course-description-modal.phtml");
+    require_once(APPLICATION_PATH . "/../application/views/scripts/commons/messages.phtml");
+    ?>
 </div>
-
-<?php
-require_once("add-course-modal.phtml"); 
-require_once("course-details-modal.phtml");
-require_once("import-users-modal.phtml");
-require_once("place-out-details-modal.phtml");
-require_once("prerequisite-details-modal.phtml");
-require_once("core-details-modal.phtml");
-require_once("soc-course-description-modal.phtml");
-require_once(APPLICATION_PATH . "/../application/views/scripts/commons/messages.phtml");
-?>
