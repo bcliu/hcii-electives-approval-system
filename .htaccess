@@ -8,3 +8,8 @@ RewriteCond %{REQUEST_URI} !^/easy/public/
 RewriteRule (.*) /easy/public/$1
 Satisfy Any
 Allow from all
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType application/javascript "access plus 1 day"
+</IfModule>
