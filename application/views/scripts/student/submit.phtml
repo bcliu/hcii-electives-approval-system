@@ -1,4 +1,4 @@
-<div id='new-course' class='easy-page-body' style='display: table; width: 100%; text-align: center'>
+<div id='new-course' ng-controller='NewElectiveController' class='easy-page-body' style='display: table; width: 100%; text-align: center'>
     <div id='new-course-inner' style='display: table-cell; vertical-align: middle'>
         <div class="panel panel-default" style='width: 600px; margin-left: auto; margin-right: auto'>
             <div class="panel-heading bold" style='font-size: 17px; text-align: center'>Submit New Elective</div>
@@ -15,7 +15,17 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Course number</label>
                         <div class="col-lg-9">
-                            <input type="text" name='course-number' class="form-control" placeholder="XX-XXX">
+                            <input type="text" ng-model='newElectiveNumber' name='course-number' class="form-control" placeholder="##-###">
+                        </div>
+                    </div>
+                    
+                    <div class='form-group' ng-show='isElectivePreapproved()'>
+                        <label class="col-lg-3 control-label"></label>
+                        <div class="col-lg-9">
+                            <div style='margin: 0px; padding: 6px' class="alert alert-success" role="alert">
+                                <span class='glyphicon glyphicon-ok-sign'></span>
+                                This elective has been preapproved.
+                            </div>
                         </div>
                     </div>
                     
@@ -29,7 +39,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Units</label>
                         <div class="col-lg-9">
-                            <input type="text" name='units' class="form-control">
+                            <input type="number" name='units' class="form-control">
                         </div>
                     </div>
 
@@ -50,7 +60,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Description</label>
                         <div class="col-lg-9">
-                            <textarea name='description' class="form-control" placeholder="Course description" rows='8'></textarea>
+                            <textarea name='description' class="form-control" rows='8'></textarea>
                         </div>
                     </div>
                     

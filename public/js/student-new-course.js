@@ -23,7 +23,7 @@ $(function () {
 		    courseNumberObj.parent().addClass('has-error');
 		    courseNumberObj.popover({
 			    html: true,
-				content: "<h5>Course number must match the<br />pattern XX-XXX.</h5>",
+				content: "<h5>Course number must match the<br />pattern ##-###.</h5>",
 				trigger: 'focus'
 				});
 		    courseNumberObj.popover('show');
@@ -62,3 +62,30 @@ $(function () {
 		$('form').submit();
 	});
 });
+
+app.controller('NewElectiveController', ['$scope', '$http', function ($scope, $http) {
+    $scope.preapprovedElectives = [];
+	$scope.newElectiveNumber = '';
+
+    $scope.loadElectives = function () {
+        jQuery.ajax({
+            url: baseUrl + "/student/get-preapproved-electives/",
+            success: function (result) {
+                $scope.preapprovedElectives = jQuery.parseJSON(result);
+            },
+            async: false
+        });
+    };
+	
+	$scope.isElectivePreapproved = function () {
+		var foundCourse = false;
+		angular.forEach($scope.preapprovedElectives, function (v) {
+			if (v.course_number == $scope.newElectiveNumber) {
+				foundCourse = true;
+			}
+		});
+		return foundCourse;
+	};
+
+    $scope.loadElectives();
+}]);
