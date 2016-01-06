@@ -15,7 +15,7 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Course number</label>
                         <div class="col-lg-9">
-                            <input type="text" ng-model='newElectiveNumber' name='course-number' class="form-control" placeholder="##-###">
+                            <input type="text" ng-change='courseNumberUpdated()' ng-keyup='courseNumberKeyPress($event)' ng-model='newElectiveNumber' name='course-number' class="form-control" placeholder="##-###">
                         </div>
                     </div>
                     

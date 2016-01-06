@@ -43,7 +43,9 @@
                 
                 <tr>
                     <th></th>
-                    <td><input id="new-course-number-input" type="text" class="form-control" placeholder="Click to add a course"
+                    <td><input id="new-course-number-input" type="text" class="form-control"
+                        placeholder="{{ newCourseEditing ? '##-###' : 'Click to add a course' }}"
+                        ng-change='courseNumberUpdated()' ng-keyup='courseNumberKeyPress($event)'
                         ng-model="newCourseNumber" ng-click="enterNewCourseEditing()" ng-blur="exitNewCourseEditing()" ng-keypress="keyPressed($event)"></td>
                     <td><input id="new-course-name-input" ng-show="newCourseEditing" type="text" class="form-control"
                         ng-blur="exitNewCourseEditing()" placeholder="Course name" ng-model="newCourseName" ng-keypress="keyPressed($event)"></td>

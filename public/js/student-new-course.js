@@ -86,6 +86,26 @@ app.controller('NewElectiveController', ['$scope', '$http', function ($scope, $h
 		});
 		return foundCourse;
 	};
+    
+    /**
+     * The two functions below: add a hyphen when two digits entered,
+     * and remove the hyphen when backspace is pressed
+     */
+    $scope.courseNumberUpdated = function () {
+        var regex = /^[0-9][0-9]$/;
+        if (regex.test($scope.newElectiveNumber)) {
+            $scope.newElectiveNumber += '-';
+        }
+    };
+    
+    $scope.courseNumberKeyPress = function (ev) {
+        if (ev.which == 8) {
+            var regex = /^[0-9][0-9]\-$/;
+            if (regex.test($scope.newElectiveNumber)) {
+                $scope.newElectiveNumber = $scope.newElectiveNumber.charAt(0);
+            }
+        }
+    };
 
     $scope.loadElectives();
 }]);

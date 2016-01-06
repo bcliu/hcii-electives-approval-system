@@ -72,6 +72,26 @@ app.controller('PreapprovedElectivesController', ['$scope', function ($scope) {
 			$scope.addNewCourse();
 		}
 	};
+    
+    /**
+     * The two functions below: add a hyphen when two digits entered,
+     * and remove the hyphen when backspace is pressed
+     */
+    $scope.courseNumberUpdated = function () {
+        var regex = /^[0-9][0-9]$/;
+        if (regex.test($scope.newCourseNumber)) {
+            $scope.newCourseNumber += '-';
+        }
+    };
+    
+    $scope.courseNumberKeyPress = function (ev) {
+        if (ev.which == 8) {
+            var regex = /^[0-9][0-9]\-$/;
+            if (regex.test($scope.newCourseNumber)) {
+                $scope.newCourseNumber = $scope.newCourseNumber.charAt(0);
+            }
+        }
+    };
 	
 	/* Add and delete have to be synchronized -- otherwise new electives will be loaded before
 	 * request is completed!
