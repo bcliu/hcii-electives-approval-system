@@ -19,20 +19,22 @@
             </div>
             
             <form class="form-horizontal" role="form" target='iframe-dummy' id='user-info-form' action="<?= $this->baseUrl(); ?>/users/create" method="post" style='margin-top: 10px'>
-                <input type="hidden" name='type' value='<?= $this->type ?>'>
+                <input type="hidden" ng-model='currentProgram' name='type' value='<?= $this->type ?>'>
                 <input type='hidden' name='from' value='<?= Zend_Controller_Front::getInstance()->getRequest()->getRequestUri(); ?>'>
 
                 <div class="form-group">
                     <label class="col-lg-3 control-label">Andrew ID</label>
                     <div class="col-lg-9">
                         <input type="text" name='andrew-id' class="form-control">
+                        <!-- Temporary compatibility solution: change this value to trigger loading courses in Angular -->
+                        <input id='andrew-id-to-load-courses' ng-model='currentStudent.andrewId' ng-change='loadCurrentStudentCourses()' style='display: none'>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label class="col-lg-3 control-label">Name</label>
                     <div class="col-lg-8">
-                        <input type="text" name='name' class="form-control">
+                        <input type="text" ng-model='currentStudent.name' name='name' class="form-control">
                     </div>
                     <div class='col-lg-1' style='padding-left: 0px; margin-left: -10px'>
                         <button type="button" id='btn-infer-name' onclick='infer("name")' class="btn btn-default">
@@ -238,10 +240,10 @@
             <div class="panel panel-default" style='margin-top: 20px' ng-controller='MessageCtrl'>
                 <div class="panel-heading bold" style='font-size: 15px'>All courses</div>
                 <div class="panel-body">
-                    <div class="row main-row" id='row-electives-placeouts'>
+                    <div class="row main-row">
                         <div class="col-sm-12">
-                            <h4 id='no-courses' style='display: none'>No courses to show.</h4>
-                            <table id='table-courses' class='table table-hover'>
+                            <h4 ng-hide='showCoursesList'>No courses to show.</h4>
+                            <table ng-show='showCoursesList' class='table table-hover'>
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -255,18 +257,46 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <tr ng-repeat='course in currentStudent.courses' ng-if='course.taking_as != "place-out"'
+                                        data-toggle='modal' data-target='#course-details' ng-click='courseSelected(course)'>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ course.course_name == '' ? '-' : course.course_name }}</td>
+                                        <td>{{ course.course_number }}</td>
+                                        <td>{{ course.units == 0 ? '-' : course.units }}</td>
+                                        <td>{{ takingAs2Text[course.taking_as] }}</td>
+                                        <td>{{ (course.grade == null || course.grade == '' || course.grade == 'na') ? '-' : grade2Text[course.grade] }}</td>
+                                        <!-- TODO May want to create a template and reuse this -->
+                                        <td>
+                                            <span ng-show='course.status == "need-clarification"' class='text-warning'>
+                                                {{ status2Text[course.status] }}
+                                            </span>
+                                            <span ng-show='course.status == "submitted"' class='text-danger'>
+                                                {{ status2Text[course.status] }}
+                                            </span>
+                                            <span ng-show='course.status == "approved"' class='text-success'>
+                                                {{ status2Text[course.status] }}
+                                            </span>
+                                            <span ng-show='course.status != "need-clarification" && course.status != "submitted" && course.status != "approved"'>
+                                                {{ status2Text[course.status] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a ng-click='showMessages(course.id); $event.stopPropagation();' class='{{ course.has_unread_msg ? "text-danger" : "" }}' courseid='{{ course.id }}' href='javascript: ;'>
+                                                {{ course.has_unread_msg ? 'Unread' : 'View' }}
+                                            </a>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
 
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add-course">Add Course</button>
-                            <div id='div-ordering' class='pull-right'>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add-course" ng-click='resetNewCourse()'>Add Course</button>
+                            <div id='div-ordering' ng-show='showCoursesList' class='pull-right'>
                                 <span style='margin-right: 5px'>Sort by</span>
                                 <span class="btn-group" data-toggle="buttons">
-                                    <label class="btn btn-default active" id='order-by-time'>
-                                        <input type="radio">Submission time
-                                    </label>
-                                    <label class="btn btn-default" id='order-by-status'>
-                                        <input type="radio">Status
+                                    <label ng-repeat='(method, methodText) in courseSortingMethods'
+                                        ng-click='courseSortingMethodSelected(method)'
+                                        class='btn btn-default {{ courseSortingMethod == method ? "active" : "" }}'>
+                                        <input type='radio'>{{ methodText }}
                                     </label>
                                 </span>
                             </div>

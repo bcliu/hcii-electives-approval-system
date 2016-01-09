@@ -57,8 +57,7 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
         }
 
         $dbUsers = new Application_Model_DbTable_Users();
-        
-        $currentYear = intval($date->toString("YYYY"));
+
         $data = array(
             'student_id' => $studentId,
             'course_number' => $courseNumber,
@@ -69,9 +68,9 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
             'status' => $status,
             'submission_time' => $submissionTime,
             'comment' => $comment,
-            'grade' => ($grade == NULL ? "na" : $grade),
-            'semester' => ($semester == NULL ? "Spring" : $semester),
-            'year' => ($year == 0 || $year == NULL ? $currentYear : $year)
+            'grade' => $grade,
+            'semester' => $semester,
+            'year' => $year
         );
 
         if ($status == 'submitted') {
@@ -180,14 +179,12 @@ class Application_Model_DbTable_Courses extends Zend_Db_Table_Abstract {
     }
 
     public function updateCourse($courseId, $status, $comment, $semester, $year, $grade) {
-        $date = new Zend_Date();
-        $currentYear = intval($date->toString("YYYY"));
         $data = array(
             'status' => $status,
             'comment' => $comment,
-            'semester' => ($semester == NULL ? "Spring" : $semester),
-            'year' => ($year == 0 || $year == NULL ? $currentYear : $year),
-            'grade' => ($grade == NULL ? "na" : $grade)
+            'semester' => $semester,
+            'year' => $year,
+            'grade' => $grade
         );
 
         /* Get original status and update number of courses awaiting approval count if necessary */

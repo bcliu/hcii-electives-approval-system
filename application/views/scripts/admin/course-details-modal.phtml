@@ -1,4 +1,4 @@
-<div class="modal" id="course-details" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+<div class="modal fade" id="course-details" tabindex="-1" role="dialog" aria-labelledby="modal-course-details" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,91 +6,119 @@
                 <h4 class="modal-title" id="modalTitle">Course details</h4>
             </div>
             <div class="modal-body" style='padding-bottom: 0px'>
-                <div id='dialog-course-id' style='display: none'></div>
                 <table class='table'>
                     <tr>
                         <td class='bold' style='width: 200px'>Student name</td>
-                        <td id='dialog-student-name'></td>
+                        <td>{{ currentStudent.name }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Andrew ID</td>
-                        <td id='dialog-andrew-id'></td>
+                        <td>{{ currentStudent.andrewId }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Course name</td>
-                        <td id='dialog-course-name'></td>
+                        <td>{{ selectedCourse.course_name == '' ? '-' : selectedCourse.course_name }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Course number</td>
-                        <td id='dialog-course-number'></td>
+                        <td id='dialog-course-number'>{{ selectedCourse.course_number }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Units</td>
-                        <td id='dialog-units'></td>
+                        <td>{{ selectedCourse.units == 0 ? '-' : selectedCourse.units }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Description</td>
-                        <td id='dialog-description'></td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;</td>
                         <td>
-                            <button type="button" class="btn btn-default" onclick='showSOCCourseDescription()' data-toggle="dropdown">View official course description</button>
+                            <p>{{ selectedCourse.course_description }}</p>
+                            <button type="button" class="btn btn-default" ng-click='showSOCCourseDescription()' data-toggle="dropdown">View official course description</button>
                         </td>
                     </tr>
                     <tr>
                         <td class='bold'>Taking as</td>
-                        <td id='dialog-taking-as'></td>
+                        <td>{{ takingAs2Text[selectedCourse.taking_as] }}</td>
                     </tr>
                     <tr>
-                        <td class='bold'>Submission time</td>
-                        <td id='dialog-submission-time'></td>
+                        <td class='bold'>Submitted at</td>
+                        <td>{{ selectedCourse.submission_time }}</td>
                     </tr>
                     <tr>
                         <td class='bold'>Status</td>
-                        <td id='dialog-status'>
+                        <td>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Awaiting Approval</button>
-                                <ul class="dropdown-menu" role="menu"></ul>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span ng-show='selectedCourse.status == "need-clarification"' class='text-warning'>
+                                        {{ status2Text[selectedCourse.status] }}
+                                    </span>
+                                    <span ng-show='selectedCourse.status == "submitted"' class='text-danger'>
+                                        {{ status2Text[selectedCourse.status] }}
+                                    </span>
+                                    <span ng-show='selectedCourse.status == "approved"' class='text-success'>
+                                        {{ status2Text[selectedCourse.status] }}
+                                    </span>
+                                    <span ng-show='selectedCourse.status != "need-clarification" && selectedCourse.status != "submitted" && selectedCourse.status != "approved"'>
+                                        {{ status2Text[selectedCourse.status] }}
+                                    </span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li ng-repeat='(k, v) in status2Text'>
+                                        <a href='#' ng-click='selectedCourse.status = k'>{{ v }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class='form-group' style='margin: 0px' ng-show='false'>
+                                <div style='margin: 10px 0px 0px 0px; padding: 6px' class="alert alert-success" role="alert">
+                                    <span class='glyphicon glyphicon-ok-sign'></span>
+                                    This course has been preapproved.
+                                </div>
                             </div>
                         </td>
                     </tr>
-                    <tr id='tr-semester'>
+                    <tr ng-show='selectedCourse.status == "taken" || selectedCourse.status == "taking"'>
                         <td class='bold'>Semester</td>
-                        <td id='dialog-semester'>
-                            <span id='dialog-semester-semester' class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Spring</button>
+                        <td>
+                            <span class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    {{ selectedCourse.semester == null ? 'N/A' : selectedCourse.semester }}
+                                </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <?= $this->produceList(['Spring', 'Fall', 'Summer', 'N/A']) ?>
+                                    <li ng-repeat='semesterOption in semesterOptions'>
+                                        <a href='#' ng-click='selectedCourse.semester = semesterOption'>{{ semesterOption }}</a>
+                                    </li>
                                 </ul>
                             </span>
-                            <span id='dialog-semester-year' class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">2014</button>
-                                <ul class="dropdown-menu" role="menu"></ul>
+                            <span class="btn-group">
+                                <input type='number' class='form-control' placeholder='Year' ng-model='selectedCourse.year'>
                             </span>
                         </td>
                     </tr>
-                    <tr id='tr-grade'>
+                    <tr ng-show='selectedCourse.status == "taken"'>
                         <td class='bold'>Grade</td>
-                        <td id='dialog-grade'>
+                        <td>
                             <span class="btn-group">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"></button>
-                                <ul class="dropdown-menu" role="menu"></ul>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    {{ selectedCourse.grade == null ? 'N/A' : grade2Text[selectedCourse.grade] }}
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li ng-repeat='gradeOption in gradeOptions'>
+                                        <a href='#' ng-click='courseDetailsGradeSelected(gradeOption)'>{{ gradeOption }}</a>
+                                    </li>
+                                </ul>
                             </span>
                         </td>
                     </tr>
                     <tr>
-            <td class='bold'>Comment<br />(visible to student)</td>
-                        <td id='dialog-comment'>
-                            <textarea style='resize: vertical' class='form-control' rows='3'></textarea>
+                        <td class='bold'>Comment<br />(visible to student)</td>
+                        <td>
+                            <textarea style='resize: vertical' class='form-control' rows='3' ng-model='selectedCourse.comment'></textarea>
                         </td>
                     </tr>
                 </table>
             </div>
             <div class="modal-footer">
-                <button id='delete-course' type='button' class='btn btn-danger' style='float: left'>Delete Course</button>
+                <button type='button' class='btn btn-danger' style='float: left' ng-click='deleteSelectedCourse()'>Delete Course</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button id='update-status' type="button" class="btn btn-primary">Update Status</button>
+                <button type="button" class="btn btn-primary" ng-click='updateSelectedCourseInfo()'>Update Status</button>
             </div>
         </div>
     </div>

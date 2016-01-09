@@ -1,73 +1,3 @@
-var sortingMethod = 'order-by-time';
-
-/**
- * Courtesy of CMU Schedule of Classes website
- */
-function showSOCCourseDescription() {
-    var $modal = $('#soc-course-description-modal'),
-        $modalTitle = $modal.find(".modal-title"),
-        $modalBody = $modal.find(".modal-body");
-
-    var courseNumber = $('#dialog-course-number').text();
-    var semester = $('#dialog-semester-semester button').text();
-    var year = $('#dialog-semester-year button').text();
-
-    var status = $('#dialog-status button').data('status');
-
-    /* If status != taking or taken, semester and year are meaningless */
-    if (status != 'taking' && status != 'taken') {
-        /* Then just use this year and semester to query */
-        var d = new Date();
-        var semester = getSemesterFromMonth(d.getMonth() + 1);
-        var year = d.getFullYear();
-    }
-
-    if ($modal.size() > 0) {
-        $modalTitle.html('Loading course description...');
-        $modalBody.html('');
-        $modal.modal();
-
-        var showError = function () {
-            $modalTitle.html('<h4>An error has occurred</h4>');
-            $modalBody.html('<p class="text-left">Requesting data failed, or the given combination of course number, year and semester is not/no longer stored on CMU Schedule of Classes website.</p>');
-        }
-        
-        $.get(baseUrl + "/admin/get-soc-description/course-number/" + courseNumber + "/year/" + year + "/semester/" + semester)
-            .done(function (data) {
-                var divWithData = $(data).find('div.with-data'),
-                    mainTitle = divWithData.attr('data-maintitle'),
-                    subTitle = divWithData.attr('data-subtitle');
-
-                if (divWithData.length == 0) {
-                    showError();
-                    return;
-                }
-                
-                $modalTitle.html('<div><small>' + subTitle + '</small></div><div>' + mainTitle + '</div>');
-                $modalBody.html(data);
-                
-                $modal.animate({ scrollTop: 0 }, 'fast');
-            })
-            .fail(showError); 
-    }
-};
-
-/**
- * Scroll users list to some student.
- * Originally used to locate some student. Not used after changing to only showing matched students.
- */
-function scrollListTo(obj) {
-    try {
-        var tbody = $('#users-table tbody');
-        var currentTop = tbody.scrollTop();
-        var objOffset = obj.offset().top;
-        var tbodyOffset = tbody.offset().top;
-        tbody.scrollTop(currentTop+objOffset-tbodyOffset);
-    } catch (e) {
-        /* Doing nothing here */
-    }
-}
-
 function infer(type) {
     $.get(baseUrl + "/users/get-info/andrew-id/" + $('input[name="andrew-id"]').val() + "/type/" + type, function(result) {
         var input;
@@ -478,6 +408,10 @@ $(function () {
         $('#courses-tab').setGone();
         $('#span-after-add').setVisible();
         $('#not-activated-notice').setGone();
+        
+        /* Clear data stored in Angular controller when Andrew Id is changed */
+        $('#andrew-id-to-load-courses').val('');
+        $('#andrew-id-to-load-courses').trigger('change');
     });
     
     $('#delete-user').click(function () {
@@ -509,163 +443,7 @@ $(function () {
         loadAdministrators();
     }
 
-    /* Append course status options to Course details modal dialog, and Add Course dialog */
-    $.each(status2Text, function (key, value) {
-        $('#dialog-status .dropdown-menu').append(generateDropdownItem(value));
-        $('#dialog-status .dropdown-menu li:last').data('status', key);
-        $('#modal-add-course-status .dropdown-menu').append(generateDropdownItem(value));
-    });
-
-    /* Append grades options */
-    /* For undergrad programs, use letter grades only */
-    var isUndergradProgram = (currentProgram == 'bhci' || currentProgram == 'ugminor');
-    var gradesToUse = isUndergradProgram ? letterGrades : grade2Text;
-    $.each(gradesToUse, function (key, value) {
-        $('#dialog-grade .dropdown-menu').append(generateDropdownItem(value));
-        /* Since letterGrades is only letters array, need to call getKey */
-        var gradeKey = isUndergradProgram ? getKey(grade2Text, value) : key;
-        $('#dialog-grade .dropdown-menu li:last').data('grade', gradeKey);
-        $('#modal-add-course-grade .dropdown-menu').append(generateDropdownItem(value));
-    });
-    
-    var detailsYearDropdown = $('#dialog-semester-year .dropdown-menu');
-    var addCourseYearDropdown = $('#modal-add-course-year .dropdown-menu');
-    /* Append year options (current year - 4 to current year + 4) */
-    for (var i = -4; i <= 4; i++) {
-        detailsYearDropdown.append(generateDropdownItem(new Date().getFullYear() + i));
-        addCourseYearDropdown.append(generateDropdownItem(new Date().getFullYear() + i));
-    }
-
-    /* Append N/A items to both dropdowns */
-    detailsYearDropdown.append(generateDropdownItem('N/A'));
-    addCourseYearDropdown.append(generateDropdownItem('N/A'));
-
-    var detailsSemesterRow = $('#tr-semester');
-    var detailsGradeRow = $('#tr-grade');
-    var detailsStatusButton = $('#dialog-status button');
-    var detailsGradeButton = $('#dialog-grade button');
-    /* Change status text and data when option selected */
-    $('#dialog-status .dropdown-menu li').click(function () {
-        /* When selected is different from the current one, enable Update Status button */
-        var newStatus = $(this).data('status');
-        detailsStatusButton.html(getColoredStatusText(newStatus));
-        /* Append status value to the button for later retrieval */
-        detailsStatusButton.data('status', newStatus);
-
-        /* If Taken, show both grade and semester selectors */
-        if (newStatus == 'taken') {
-            detailsSemesterRow.setVisible();
-            detailsGradeRow.setVisible();
-        /* If Taking, hide grade and set grade to N/A */
-        } else if (newStatus == 'taking') {
-            detailsSemesterRow.setVisible();
-            detailsGradeRow.setGone();
-            detailsGradeButton.text(grade2Text['na']);
-            detailsGradeButton.data('grade', 'na');
-        /* Hide both otherwise */
-        } else {
-            detailsSemesterRow.setGone();
-            detailsGradeRow.setGone();
-        }
-    });
-
-    /* Change grade text and data when option selected */
-    $('#dialog-grade .dropdown-menu li').click(function () {
-        detailsGradeButton.text(grade2Text[$(this).data('grade')]);
-        detailsGradeButton.data('grade', $(this).data('grade'));
-    });
-
-    /**
-     * A helper function which adds year and semester selectors
-     * onclick handlers, with N/A option.
-     * Used in Add Course modal dialog and Course Details dialog.
-     */
-    var addYearSemesterSelectHandler = function (
-        semesterLi, semesterButton, yearLi, yearButton) {
-        /* Add handler for clicking semester option */
-        yearLi.click(function () {
-            var newYear = $(this).find('a').text();
-            yearButton.text(newYear);
-            /* If selected year as N/A, change semester to N/A too */
-            if (newYear == "N/A") {
-                semesterButton.text("N/A");
-            /* If selected year is not N/A but semester is, change semester */
-            } else if (semesterButton.text() == 'N/A') {
-                semesterButton.text('Spring');
-            }
-        });
-
-        semesterLi.click(function () {
-            var newSemester = $(this).find('a').text();
-            semesterButton.text(newSemester);
-            /* If semester selected is N/A, change year to N/A too */
-            if (newSemester == 'N/A') {
-                yearButton.text('N/A');
-            /* If semester is not N/A but year is, change year to current year */
-            } else if (yearButton.text() == 'N/A') {
-                yearButton.text(new Date().getFullYear());
-            }
-        });
-    };
-
-    /* Change year when option selected */
-    addYearSemesterSelectHandler(
-        $('#dialog-semester-semester .dropdown-menu li'),
-        $('#dialog-semester-semester button'),
-        $('#dialog-semester-year .dropdown-menu li'),
-        $('#dialog-semester-year button'));
-
-    addUpdateStatusHandler();
-
-    /* In Add Course modal dialog, change status text when option selected */
-    $('#modal-add-course-type .dropdown-menu li').click(function () {
-        $('#modal-add-course-type button').text($(this).text());
-    });
-
-    var addCourseStatusButton = $('#modal-add-course-status button');
-    var addCourseSemesterRow = $('#tr-add-course-semester');
-    var addCourseGradeRow = $('#tr-add-course-grade');
-    var addCourseGradeButton = $('#modal-add-course-grade button');
-    $('#modal-add-course-status .dropdown-menu li').click(function () {
-        /* Database representation status, e.g. na (for N/A) */
-        var newStatus = getKey(status2Text, $(this).text());
-        var statusHtml = getColoredStatusText(newStatus);
-        addCourseStatusButton.html(statusHtml);
-
-        /* Show semester and grade selector when status is Taken */
-        if (newStatus == 'taken') {
-            addCourseSemesterRow.setVisible();
-            addCourseGradeRow.setVisible();
-        /* Show semester but hide grade, and set grade to N/A when Taking */
-        } else if (newStatus == 'taking') {
-            addCourseSemesterRow.setVisible();
-            addCourseGradeRow.setGone();
-            addCourseGradeButton.html("N/A");
-        /* Otherwise hide both */
-        } else {
-            addCourseSemesterRow.setGone();
-            addCourseGradeRow.setGone();
-        }
-    });
-    /* Initialize grade row in add course modal dialog to invisible */
-    addCourseGradeRow.setGone();
-
-    $('#modal-add-course-grade .dropdown-menu li').click(function () {
-        addCourseGradeButton.html($(this).text());
-    });
-
-    /* Add onclick handlers for semester and year selectors in Add Course modal */
-    addYearSemesterSelectHandler(
-        $('#modal-add-course-semester .dropdown-menu li'),
-        $('#modal-add-course-semester button'),
-        $('#modal-add-course-year .dropdown-menu li'),
-        $('#modal-add-course-year button')
-    );
-
-    attachAddCourseHandler();
-
     $('#div-ordering label').click(function () {
-        sortingMethod = $(this).attr('id');
         $('tr.user-selected').trigger('click');
     });
 
@@ -698,7 +476,7 @@ $(function () {
 
                 var oldData = $('body').data('users-info');
                 oldData.forEach(function (e, i) {
-                    if (e['andrew_id'] == $('#dialog-andrew-id').text()) {
+                    if (e['andrew_id'] == $('input[name="andrew-id"]').val()) {
                         /* Found the user */
                         oldData[i]['notes'] = newNotes;
                     }
@@ -721,102 +499,7 @@ $(function () {
     /* Process the program requirements */
     var jsonRequirements = $.parseJSON($('#requirements-storage').text());
     $('body').data('requirements', jsonRequirements);
-
-    /* Attach remove course handler */
-    $('#delete-course').click(function () {
-        var courseId = $('#dialog-course-id').text();
-        var answer = confirm("Are you sure to delete the course?");
-        if (answer) {
-            $.post(baseUrl + '/admin/remove-course', { course_id: courseId }).done(function () {
-                $('#course-details').modal('hide');
-                var currentStudentAndrewId = $('.user-selected #td-andrew-id').text();
-                loadStudents(currentStudentAndrewId, true, true);
-            }).fail(function (ret) {
-                console.log(ret);
-                alert("Failed to delete course. Please try again later.");
-            });
-        }
-    });
 });
-
-function attachAddCourseHandler() {
-    var modal = $('#modal-add-course');
-    var courseNumber = modal.find('#modal-add-course-number input');
-    var courseName = modal.find('#modal-add-course-name input');
-    var units = modal.find('#modal-add-course-units input');
-    var takingAs = modal.find('#modal-add-course-type button');
-    var status = modal.find('#modal-add-course-status button');
-    var comment = modal.find('#modal-add-course-comment textarea');
-
-    modal.find('#btn-add-course').click(function () {
-        var data = {
-            andrew_id: $('.user-selected #td-andrew-id').text(),
-            program: currentProgram,
-            course_number: courseNumber.val(),
-            course_name: courseName.val(),
-            units: units.val(),
-            taking_as: getKey(takingAs2Text, takingAs.text()),
-            status: getKey(status2Text, status.text()),
-            comment: comment.val(),
-            semester: '',
-            year: '',
-            grade: ''
-        };
-
-        if (data['status'] == 'taking' || data['status'] == 'taken') {
-            data['semester'] = modal.find('#modal-add-course-semester button').text();
-            data['year'] = modal.find('#modal-add-course-year button').text();
-            data['grade'] = getKey(grade2Text, modal.find('#modal-add-course-grade button').text());
-        }
-
-        $.post(baseUrl + "/admin/add-course", data).done(function (ret) {
-            courseNumber.val('');
-            courseName.val('');
-            units.val('');
-            comment.val('');
-            var currentStudentAndrewId = $('.user-selected #td-andrew-id').text();
-            loadStudents(currentStudentAndrewId, true, true);
-            $('.modal').modal('hide');
-        }).fail(function (ret) {
-            alert('Failed to add course. Please try again later.');
-            console.log(ret);
-        });
-    });
-}
-
-/**
- * Update the status of some course
- */
-function addUpdateStatusHandler() {
-    /* Add Ajax event to the Update Status button */
-    /* TODO: Only allow updating if content is changed */
-    $('.modal #update-status').click(function () {
-        var status = $('#dialog-status button').data('status');
-        var data = {
-            course_id: $('#dialog-course-id').text(),
-            status: status,
-            comment: $('#dialog-comment textarea').val()
-        };
-
-        if (status == 'taking' || status == 'taken') {
-            var semester = $('#dialog-semester-semester button').text();
-            data['semester'] = semester;
-            /* If semester is N/A, set year to 0 since it has to be an int */
-            data['year'] = (semester == "N/A") ? 0
-                : $('#dialog-semester-year button').text();
-            data['grade'] = $('#dialog-grade button').data('grade');
-        }
-
-        $.post(baseUrl + "/admin/update-status", data).done(function (ret) {
-            $('.modal').modal('hide');
-            /* Load the students info and course info again */
-            var currentStudentAndrewId = $('#dialog-andrew-id').text();
-            loadStudents(currentStudentAndrewId, true, true);
-        }).fail(function (ret) {
-            alert('Failed to update status at this time. Please try again later.');
-        });
-    });
-}
 
 /**
  * Switch back to User info pane if not currently,
@@ -825,7 +508,10 @@ function addUpdateStatusHandler() {
 function clearUserInfoFields() {
     $('#user-info-tab a').tab('show');
     $('input[name="andrew-id"]').val("");
+    $('#andrew-id-to-load-courses').val('');
+    $('#andrew-id-to-load-courses').trigger('change');
     $('input[name="name"]').val("");
+    $('input[name="name"]').trigger('change');
     $('textarea[name="notes"]').val("");
     $('#courses-pane-notes').val('');
     $('input[name="andrew-id"]').trigger('change');
@@ -872,10 +558,12 @@ function fillInfoCoursesWithAndrewId(andrewId) {
     $('body').data('users-info').forEach(function (e) {
         if (e['andrew_id'] == andrewId) {
             /* Update the inputs using e */
-            $('input[name="andrew-id"]').val(andrewId);
+            $('input[name="andrew-id"]').val(andrewId);            
             $('#delete-user').setVisible();
             $('#delete-user').text('Delete "' + andrewId + '"');
             $('input[name="name"]').val(e['name']);
+            /* Update the value in Angular controller */
+            $('input[name="name"]').trigger('change');
             $('textarea[name="notes"]').val(e['notes']);
             $('#courses-pane-notes').text(e['notes']);
             $('#not-activated-notice').css({
@@ -949,97 +637,15 @@ function fillInfoCoursesWithAndrewId(andrewId) {
                 $('input[name="is-full-time"][value="' + e['is_full_time'] + '"]').parent().button('toggle');
 
                 /* Fill in the table in Courses pane */
-                $('#courses-pane tbody').html('');
+                
+                /* Trigger loading student courses in Angular */
+                $('#andrew-id-to-load-courses').val(andrewId);
+                $('#andrew-id-to-load-courses').trigger('change');
 
                 $.get(baseUrl + "/admin/get-student-courses/andrew-id/" + andrewId + "/program/" + currentProgram, function (result) {
                     var tmp = $.parseJSON(result);
                     var courses = tmp['courses'];
                     forcedValues = tmp['forced_values'];
-                    courses.sort(function (a, b) {
-                        if (sortingMethod == 'order-by-time') {
-                            /* Sort by time */
-                            return parseInt(b['id']) - parseInt(a['id']);
-                        } else {
-                            /* Otherwise, sort by status */
-                            /* If a or b is 'submitted' (awaiting approval), always put that in front of the other */
-                            if (a['status'] == 'submitted' && b['status'] == 'submitted') {
-                                return 0;
-                            }
-                            else if (a['status'] == 'submitted') {
-                                return -1;
-                            }
-                            else if (b['status'] == 'submitted') {
-                                return 1;
-                            }
-                            /* Otherwise, compare by ASCII order */
-                            return a['status'].localeCompare(b['status']);
-                        }
-                    });
-
-                    var nonPlaceoutCount = 0;
-                    courses.forEach(function (e, i, arr) {
-                        if (e['taking_as'] != 'place-out') {
-                            nonPlaceoutCount++;
-                        }
-                    });
-
-                    if (nonPlaceoutCount == 0) {
-                        $('#row-electives-placeouts #no-courses').setVisible();
-                        $('#row-electives-placeouts #table-courses').setGone();
-                        $('#row-electives-placeouts #div-ordering').setGone();
-                    } else {
-                        $('#row-electives-placeouts #no-courses').setGone();
-                        $('#row-electives-placeouts #table-courses').setVisible();
-                        $('#row-electives-placeouts #div-ordering').setVisible();
-
-
-                        /* Temporary compatibility solution; this kind of mixing AngularJS with regular
-                         * JS code is not good!
-                         */
-                        var msgElement = document.querySelector('[id="messages"]');
-                        $messagesScope = angular.element(msgElement).scope()
-
-                        for (var i = 0; i < courses.length; i++) {
-                            var course = courses[i];
-                            /* Don't add place-out courses in here */
-                            if (course['taking_as'] == 'place-out') {
-                                continue;
-                            }
-
-                            var str = "<tr><td>" + (i + 1) + "</td><td>"
-                                 + course['course_name'] + "</td><td>"
-                                 + course['course_number'] + "</td><td>"
-                                 + (course['units'] == 0 ? "N/A" : course['units']) + "</td><td>"
-                                 + takingAs2Text[course['taking_as']] + "</td><td>"
-                                 + grade2Text[course['grade']] + "</td><td>"
-                                 + getColoredStatusText(course['status']) + "</td>";
-
-                            /* If there are unread messages under this course */
-                            if (course['has_unread_msg']) {
-                                str += "<td><a class='show-messages text-danger' courseid='" + course['id'] + "' href='javascript: ;'>Unread</a></td>";
-                            } else {
-                                str += "<td><a class='show-messages' courseid='" + course['id'] + "' href='javascript: ;'>View</a></td>"
-                            }
-
-                            str += "</tr>";
-                                 
-                            $('#row-electives-placeouts tbody').append(str);
-                            var lastRow = $('#row-electives-placeouts tbody tr:last');
-                            lastRow.data('course-data', course);
-                            lastRow.find('.show-messages').click(function () {
-                                var id = $(this).attr('courseid');
-                                $messagesScope.$apply(function () {
-                                    $messagesScope.showMessages(id);
-                                });
-                            });
-                        }
-
-                        /* Set name in course details dialog */
-                        $('#dialog-student-name').text(e['name']);
-                        $('#dialog-andrew-id').text(e['andrew_id']);
-
-                        addCourseSelectedHandler();
-                    }
 
                     /* Fill in the Core Requirements / Prereqs / Place-outs panels */
                     /* Load requirements for the year the student entered program */
@@ -1486,68 +1092,32 @@ function attachPlaceoutHandler() {
     });
 }
 
-function addCourseSelectedHandler() {
-    /* Exclude clicking on the last td, which is reserved for Messages */
-    var lastTd = $('#table-courses tbody tr td:not(:last-child)');
-    lastTd.unbind('click');
-    lastTd.click(function () {
-        var thisRow = $(this).parent();
-        var dialogCourseData = thisRow.data('course-data');
-        var detailsGradeButton = $('#dialog-grade button');
-        var detailsStatusButton = $('#dialog-status button');
-        $('#dialog-course-name').text(dialogCourseData['course_name']);
-        $('#dialog-course-number').text(dialogCourseData['course_number']);
-        $('#dialog-units').text(dialogCourseData['units']);
-        $('#dialog-description').text(dialogCourseData['course_description']);
-        $('#dialog-taking-as').text(takingAs2Text[dialogCourseData['taking_as']]);
-        $('#dialog-submission-time').text(dialogCourseData['submission_time']);
-
-        var status = dialogCourseData['status'];
-        detailsStatusButton.html(getColoredStatusText(status));
-        detailsStatusButton.data('status', status);
-
-        detailsGradeButton.text(grade2Text[dialogCourseData['grade']]);
-        detailsGradeButton.data(dialogCourseData['grade']);
-
-        /* If semester is null, set it to Spring by default */
-        var semester = dialogCourseData['semester'] == null ? "Spring" : dialogCourseData['semester'];
-        $('#dialog-semester-semester button').text(semester);
-
-        /* If year is null, set it to current year by default */
-        var year = dialogCourseData['year'] == null ? (new Date().getFullYear()) : dialogCourseData['year'];
-        /* If semester is N/A, set year to N/A too */
-        $('#dialog-semester-year button').text(semester == "N/A" ? "N/A" : year);
-
-        $('#dialog-comment textarea').val(dialogCourseData['comment']);
-        $('#dialog-course-id').text(dialogCourseData['id']); /* Store course ID in db for updating status */
-
-        var detailsSemesterRow = $('#tr-semester');
-        var detailsGradeRow = $('#tr-grade');
-        /* Show semester and grade rows if Taken */
-        if (status == 'taken') {
-            detailsSemesterRow.setVisible();
-            detailsGradeRow.setVisible();
-        /* Hide grade and set to N/A if Taking */
-        } else if (status == 'taking') {
-            detailsSemesterRow.setVisible();
-            detailsGradeRow.setGone();
-            detailsGradeButton.text(grade2Text['na']);
-            detailsGradeButton.data('na');
-        /* Hide both otherwise */
-        } else {
-            detailsSemesterRow.setGone();
-            detailsGradeRow.setGone();
-        }
-
-        $('#course-details').modal('show');
-    });
-}
-
-app.controller('UserManagerController', ['$scope', function ($scope) {
+app.controller('UserManagerController', ['$scope', '$rootScope', function ($scope, $rootScope) {
     /* 0 = Spring, 1 = Summer, 2 = Fall in the database */
     $scope.seasons = [ 'Spring', 'Summer', 'Fall' ];
+    /* Options for semester selectors in course detail display */
+    $scope.semesterOptions = [ "Spring", "Fall", "Summer", "N/A" ];
     $scope.selectedEnrolledSeason = 0;
     $scope.selectedGraduationSeason = 0;
+    $scope.currentProgram = $('input[name="type"]').val();
+    /* TODO: better change this to get data from server instead of hardcoding it */
+    $scope.undergradPrograms = [ 'bhci', 'ugminor', 'learning-media' ];
+    $scope.isUndergradProgram = $scope.undergradPrograms.indexOf($scope.currentProgram) >= 0;
+    /* For options to choose a grade, whether to show all grades or only letter grades */
+    $scope.gradeOptions = $scope.isUndergradProgram ? $rootScope.letterGrades : $rootScope.allGrades;
+    
+    $scope.takingAsOptions = { core: 'Core', elective: 'Elective', prerequisite: 'Prerequisite' };
+    
+    $scope.preapprovedElectives = [];
+    
+    /* Values are texts to display */
+    $scope.courseSortingMethods = { 'time': 'Submission time', 'status': 'Status' };
+    $scope.courseSortingMethod = 'time';
+    
+    /* Whether to show courses list or "No courses" */
+    $scope.showCoursesList = false;
+    
+    $scope.selectedCourse = {};
     
     $scope.selectEnrollSeason = function (id) {
         $scope.selectedEnrolledSeason = id;
@@ -1556,4 +1126,236 @@ app.controller('UserManagerController', ['$scope', function ($scope) {
     $scope.selectGraduationSeason = function (id) {
         $scope.selectedGraduationSeason = id;
     };
+    
+    $scope.loadPreapprovedElectives = function () {
+        if ($scope.currentProgram != 'admin') {
+            jQuery.ajax({
+                url: baseUrl + "/admin/get-preapproved-electives/",
+                data: { program: $scope.currentProgram },
+                success: function (result) {
+                    $scope.preapprovedElectives = jQuery.parseJSON(result);
+                }
+            });
+        }
+    };
+    
+    $scope.resetCurrentStudent = function () {
+        $scope.currentStudent = {};
+        $scope.currentStudent.andrewId = '';
+        $scope.currentStudent.name = '';
+        $scope.currentStudent.courses = [];
+        $scope.currentStudent.forcedValues = [];
+    };
+    
+    $scope.loadCurrentStudentCourses = function () {
+        /* If andrewId field is empty (cleared), treat it as a signal to clear data */
+        if ($scope.currentStudent.andrewId == '') {
+            $scope.resetCurrentStudent();
+            return;
+        }
+
+        jQuery.ajax({
+			url: baseUrl + "/admin/get-student-courses/andrew-id/" + $scope.currentStudent.andrewId +
+                           "/program/" + currentProgram,
+			success: function (result) {
+                var parsed = angular.fromJson(result);
+				$scope.currentStudent.courses = parsed.courses;
+                $scope.currentStudent.forcedValues = parsed.forced_values;
+                $scope.sortCourses();
+                $scope.showCoursesList = $scope.getNonPlaceoutCoursesCount() > 0;
+			},
+            async: false // Async seems to cause problems
+		});
+    };
+    
+    $scope.courseSortingMethodSelected = function (method) {
+        $scope.courseSortingMethod = method;
+        $scope.sortCourses();
+    };
+    
+    $scope.sortCourses = function () {
+        if ($scope.courseSortingMethod == 'time') {
+            $scope.currentStudent.courses.sort(function (a, b) {
+                return parseInt(b.id) - parseInt(a.id);
+            });
+        } else {
+            $scope.currentStudent.courses.sort(function (a, b) {
+                /* Otherwise, sort by status */
+                /* If a or b is 'submitted' (awaiting approval), always put that in front of the other */
+                if (a.status == 'submitted' && b.status == 'submitted') {
+                    return 0;
+                } else if (a.status == 'submitted') {
+                    return -1;
+                } else if (b.status == 'submitted') {
+                    return 1;
+                }
+                /* Otherwise, compare by ASCII order */
+                return a.status.localeCompare(b.status);
+            });
+        }
+    };
+    
+    $scope.getNonPlaceoutCoursesCount = function () {
+        var nonPlaceoutCount = 0;
+        $scope.currentStudent.courses.forEach(function (e, i, arr) {
+            if (e.taking_as != 'place-out') {
+                nonPlaceoutCount++;
+            }
+        });
+        return nonPlaceoutCount;
+    };
+    
+    $scope.courseSelected = function (course) {
+        /* Create a deep copy in case data is modified */
+        angular.copy(course, $scope.selectedCourse);
+        /* Convert to int so that it can be bound with a numeric input element */
+        if (!isNaN(parseInt($scope.selectedCourse.year))) {
+            $scope.selectedCourse.year = parseInt($scope.selectedCourse.year);
+        }
+    };
+    
+    $scope.courseDetailsGradeSelected = function (gradeOption) {
+        $scope.selectedCourse.grade = getKey(grade2Text, gradeOption);
+    };
+    
+    $scope.updateSelectedCourseInfo = function () {
+        var data = {
+            course_id: $scope.selectedCourse.id,
+            status: $scope.selectedCourse.status,
+            comment: $scope.selectedCourse.comment,
+            semester: null,
+            year: null,
+            grade: null
+        };
+
+        if (data.status == 'taking' || data.status == 'taken') {
+            data.semester = $scope.selectedCourse.semester;
+            data.year = (data.semester == "N/A") ? null : $scope.selectedCourse.year;
+        }
+        if (data.status == 'taken') {
+            data.grade = $scope.selectedCourse.grade;
+        }
+
+        $.post(baseUrl + "/admin/update-status", data).done(function (ret) {
+            $('.modal').modal('hide');
+            loadStudents($scope.currentStudent.andrewId, true, true);
+        }).fail(function (ret) {
+            alert('Failed to update status at this time. Please try again later.');
+        });
+    };
+    
+    $scope.deleteSelectedCourse = function () {
+        var courseId = $scope.selectedCourse.id;
+        var answer = confirm("Are you sure to delete the course?");
+        if (answer) {
+            $.post(baseUrl + '/admin/remove-course', { course_id: courseId }).done(function () {
+                $('#course-details').modal('hide');
+                loadStudents($scope.currentStudent.andrewId, true, true);
+            }).fail(function (ret) {
+                alert("Failed to delete course. Please try again later.");
+            });
+        }
+    };
+    
+    $scope.newCourseGradeSelected = function (gradeOption) {
+        $scope.newCourse.grade = getKey(grade2Text, gradeOption);
+    };
+    
+    $scope.resetNewCourse = function () {
+        $scope.newCourse = {};
+        $scope.newCourse.name = '';
+        $scope.newCourse.number = '';
+        $scope.newCourse.units = '';
+        $scope.newCourse.takingAs = 'core';
+        $scope.newCourse.status = 'taken';
+        $scope.newCourse.semester = 'Spring';
+        $scope.newCourse.year = '';
+        $scope.newCourse.grade = 'na';
+        $scope.newCourse.comment = '';
+    };
+
+    $scope.addNewCourse = function () {
+        var data = {
+            andrew_id: $scope.currentStudent.andrewId,
+            program: $scope.currentProgram,
+            course_number: $scope.newCourse.number,
+            course_name: $scope.newCourse.name,
+            units: $scope.newCourse.units,
+            taking_as: $scope.newCourse.takingAs,
+            status: $scope.newCourse.status,
+            comment: $scope.newCourse.comment,
+            semester: null,
+            year: null,
+            grade: null
+        };
+
+        if (data.status == 'taking' || data.status == 'taken') {
+            data.semester = $scope.newCourse.semester;
+            data.year = (data.semester == "N/A") ? null : $scope.newCourse.year;
+        }
+        if (data.status == 'taken') {
+            data.grade = $scope.newCourse.grade;
+        }
+
+        $.post(baseUrl + "/admin/add-course", data).done(function (ret) {
+            loadStudents($scope.currentStudent.andrewId, true, true);
+            $('.modal').modal('hide');
+        }).fail(function (ret) {
+            alert('Failed to add course. Please try again later.');
+            console.log(ret);
+        });
+    };
+
+    /* Not quite working; check */
+    $scope.showSOCCourseDescription = function () {
+        var modal = $('#soc-course-description-modal'),
+            modalTitle = modal.find(".modal-title"),
+            modalBody = modal.find(".modal-body");
+
+        var courseNumber = $scope.selectedCourse.course_number;
+        var semester = $scope.selectedCourse.semester;
+        var year = $scope.selectedCourse.year;
+
+        var status = $scope.selectedCourse.status;
+
+        /* If status != taking or taken, semester and year are meaningless */
+        if (status != 'taking' && status != 'taken') {
+            /* Then just use this year and semester to query */
+            var d = new Date();
+            var semester = getSemesterFromMonth(d.getMonth() + 1);
+            var year = d.getFullYear();
+        }
+
+        if (modal.size() > 0) {
+            modalTitle.html('Loading course description...');
+            modalBody.html('');
+            modal.modal();
+
+            var showError = function () {
+                modalTitle.html('<h4>An error has occurred</h4>');
+                modalBody.html('<p class="text-left">Requesting data failed, or the given combination of course number, year and semester is not/no longer stored on CMU Schedule of Classes website.</p>');
+            }
+            
+            $.get(baseUrl + "/admin/get-soc-description/course-number/" + courseNumber + "/year/" + year + "/semester/" + semester)
+                .done(function (data) {
+                    var divWithData = $(data).find('div.with-data'),
+                        mainTitle = divWithData.attr('data-maintitle'),
+                        subTitle = divWithData.attr('data-subtitle');
+
+                    if (divWithData.length == 0) {
+                        showError();
+                        return;
+                    }
+                    
+                    modalTitle.html('<div><small>' + subTitle + '</small></div><div>' + mainTitle + '</div>');
+                    modalBody.html(data);
+                    
+                    modal.animate({ scrollTop: 0 }, 'fast');
+                })
+                .fail(showError); 
+        }
+    };
+    
+    $scope.resetCurrentStudent();
+    $scope.loadPreapprovedElectives();
 }]);

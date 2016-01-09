@@ -61,6 +61,10 @@ var gradesOrdering = {
 
 /* For BHCI and undergrad minor, there are only letter grades */
 var letterGrades = ['A', 'B', 'C', 'D', 'R', 'S', 'P', 'N', 'W', 'I', 'N/A'];
+var allGrades = [];
+for (var k in grade2Text) {
+    allGrades.push(grade2Text[k]);
+}
 
 /**
  * Is the given grade >= grade requirement
@@ -115,7 +119,7 @@ $(function () {
  */
 function getKey(obj, v) {
     for (var key in obj) {
-        if(obj[key] == v){
+        if (obj[key] == v) {
             return key;
         }
     }
@@ -188,6 +192,15 @@ if (typeof angular != "undefined") {
             $httpProvider.defaults.headers.post['Content-Type'] =
                 'application/x-www-form-urlencoded; charset=UTF-8';
         });
+    
+    app.run(function ($rootScope) {
+        $rootScope.takingAs2Text = takingAs2Text;
+        $rootScope.grade2Text = grade2Text;
+        $rootScope.status2Text = status2Text;
+        $rootScope.letterGrades = letterGrades;
+        $rootScope.allGrades = allGrades;
+        $rootScope.getKey = getKey;
+    });
 
     app.controller('MessageCtrl', [ '$scope', '$http', '$rootScope', function ($scope, $http, $rootScope) {
 
